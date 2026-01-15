@@ -1,6 +1,6 @@
 import numpy as np
 from lib import get_weyl_operator, maximally_entangled_state, weyl_choi_state
-from qiskit.quantum_info import Operator
+from tests.utils import QuantumGateMatrixTest
 
 
 # Pauli matrices
@@ -9,7 +9,7 @@ X = np.array([[0, 1], [1, 0]], dtype=complex)
 Z = np.array([[1, 0], [0, -1]], dtype=complex)
 
 
-class TestTwoQubitWeylOperator:
+class TestTwoQubitWeylOperator(QuantumGateMatrixTest):
     """
     Tests for 2-qubit Weyl operators.
 
@@ -20,34 +20,24 @@ class TestTwoQubitWeylOperator:
         (operator on qubit 1) ⊗ (operator on qubit 0)
     """
 
-    def assert_weyl_operator_correct(self, expected: np.ndarray, a: list, b: list):
-        """Assert that get_weyl_operator(a, b) produces the expected matrix."""
-        gate = get_weyl_operator(a, b)
-        actual = Operator(gate).data
-        np.testing.assert_array_almost_equal(actual, expected)
-
     def test_identity(self):
         """a=[0,0], b=[0,0] → I ⊗ I"""
-        expected = np.kron(I, I)
-        self.assert_weyl_operator_correct(expected, a=[0, 0], b=[0, 0])
+        self.assert_gate_matrix_equal(get_weyl_operator([0, 0], [0, 0]), np.kron(I, I))
 
     def test_z_on_qubit_1(self):
         """a=[0,1], b=[0,0] → Z ⊗ I (Z on qubit 1 only)"""
-        expected = np.kron(Z, I)
-        self.assert_weyl_operator_correct(expected, a=[0, 1], b=[0, 0])
+        self.assert_gate_matrix_equal(get_weyl_operator([0, 1], [0, 0]), np.kron(Z, I))
 
     def test_mixed_zx(self):
         """a=[0,1], b=[1,0] → Z ⊗ X (Z on qubit 1, X on qubit 0)"""
-        expected = np.kron(Z, X)
-        self.assert_weyl_operator_correct(expected, a=[0, 1], b=[1, 0])
+        self.assert_gate_matrix_equal(get_weyl_operator([0, 1], [1, 0]), np.kron(Z, X))
 
     def test_zx_on_both(self):
         """a=[1,1], b=[1,1] → ZX ⊗ ZX"""
-        expected = np.kron(Z @ X, Z @ X)
-        self.assert_weyl_operator_correct(expected, a=[1, 1], b=[1, 1])
+        self.assert_gate_matrix_equal(get_weyl_operator([1, 1], [1, 1]), np.kron(Z @ X, Z @ X))
 
 
-class TestMaximallyEntangledState:
+class TestMaximallyEntangledState(QuantumGateMatrixTest):
     """
     Tests for maximally entangled state preparation.
 
@@ -56,12 +46,6 @@ class TestMaximallyEntangledState:
 
     Each column of the unitary is the image of a basis state.
     """
-
-    def assert_maximally_entangled_correct(self, expected: np.ndarray, n: int):
-        """Assert that maximally_entangled_state(n) produces the expected matrix."""
-        gate = maximally_entangled_state(n)
-        actual = Operator(gate).data
-        np.testing.assert_array_almost_equal(actual, expected)
 
     def test_1_qubit_pair(self):
         """
@@ -79,4 +63,4 @@ class TestMaximallyEntangledState:
             [0,  0,  1,  1],  # |10⟩ component
             [1, -1,  0,  0],  # |11⟩ component
         ], dtype=complex)
-        self.assert_maximally_entangled_correct(expected, n=1)
+        self.assert_gate_matrix_equal(maximally_entangled_state(1), expected)
