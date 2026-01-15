@@ -64,3 +64,39 @@ class TestMaximallyEntangledState(QuantumGateMatrixTest):
             [1, -1,  0,  0],  # |11⟩ component
         ], dtype=complex)
         self.assert_gate_matrix_equal(maximally_entangled_state(1), expected)
+
+    def test_2_qubit_pairs(self):
+        """
+        n=2: 4 qubits total
+
+        Circuit: H on qubits 0,1, then CNOT(0→2), CNOT(1→3)
+        This creates Bell pairs between (0,2) and (1,3).
+
+        For input |q₃q₂q₁q₀⟩, output is superposition over q₀',q₁' ∈ {0,1}:
+            (1/2) Σ (-1)^{q₀·q₀' + q₁·q₁'} |q₃⊕q₁', q₂⊕q₀', q₁', q₀'⟩
+
+        The state |0000⟩ maps to (1/2)(|0000⟩ + |0101⟩ + |1010⟩ + |1111⟩),
+        which is the maximally entangled state with registers A={0,1}, B={2,3}.
+        """
+        # fmt: off
+        expected = 0.5 * np.array([
+            #  0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15   (input columns)
+            [  1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # row 0  |0000⟩
+            [  0, 0, 0, 0, 1,-1, 1,-1, 0, 0, 0, 0, 0, 0, 0, 0],  # row 1  |0001⟩
+            [  0, 0, 0, 0, 0, 0, 0, 0, 1, 1,-1,-1, 0, 0, 0, 0],  # row 2  |0010⟩
+            [  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,-1,-1, 1],  # row 3  |0011⟩
+            [  0, 0, 0, 0, 1, 1,-1,-1, 0, 0, 0, 0, 0, 0, 0, 0],  # row 4  |0100⟩
+            [  1,-1, 1,-1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # row 5  |0101⟩
+            [  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1,-1,-1],  # row 6  |0110⟩
+            [  0, 0, 0, 0, 0, 0, 0, 0, 1,-1,-1, 1, 0, 0, 0, 0],  # row 7  |0111⟩
+            [  0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0],  # row 8  |1000⟩
+            [  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,-1, 1,-1],  # row 9  |1001⟩
+            [  1, 1,-1,-1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # row 10 |1010⟩
+            [  0, 0, 0, 0, 1,-1,-1, 1, 0, 0, 0, 0, 0, 0, 0, 0],  # row 11 |1011⟩
+            [  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1],  # row 12 |1100⟩
+            [  0, 0, 0, 0, 0, 0, 0, 0, 1,-1, 1,-1, 0, 0, 0, 0],  # row 13 |1101⟩
+            [  0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],  # row 14 |1110⟩
+            [  1,-1,-1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],  # row 15 |1111⟩
+        ], dtype=complex)
+        # fmt: on
+        self.assert_gate_matrix_equal(maximally_entangled_state(2), expected)
