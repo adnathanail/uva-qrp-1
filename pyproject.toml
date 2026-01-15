@@ -5,13 +5,15 @@ description = "Practical quantum-hardware verification: testing the Clifford hie
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "ipykernel>=7.1.0",
     "qiskit>=2.1.2",
-    "qiskit-aer>=0.17.2",
     "qiskit-quantuminspire>=0.15.0",
 ]
 
 [dependency-groups]
 dev = [
+    "ipykernel>=7.1.0",
+    "matplotlib>=3.10.8",
+    "pylatexenc>=2.10",
     "pytest>=9.0.2",
+    "qiskit-aer>=0.17.2",
 ]
