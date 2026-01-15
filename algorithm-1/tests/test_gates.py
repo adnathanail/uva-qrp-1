@@ -45,3 +45,38 @@ class TestTwoQubitWeylOperator:
         """a=[1,1], b=[1,1] → ZX ⊗ ZX"""
         expected = np.kron(Z @ X, Z @ X)
         self.assert_weyl_operator_correct(expected, a=[1, 1], b=[1, 1])
+
+
+class TestMaximallyEntangledState:
+    """
+    Tests for maximally entangled state preparation.
+
+    For n qubit pairs (2n total qubits), the gate prepares:
+        |ψ⟩ = (1/√2^n) Σ_i |i⟩|i⟩
+
+    Each column of the unitary is the image of a basis state.
+    """
+
+    def assert_maximally_entangled_correct(self, expected: np.ndarray, n: int):
+        """Assert that maximally_entangled_state(n) produces the expected matrix."""
+        gate = maximally_entangled_state(n)
+        actual = Operator(gate).data
+        np.testing.assert_array_almost_equal(actual, expected)
+
+    def test_1_qubit_pair(self):
+        """
+        n=1: 2 qubits total (Bell state preparation)
+
+        The gate maps basis states to Bell states:
+            |00⟩ → (1/√2)(|00⟩ + |11⟩)
+            |01⟩ → (1/√2)(|00⟩ - |11⟩)
+            |10⟩ → (1/√2)(|01⟩ + |10⟩)
+            |11⟩ → (1/√2)(|10⟩ - |01⟩)
+        """
+        expected = (1 / np.sqrt(2)) * np.array([
+            [1,  1,  0,  0],  # |00⟩ component
+            [0,  0,  1, -1],  # |01⟩ component
+            [0,  0,  1,  1],  # |10⟩ component
+            [1, -1,  0,  0],  # |11⟩ component
+        ], dtype=complex)
+        self.assert_maximally_entangled_correct(expected, n=1)
