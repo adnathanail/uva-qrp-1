@@ -39,7 +39,15 @@ So we want to use $x$ to generate a Weyl operator, and then apply it to the $2n$
 
 3. Measure each copy in the Bell basis $\{ | P_y \rangle \rangle \langle \langle P_y | \}_y$ to obtain outcomes $y$ and $y'$
 
-[//]: # (TODO understand the | P_y >><< P_y | bit)
+> $| P_y \rangle \rangle \langle \langle P_y |$ is the **projector** onto the Choi state $| P_y \rangle \rangle$
+>
+> The set $\{ | P_y \rangle \rangle \}_y$ for all $y \in \mathbb{F}_2^{2n}$ forms an orthonormal basis for the $2n$-qubit Hilbert space (there are $4^n$ such states, matching the dimension $2^{2n}$)
+>
+> So $\{ | P_y \rangle \rangle \langle \langle P_y | \}_y$ is a complete set of projectors — one for each basis state — defining a projective measurement
+>
+> When we measure, we get outcome $y$ with probability $| \langle \langle P_y | \psi \rangle \rangle |^2$
+
+To measure in this basis with a circuit: undo the Bell state preparation (CNOT then H on each pair), then measure in the computational basis. The classical outcome directly gives $y$.
 
 4. if $y = y'$ then return _Accept_
 5. else return _Reject_
