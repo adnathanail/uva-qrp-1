@@ -35,7 +35,7 @@ So we want a uniformly random $2n$-bit binary string called $x$
 > 
 > $$ (M \otimes I) | \psi \rangle $$
 
-So we want to use $x$ to generate a Weyl operator, and then apply it to the $2n$-qubit maximally entangled state to produce $ | P_x \rangle \rangle$, then apply $U^{\otimes 2}$ to it, twice.
+So we want to use $x$ to generate a Weyl operator, and then apply it to the $2n$-qubit maximally entangled state to produce $| P_x \rangle \rangle$, then apply $U^{\otimes 2}$ to it, twice.
 
 3. Measure each copy in the Bell basis $\{ | P_y \rangle \rangle \langle \langle P_y | \}_y$ to obtain outcomes $y$ and $y'$
 
