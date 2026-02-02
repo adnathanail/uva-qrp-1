@@ -17,3 +17,37 @@ dev = [
     "pytest>=9.0.2",
     "qiskit-aer>=0.17.2",
 ]
+
+[tool.ruff]
+line-length = 160
+target-version = "py313"
+
+[tool.ruff.lint]
+select = [
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings
+    "F",      # pyflakes
+    "I",      # isort
+    "UP",     # pyupgrade
+    "B",      # flake8-bugbear
+    "SIM",    # flake8-simplify
+    "RUF",    # ruff-specific rules
+]
+ignore = [
+    "E501",   # line too long (handled by formatter)
+    "SIM108", # ternary operator (can reduce readability)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"*.ipynb" = [
+    "E402",   # module import not at top (common in notebooks)
+    "F401",   # unused imports (exploratory code)
+    "B018",   # useless expression (notebooks display last expression)
+    "E741",   # ambiguous variable name
+]
+"tests/*" = [
+    "B011",   # assert false
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["lib"]

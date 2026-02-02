@@ -1,12 +1,12 @@
 import numpy as np
-from lib import get_weyl_operator, maximally_entangled_state, weyl_choi_state
+
+from lib import get_weyl_operator, maximally_entangled_state
 from tests.utils import QuantumGateMatrixTest
 
-
 # Pauli matrices
-I = np.array([[1, 0], [0, 1]], dtype=complex)
-X = np.array([[0, 1], [1, 0]], dtype=complex)
-Z = np.array([[1, 0], [0, -1]], dtype=complex)
+PAULI_I = np.array([[1, 0], [0, 1]], dtype=complex)
+PAULI_X = np.array([[0, 1], [1, 0]], dtype=complex)
+PAULI_Z = np.array([[1, 0], [0, -1]], dtype=complex)
 
 
 class TestTwoQubitWeylOperator(QuantumGateMatrixTest):
@@ -22,19 +22,19 @@ class TestTwoQubitWeylOperator(QuantumGateMatrixTest):
 
     def test_identity(self):
         """a=[0,0], b=[0,0] → I ⊗ I"""
-        self.assert_gate_matrix_equal(get_weyl_operator([0, 0], [0, 0]), np.kron(I, I))
+        self.assert_gate_matrix_equal(get_weyl_operator([0, 0], [0, 0]), np.kron(PAULI_I, PAULI_I))
 
     def test_z_on_qubit_1(self):
         """a=[0,1], b=[0,0] → Z ⊗ I (Z on qubit 1 only)"""
-        self.assert_gate_matrix_equal(get_weyl_operator([0, 1], [0, 0]), np.kron(Z, I))
+        self.assert_gate_matrix_equal(get_weyl_operator([0, 1], [0, 0]), np.kron(PAULI_Z, PAULI_I))
 
     def test_mixed_zx(self):
         """a=[0,1], b=[1,0] → Z ⊗ X (Z on qubit 1, X on qubit 0)"""
-        self.assert_gate_matrix_equal(get_weyl_operator([0, 1], [1, 0]), np.kron(Z, X))
+        self.assert_gate_matrix_equal(get_weyl_operator([0, 1], [1, 0]), np.kron(PAULI_Z, PAULI_X))
 
     def test_zx_on_both(self):
         """a=[1,1], b=[1,1] → ZX ⊗ ZX"""
-        self.assert_gate_matrix_equal(get_weyl_operator([1, 1], [1, 1]), np.kron(Z @ X, Z @ X))
+        self.assert_gate_matrix_equal(get_weyl_operator([1, 1], [1, 1]), np.kron(PAULI_Z @ PAULI_X, PAULI_Z @ PAULI_X))
 
 
 class TestMaximallyEntangledState(QuantumGateMatrixTest):
@@ -57,12 +57,15 @@ class TestMaximallyEntangledState(QuantumGateMatrixTest):
             |10⟩ → (1/√2)(|01⟩ + |10⟩)
             |11⟩ → (1/√2)(|10⟩ - |01⟩)
         """
-        expected = (1 / np.sqrt(2)) * np.array([
-            [1,  1,  0,  0],  # |00⟩ component
-            [0,  0,  1, -1],  # |01⟩ component
-            [0,  0,  1,  1],  # |10⟩ component
-            [1, -1,  0,  0],  # |11⟩ component
-        ], dtype=complex)
+        expected = (1 / np.sqrt(2)) * np.array(
+            [
+                [1, 1, 0, 0],  # |00⟩ component
+                [0, 0, 1, -1],  # |01⟩ component
+                [0, 0, 1, 1],  # |10⟩ component
+                [1, -1, 0, 0],  # |11⟩ component
+            ],
+            dtype=complex,
+        )
         self.assert_gate_matrix_equal(maximally_entangled_state(1), expected)
 
     def test_2_qubit_pairs(self):

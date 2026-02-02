@@ -5,6 +5,7 @@ from qiskit_aer import AerSimulator
 from lib import weyl_choi_state
 from lib.measurements import measure_bell_basis
 
+
 def get_clifford_tester_circuit(U_circuit: QuantumCircuit, n: int, x: list) -> QuantumCircuit:
     """
     Build the circuit for one run of the four-query Clifford tester.
@@ -27,15 +28,15 @@ def get_clifford_tester_circuit(U_circuit: QuantumCircuit, n: int, x: list) -> Q
     # U^{⊗2}|P_x⟩⟩ applies U to both halves of the Choi state
     # We need two independent copies of this, so 4n qubits total
 
-    qc = QuantumCircuit(4*n, 4*n)
+    qc = QuantumCircuit(4 * n, 4 * n)
 
     # Qubit layout:
     # Copy 1: qubits 0 to n-1 (A1), qubits n to 2n-1 (B1)
     # Copy 2: qubits 2n to 3n-1 (A2), qubits 3n to 4n-1 (B2)
     A1 = list(range(0, n))
-    B1 = list(range(n, 2*n))
-    A2 = list(range(2*n, 3*n))
-    B2 = list(range(3*n, 4*n))
+    B1 = list(range(n, 2 * n))
+    A2 = list(range(2 * n, 3 * n))
+    B2 = list(range(3 * n, 4 * n))
 
     # Step 1: Prepare |P_x⟩⟩ for both copies
     choi = weyl_choi_state(n, x)
@@ -52,8 +53,8 @@ def get_clifford_tester_circuit(U_circuit: QuantumCircuit, n: int, x: list) -> Q
     qc.barrier()
 
     # Step 3: Measure each copy in Bell basis
-    c1 = list(range(0, 2*n))      # Classical bits for copy 1
-    c2 = list(range(2*n, 4*n))    # Classical bits for copy 2
+    c1 = list(range(0, 2 * n))  # Classical bits for copy 1
+    c2 = list(range(2 * n, 4 * n))  # Classical bits for copy 2
 
     measure_bell_basis(qc, A1, B1, c1)
     measure_bell_basis(qc, A2, B2, c2)
@@ -95,12 +96,12 @@ def clifford_tester(U_circuit: QuantumCircuit, n: int, shots: int = 1000):
         counts = result.get_counts()
 
         # Get the measurement outcome (should be just one since shots=1)
-        outcome = list(counts.keys())[0]
+        outcome = next(iter(counts.keys()))
 
         # Split into y and y' (Qiskit returns bits in reverse order)
         # outcome is a 4n-bit string, first 2n bits are c2, last 2n bits are c1
-        y_prime = outcome[:2 * n]  # Copy 2 result
-        y = outcome[2 * n:]  # Copy 1 result
+        y_prime = outcome[: 2 * n]  # Copy 2 result
+        y = outcome[2 * n :]  # Copy 1 result
 
         # Accept if y = y'
         if y == y_prime:

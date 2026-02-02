@@ -30,5 +30,5 @@ def measure_bell_basis(qc: QuantumCircuit, qubits_A: list, qubits_B: list, clbit
     # Measure: A register gives 'a' (Z info), B register gives 'b' (X info)
     # Store as y = (a, b) = (A measurement, B measurement)
     for i in range(n):
-        qc.measure(qubits_A[i], clbits[i])      # a bits (Z info)
+        qc.measure(qubits_A[i], clbits[i])  # a bits (Z info)
         qc.measure(qubits_B[i], clbits[n + i])  # b bits (X info)
