@@ -5,7 +5,7 @@ provider = QIProvider()
 
 
 def get_backend_and_transpilation_function(backend_name: str):
-    backend = provider.get_backend("QX emulator")
+    backend = provider.get_backend(backend_name)
 
     match backend_name:
         case "Tuna-9":
