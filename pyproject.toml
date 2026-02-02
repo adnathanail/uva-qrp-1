@@ -6,7 +6,7 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "qiskit>=2.1.2",
-    "qiskit-quantuminspire>=0.15.0",
+    "qiskit-quantuminspire>=0.16",
 ]
 
 [dependency-groups]

@@ -48,7 +48,7 @@ def get_clifford_tester_circuit(U_circuit: QuantumCircuit, n: int, x: list) -> Q
     return qc
 
 
-def clifford_tester(U_circuit: QuantumCircuit, n: int, shots: int = 1000):
+def clifford_tester(U_circuit: QuantumCircuit, n: int, shots: int = 1000, backend=None):
     """
     Four-query Clifford tester algorithm.
 
@@ -61,12 +61,15 @@ def clifford_tester(U_circuit: QuantumCircuit, n: int, shots: int = 1000):
         U_circuit: A quantum circuit implementing the n-qubit unitary U
         n: Number of qubits U acts on
         shots: Number of times to run the test
+        backend: Qiskit backend to run on (defaults to AerSimulator)
 
     Returns:
         acceptance_rate: Fraction of runs where y = y'
     """
+    if backend is None:
+        backend = AerSimulator()
+
     accepts = 0
-    simulator = AerSimulator()
 
     for _ in range(shots):
         # Sample random x from F_2^{2n}
@@ -77,7 +80,7 @@ def clifford_tester(U_circuit: QuantumCircuit, n: int, shots: int = 1000):
         qc = qc.decompose(reps=3)
 
         # Run the same circuit twice
-        result = simulator.run(qc, shots=2).result()
+        result = backend.run(qc, shots=2).result()
         counts = result.get_counts()
 
         # Accept if both shots gave the same outcome (y == y' therefore only one key in counts)

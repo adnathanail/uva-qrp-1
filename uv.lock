@@ -80,6 +80,18 @@ wheels = [
 ]
 
 [[package]]
+name = "aiohttp-retry"
+version = "2.9.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "aiohttp" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/9d/61/ebda4d8e3d8cfa1fd3db0fb428db2dd7461d5742cea35178277ad180b033/aiohttp_retry-2.9.1.tar.gz", hash = "sha256:8eb75e904ed4ee5c2ec242fefe85bf04240f685391c4879d8f541d6028ff01f1", size = 13608, upload-time = "2024-11-06T10:44:54.574Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/1a/99/84ba7273339d0f3dfa57901b846489d2e5c2cd731470167757f1935fffbd/aiohttp_retry-2.9.1-py3-none-any.whl", hash = "sha256:66d2759d1921838256a05a3f80ad7e724936f083e35be5abb5e16eed6be6dc54", size = 9981, upload-time = "2024-11-06T10:44:52.917Z" },
+]
+
+[[package]]
 name = "aiosignal"
 version = "1.4.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1274,19 +1286,20 @@ wheels = [
 
 [[package]]
 name = "qi-compute-api-client"
-version = "0.50.0"
+version = "0.56.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiohttp" },
+    { name = "aiohttp-retry" },
     { name = "pydantic" },
     { name = "python-dateutil" },
     { name = "requests" },
     { name = "typing-extensions" },
     { name = "urllib3" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/8a/6e/58b5c80460085b303252eea14d498724b1fdaf2401f65fa7e17355073a27/qi_compute_api_client-0.50.0.tar.gz", hash = "sha256:85cc0dfc7d482b7ed8dcf36ea02b1d860603be9f721ae0581fbe0b97a8c4463b", size = 96769, upload-time = "2025-04-25T07:33:00.746Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/c7/78/0b8bb4ef717240b783fe1bed62c619c70c482b0a026149195ad1bd6282cd/qi_compute_api_client-0.56.0.tar.gz", hash = "sha256:8f5e01c09c34273bea015d688c2171ecbb560eef9e183f8f7bdf49fb277a6957", size = 104973, upload-time = "2026-01-13T15:18:00.614Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/b4/f7/245be622d767b77c423b1e8a52c2419f2bdd01c63b1a4b3cd8186759ed9d/qi_compute_api_client-0.50.0-py3-none-any.whl", hash = "sha256:134f237be362ac1be96b9ea2ea2fb0d937b258f91327da32391600105c22dc30", size = 265820, upload-time = "2025-04-25T07:32:59.71Z" },
+    { url = "https://files.pythonhosted.org/packages/fa/fa/0b661cdd4cac7b95bcb577f8e2b155dd4af845203d45bf3f30b99d12c05a/qi_compute_api_client-0.56.0-py3-none-any.whl", hash = "sha256:389b9cf97562a44e42b5493185e441bd05fec11e714441c0fa3f6de5d0f65614", size = 282657, upload-time = "2026-01-13T15:17:59.148Z" },
 ]
 
 [[package]]
@@ -1336,7 +1349,7 @@ wheels = [
 
 [[package]]
 name = "qiskit-quantuminspire"
-version = "0.15.0"
+version = "0.16.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "colorama" },
@@ -1346,9 +1359,9 @@ dependencies = [
     { name = "qiskit" },
     { name = "requests" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/f8/14/0ed086bd0e19ced9f5d4e811807fbd3c16f24ea4f3f0503fbf689e5a3e70/qiskit_quantuminspire-0.15.0.tar.gz", hash = "sha256:f6ca9accd219cdf1e18e535995b883b69e22b4eadbc577d4ac316429fa77b7e2", size = 15952, upload-time = "2026-01-12T14:47:29.796Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/fc/e7/273adeb62005567498e3a674a82884bce5d5f4733969bcf1ed0fd548b390/qiskit_quantuminspire-0.16.0.tar.gz", hash = "sha256:2af539b318fa70f5e79a13b3dda08603c45b4ca3380a59cd5ac021d27e0faa94", size = 15960, upload-time = "2026-01-19T12:37:19.991Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/fb/be/27aa3ed63a3f41123f400ffaeeb038a45be1aa7588cf034c5f83b0d111c8/qiskit_quantuminspire-0.15.0-py3-none-any.whl", hash = "sha256:8676e340ea3e5c63aefb36093194bd9892156926cd58a641386ad657687bfdfc", size = 19395, upload-time = "2026-01-12T14:47:28.555Z" },
+    { url = "https://files.pythonhosted.org/packages/a6/6c/4128318d2014345efba347d6f10e686307acebf86828d280e0bd47c89e87/qiskit_quantuminspire-0.16.0-py3-none-any.whl", hash = "sha256:bb7ee9c0fac2c04012ceeb4a05e73cdd529e25b0e273641ce9bc347390de050c", size = 19406, upload-time = "2026-01-19T12:37:18.466Z" },
 ]
 
 [[package]]
@@ -1550,7 +1563,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "qiskit", specifier = ">=2.1.2" },
-    { name = "qiskit-quantuminspire", specifier = ">=0.15.0" },
+    { name = "qiskit-quantuminspire", specifier = ">=0.16" },
 ]
 
 [package.metadata.requires-dev]
