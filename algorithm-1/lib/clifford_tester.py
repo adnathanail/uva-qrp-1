@@ -8,12 +8,12 @@ from lib.measurements import measure_bell_basis
 
 def get_clifford_tester_circuit(U_circuit: QuantumCircuit, n: int, x: list) -> QuantumCircuit:
     """
-    Build the circuit for one run of the four-query Clifford tester.
+    Build the circuit for one sample of the Clifford tester.
 
     Creates a circuit that:
-    1. Prepares two copies of |P_x⟩⟩ (Choi state)
-    2. Applies U^{⊗2} to each copy
-    3. Measures each in the Bell basis
+    1. Prepares |P_x⟩⟩ (Choi state)
+    2. Applies U^{⊗2} (U to both halves)
+    3. Measures in the Bell basis
 
     Args:
         U_circuit: A quantum circuit implementing the n-qubit unitary U
@@ -21,43 +21,29 @@ def get_clifford_tester_circuit(U_circuit: QuantumCircuit, n: int, x: list) -> Q
         x: 2n-bit string specifying which Weyl operator to use
 
     Returns:
-        QuantumCircuit with 4n qubits and 4n classical bits
+        QuantumCircuit with 2n qubits and 2n classical bits
     """
-    # We need 4n qubits total:
-    # |P_x⟩⟩ is a 2n-qubit state (Choi state of n-qubit operator)
-    # U^{⊗2}|P_x⟩⟩ applies U to both halves of the Choi state
-    # We need two independent copies of this, so 4n qubits total
+    qc = QuantumCircuit(2 * n, 2 * n)
 
-    qc = QuantumCircuit(4 * n, 4 * n)
+    # Qubit layout: qubits 0 to n-1 (A), qubits n to 2n-1 (B)
+    A = list(range(0, n))
+    B = list(range(n, 2 * n))
 
-    # Qubit layout:
-    # Copy 1: qubits 0 to n-1 (A1), qubits n to 2n-1 (B1)
-    # Copy 2: qubits 2n to 3n-1 (A2), qubits 3n to 4n-1 (B2)
-    A1 = list(range(0, n))
-    B1 = list(range(n, 2 * n))
-    A2 = list(range(2 * n, 3 * n))
-    B2 = list(range(3 * n, 4 * n))
-
-    # Step 1: Prepare |P_x⟩⟩ for both copies
+    # Step 1: Prepare |P_x⟩⟩
     choi = weyl_choi_state(n, x)
-    qc.append(choi, A1 + B1)
-    qc.append(choi, A2 + B2)
+    qc.append(choi, A + B)
 
     qc.barrier()
 
-    # Step 2: Apply U^{⊗2} = U ⊗ U to each copy
-    # This means applying U to A1, U to B1, U to A2, U to B2
-    for qubits in [A1, B1, A2, B2]:
+    # Step 2: Apply U^{⊗2} = U ⊗ U (U to both registers)
+    for qubits in [A, B]:
         qc.compose(U_circuit, qubits=qubits, inplace=True)
 
     qc.barrier()
 
-    # Step 3: Measure each copy in Bell basis
-    c1 = list(range(0, 2 * n))  # Classical bits for copy 1
-    c2 = list(range(2 * n, 4 * n))  # Classical bits for copy 2
-
-    measure_bell_basis(qc, A1, B1, c1)
-    measure_bell_basis(qc, A2, B2, c2)
+    # Step 3: Measure in Bell basis
+    clbits = list(range(2 * n))
+    measure_bell_basis(qc, A, B, clbits)
 
     return qc
 
@@ -68,9 +54,8 @@ def clifford_tester(U_circuit: QuantumCircuit, n: int, shots: int = 1000):
 
     Tests whether a unitary U is a Clifford gate by:
     1. Sampling random x from F_2^{2n}
-    2. Preparing two copies of U^{⊗2}|P_x⟩⟩
-    3. Measuring each in the Bell basis to get y and y'
-    4. Accepting if y = y'
+    2. Running U^{⊗2}|P_x⟩⟩ twice with Bell basis measurement
+    3. Accepting if both runs give the same outcome y = y'
 
     Args:
         U_circuit: A quantum circuit implementing the n-qubit unitary U
@@ -91,20 +76,12 @@ def clifford_tester(U_circuit: QuantumCircuit, n: int, shots: int = 1000):
         qc = get_clifford_tester_circuit(U_circuit, n, x)
         qc = qc.decompose(reps=3)
 
-        # Run the circuit
-        result = simulator.run(qc, shots=1).result()
+        # Run the same circuit twice
+        result = simulator.run(qc, shots=2).result()
         counts = result.get_counts()
 
-        # Get the measurement outcome (should be just one since shots=1)
-        outcome = next(iter(counts.keys()))
-
-        # Split into y and y' (Qiskit returns bits in reverse order)
-        # outcome is a 4n-bit string, first 2n bits are c2, last 2n bits are c1
-        y_prime = outcome[: 2 * n]  # Copy 2 result
-        y = outcome[2 * n :]  # Copy 1 result
-
-        # Accept if y = y'
-        if y == y_prime:
+        # Accept if both shots gave the same outcome (y == y' therefore only one key in counts)
+        if len(counts) == 1:
             accepts += 1
 
     return accepts / shots
