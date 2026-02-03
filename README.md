@@ -10,3 +10,6 @@ Run tests
 ```shell
 pytest
 ```
+
+Projects
+- [Algorithm 1](algorithm-1/README.md)

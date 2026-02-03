@@ -1,6 +1,13 @@
 # Algorithm 1: Four-query Clifford tester
 https://www.arxiv.org/abs/2510.07164 pg. 21
 
+## Structure
+
+- `lib/` contains various utility functions, which come together into `lib.clifford_tester.clifford_tester`
+- `algorithm-1.ipynb` contains some demo usage of the Clifford tester
+- `qi-testing.ipynb` contains demos of running the Clifford tester on Quantum Inspire's hardware
+- `scripts/expected_acceptance_probability.py` calculates the theoretical acceptance probability for a given unitary (in the demo script, a TOFFOLI) using the formula from the paper above
+
 ## Algorithm breakdown
 
 - Input: Black-box access to an $n$-qubit unitary $U$.
