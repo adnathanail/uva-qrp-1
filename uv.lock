@@ -1551,6 +1551,7 @@ name = "uva-qrp-1"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
+    { name = "pydantic" },
     { name = "qiskit" },
     { name = "qiskit-quantuminspire" },
 ]
@@ -1566,6 +1567,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "pydantic", specifier = ">=2.12.5" },
     { name = "qiskit", specifier = ">=2.1.2" },
     { name = "qiskit-quantuminspire", specifier = ">=0.16" },
 ]
