@@ -7,10 +7,11 @@ Install dependencies and install `lib/` folder so scripts can access it
 uv sync
 ```
 
-Run tests
+Run tests and type checking
 
 ```shell
 pytest algorithm-1/tests -v
+uv run mypy
 ```
 
 Run the result collection harness
