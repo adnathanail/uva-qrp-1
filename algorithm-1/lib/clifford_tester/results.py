@@ -111,9 +111,13 @@ def _key(x: tuple[int, ...]) -> str:
 
 
 def _atomic_write(path: Path, content: str) -> None:
-    tmp = path.with_suffix(".tmp")
-    tmp.write_text(content)
-    os.replace(tmp, path)
+    tmp = path.with_name(path.name + ".tmp")
+    try:
+        tmp.write_text(content)
+        os.replace(tmp, path)
+    except BaseException:
+        tmp.unlink(missing_ok=True)
+        raise
 
 
 class PairedPlan(BaseModel):
@@ -171,14 +175,20 @@ def load_paired_plan(path: Path) -> PairedPlan | None:
     filepath = path / PLAN_FILE
     if not filepath.exists():
         return None
-    return PairedPlan.model_validate_json(filepath.read_text())
+    plan = PairedPlan.model_validate_json(filepath.read_text())
+    if plan.type != "paired_runs":
+        raise ValueError(f"Expected paired_runs plan, got {plan.type}")
+    return plan
 
 
 def load_batched_plan(path: Path) -> BatchedPlan | None:
     filepath = path / PLAN_FILE
     if not filepath.exists():
         return None
-    return BatchedPlan.model_validate_json(filepath.read_text())
+    plan = BatchedPlan.model_validate_json(filepath.read_text())
+    if plan.type != "batched":
+        raise ValueError(f"Expected batched plan, got {plan.type}")
+    return plan
 
 
 def save_paired_jobs(state: PairedJobsState, path: Path) -> None:
