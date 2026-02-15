@@ -4,12 +4,18 @@ Result collection harness for the Clifford tester.
 Runs both tester variants (paired_runs and batched) across multiple backends,
 stores raw results to disk, and prints a summary table.
 Skips computations if raw_results.json already exists for a given run.
+
+Usage:
+    uv run python algorithm-1/scripts/run_harness.py              # run all unitaries
+    uv run python algorithm-1/scripts/run_harness.py hadamard t_gate  # run specific ones
 """
 
+import sys
 from pathlib import Path
 
 from qiskit import QuantumCircuit
 from qiskit_aer import AerSimulator
+from scripts.unitaries import UNITARIES
 
 from lib import clifford_tester_batched, clifford_tester_paired_runs
 from lib.clifford_tester.results import (
@@ -26,12 +32,6 @@ from lib.clifford_tester.results import (
 from lib.expected_acceptance_probability import expected_acceptance_probability_from_circuit
 
 # === Configuration ===
-GATE_NAME = "hadamard"
-N = 1  # number of qubits
-
-U = QuantumCircuit(1)
-U.h(0)
-
 SHOTS = 1000
 RESULTS_DIR = Path(__file__).parent.parent / "results"
 
@@ -40,13 +40,21 @@ BACKENDS = [
     # ("qi_tuna_9", *get_backend_and_transpilation_function("Tuna-9"), 300),
 ]
 
-# === Execution (no edits below) ===
-
 EXPECTED_FILE = "01_expected_acceptance_probability.json"
 
 
-def main():
-    gate_dir = RESULTS_DIR / GATE_NAME
+# === Execution ===
+
+
+def run_gate(
+    gate_name: str,
+    U: QuantumCircuit,
+    shots: int,
+    backends: list,
+    results_dir: Path,
+):
+    n = U.num_qubits
+    gate_dir = results_dir / gate_name
     gate_dir.mkdir(parents=True, exist_ok=True)
 
     # Step 1: Expected acceptance probability
@@ -64,7 +72,7 @@ def main():
     # Step 2: Run testers on each backend
     summaries = []
 
-    for idx, (backend_name, backend, transpile_fn, timeout) in enumerate(BACKENDS, start=2):
+    for idx, (backend_name, backend, transpile_fn, timeout) in enumerate(backends, start=2):
         backend_dir = gate_dir / f"{idx:02d}_{backend_name}"
 
         # --- Paired runs ---
@@ -73,8 +81,8 @@ def main():
         if paired_raw is not None:
             print(f"[skip] {backend_name}/paired: raw_results.json exists")
         else:
-            print(f"[run]  {backend_name}/paired: running {SHOTS} shots...")
-            raw_dicts = clifford_tester_paired_runs(U, N, shots=SHOTS, backend=backend, transpilation_function=transpile_fn, timeout=timeout)
+            print(f"[run]  {backend_name}/paired: running {shots} shots...")
+            raw_dicts = clifford_tester_paired_runs(U, n, shots=shots, backend=backend, transpilation_function=transpile_fn, timeout=timeout)
             paired_raw = PairedRawResults(samples=[PairedSample(**d) for d in raw_dicts])
             save_paired_raw(paired_raw, paired_dir)
             print(f"[done] {backend_name}/paired: saved raw results")
@@ -88,8 +96,8 @@ def main():
         if batched_raw is not None:
             print(f"[skip] {backend_name}/batched: raw_results.json exists")
         else:
-            print(f"[run]  {backend_name}/batched: running {SHOTS} shots...")
-            raw_dict = clifford_tester_batched(U, N, shots=SHOTS, backend=backend, transpilation_function=transpile_fn, timeout=timeout)
+            print(f"[run]  {backend_name}/batched: running {shots} shots...")
+            raw_dict = clifford_tester_batched(U, n, shots=shots, backend=backend, transpilation_function=transpile_fn, timeout=timeout)
             batched_raw = BatchedRawResults.from_tuples(raw_dict)
             save_batched_raw(batched_raw, batched_dir)
             print(f"[done] {backend_name}/batched: saved raw results")
@@ -101,13 +109,31 @@ def main():
 
     # Step 3: Print summary table
     print()
-    print(f"Gate: {GATE_NAME} ({N}-qubit), Shots: {SHOTS}")
+    print(f"Gate: {gate_name} ({n}-qubit), Shots: {shots}")
     print(f"Expected acceptance probability: {expected:.6f}")
     print()
     print(f"{'Backend':<20} {'Paired':>10} {'Batched':>10}")
     print("-" * 42)
     for name, paired_rate, batched_rate in summaries:
         print(f"{name:<20} {paired_rate:>10.6f} {batched_rate:>10.6f}")
+
+
+def main():
+    gates = UNITARIES
+    if len(sys.argv) > 1:
+        names = sys.argv[1:]
+        unknown = set(names) - set(UNITARIES)
+        if unknown:
+            print(f"Unknown unitaries: {', '.join(sorted(unknown))}")
+            print(f"Available: {', '.join(UNITARIES)}")
+            sys.exit(1)
+        gates = {k: v for k, v in UNITARIES.items() if k in names}
+
+    for name, make_circuit in gates.items():
+        print(f"\n{'=' * 50}")
+        print(f"Gate: {name}")
+        print(f"{'=' * 50}")
+        run_gate(name, make_circuit(), SHOTS, BACKENDS, RESULTS_DIR)
 
 
 if __name__ == "__main__":
