@@ -7,14 +7,28 @@ Research project implementing quantum algorithms for testing whether a unitary g
 ## Structure
 
 ```
-algorithm-1/           # Four-query Clifford tester (Algorithm 1 from paper)
-├── README.md          # Mathematical breakdown of the algorithm
-├── algorithm-1.ipynb  # Main implementation and tests
+algorithm-1/
+├── README.md              # Mathematical breakdown of the algorithm
+├── algorithm-1.ipynb      # Main implementation and tests
+├── qi-testing.ipynb       # Testing on Quantum Inspire hardware
 ├── lib/
-│   └── gates.py       # Reusable quantum gate functions
+│   ├── __init__.py
+│   ├── gates.py           # Reusable quantum gate functions
+│   ├── measurements.py    # Bell basis measurement
+│   ├── qi_transpilation.py # Quantum Inspire backend helpers
+│   ├── expected_acceptance_probability.py  # Theoretical p_acc computation
+│   └── clifford_tester/
+│       ├── __init__.py
+│       ├── testers.py     # paired_runs and batched tester implementations
+│       ├── utils.py       # Circuit building, collision probability
+│       └── results.py     # Pydantic models for raw results + save/load/summarise
+├── scripts/
+│   ├── expected_acceptance_probability.py  # Compute p_acc for specific gates
+│   └── run_harness.py     # Result collection harness (multi-backend, skip-if-exists)
+├── results/               # Generated output from run_harness.py (gitignored)
 └── tests/
-    ├── test_gates.py  # pytest tests with explicit matrix comparisons
-    └── utils.py       # Test utilities
+    ├── test_gates.py      # pytest tests with explicit matrix comparisons
+    └── utils.py           # Test utilities
 ```
 
 ## Key Technical Notes
@@ -36,10 +50,19 @@ algorithm-1/           # Four-query Clifford tester (Algorithm 1 from paper)
 ## Running
 
 ```shell
-uv sync                              # Install dependencies
-pytest algorithm-1/tests -v          # Run tests
-jupyter notebook algorithm-1/        # Open notebook
+uv sync                                               # Install dependencies (also installs lib/ as a package)
+pytest algorithm-1/tests -v                           # Run tests
+uv run python algorithm-1/scripts/run_harness.py      # Run result collection harness
+jupyter notebook algorithm-1/                         # Open notebook
 ```
+
+### Result Collection Harness
+
+`run_harness.py` runs both tester variants (paired_runs, batched) across configured backends and writes results to `algorithm-1/results/`. It skips runs if `raw_results.json` already exists, so re-running is safe and fast. Configure gate, shots, and backends in the script's configuration section.
+
+### Package Setup
+
+`lib/` is installed as a Python package via hatchling (configured in `pyproject.toml`), so `from lib import ...` works everywhere — scripts, tests, and notebooks — without `sys.path` hacks.
 
 ## Testing Philosophy
 
