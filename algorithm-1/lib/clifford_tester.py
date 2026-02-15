@@ -8,6 +8,19 @@ from .gates import weyl_choi_state
 from .measurements import measure_bell_basis
 
 
+def _default_backend_and_transpilation(backend, transpilation_function):
+    """Return (backend, transpilation_function) with sensible defaults filled in."""
+    if backend is None:
+        backend = AerSimulator()
+
+    if transpilation_function is None:
+
+        def transpilation_function(qcc: QuantumCircuit):
+            return qcc.decompose(reps=3)
+
+    return backend, transpilation_function
+
+
 def get_clifford_tester_circuit(U_circuit: QuantumCircuit, n: int, x: tuple[int]) -> QuantumCircuit:
     """
     Build the circuit for one sample of the Clifford tester.
@@ -67,7 +80,7 @@ def clifford_tester(
     U_circuit: QuantumCircuit, n: int, shots: int = 1000, backend=None, transpilation_function: Callable[[QuantumCircuit], QuantumCircuit] | None = None
 ):
     """
-    Four-query Clifford tester algorithm.
+    Four-query Clifford tester algorithm (batched).
 
     Tests whether a unitary U is a Clifford gate by enumerating all 4^n
     Weyl operators, running each circuit with the given number of shots,
@@ -86,13 +99,7 @@ def clifford_tester(
     Returns:
         acceptance_rate: Average collision probability across all Weyl operators
     """
-    if backend is None:
-        backend = AerSimulator()
-
-    if transpilation_function is None:
-
-        def transpilation_function(qcc: QuantumCircuit):
-            return qcc.decompose(reps=3)
+    backend, transpilation_function = _default_backend_and_transpilation(backend, transpilation_function)
 
     # Generate all 4^n Weyl operators (all 2n-bit strings over F_2)
     all_x = list(product([0, 1], repeat=2 * n))
