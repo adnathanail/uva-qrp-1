@@ -82,7 +82,9 @@ def run_gate(
             print(f"[skip] {backend_name}/paired: raw_results.json exists")
         else:
             print(f"[run]  {backend_name}/paired: running {shots} shots...")
-            raw_dicts = clifford_tester_paired_runs(U, n, shots=shots, backend=backend, transpilation_function=transpile_fn, timeout=timeout)
+            raw_dicts = clifford_tester_paired_runs(
+                U, n, shots=shots, backend=backend, transpilation_function=transpile_fn, timeout=timeout, checkpoint_dir=paired_dir
+            )
             paired_raw = PairedRawResults(samples=[PairedSample(**d) for d in raw_dicts])
             save_paired_raw(paired_raw, paired_dir)
             print(f"[done] {backend_name}/paired: saved raw results")
@@ -97,7 +99,9 @@ def run_gate(
             print(f"[skip] {backend_name}/batched: raw_results.json exists")
         else:
             print(f"[run]  {backend_name}/batched: running {shots} shots...")
-            raw_dict = clifford_tester_batched(U, n, shots=shots, backend=backend, transpilation_function=transpile_fn, timeout=timeout)
+            raw_dict = clifford_tester_batched(
+                U, n, shots=shots, backend=backend, transpilation_function=transpile_fn, timeout=timeout, checkpoint_dir=batched_dir
+            )
             batched_raw = BatchedRawResults.from_tuples(raw_dict)
             save_batched_raw(batched_raw, batched_dir)
             print(f"[done] {backend_name}/batched: saved raw results")
