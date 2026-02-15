@@ -22,19 +22,19 @@ class TestTwoQubitWeylOperator(QuantumGateMatrixTest):
 
     def test_identity(self):
         """a=[0,0], b=[0,0] → I ⊗ I"""
-        self.assert_gate_matrix_equal(get_weyl_operator([0, 0], [0, 0]), np.kron(PAULI_I, PAULI_I))
+        self.assert_gate_matrix_equal(get_weyl_operator((0, 0), (0, 0)), np.kron(PAULI_I, PAULI_I))
 
     def test_z_on_qubit_1(self):
         """a=[0,1], b=[0,0] → Z ⊗ I (Z on qubit 1 only)"""
-        self.assert_gate_matrix_equal(get_weyl_operator([0, 1], [0, 0]), np.kron(PAULI_Z, PAULI_I))
+        self.assert_gate_matrix_equal(get_weyl_operator((0, 1), (0, 0)), np.kron(PAULI_Z, PAULI_I))
 
     def test_mixed_zx(self):
         """a=[0,1], b=[1,0] → Z ⊗ X (Z on qubit 1, X on qubit 0)"""
-        self.assert_gate_matrix_equal(get_weyl_operator([0, 1], [1, 0]), np.kron(PAULI_Z, PAULI_X))
+        self.assert_gate_matrix_equal(get_weyl_operator((0, 1), (1, 0)), np.kron(PAULI_Z, PAULI_X))
 
     def test_zx_on_both(self):
         """a=[1,1], b=[1,1] → ZX ⊗ ZX"""
-        self.assert_gate_matrix_equal(get_weyl_operator([1, 1], [1, 1]), np.kron(PAULI_Z @ PAULI_X, PAULI_Z @ PAULI_X))
+        self.assert_gate_matrix_equal(get_weyl_operator((1, 1), (1, 1)), np.kron(PAULI_Z @ PAULI_X, PAULI_Z @ PAULI_X))
 
 
 class TestMaximallyEntangledState(QuantumGateMatrixTest):

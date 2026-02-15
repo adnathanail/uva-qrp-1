@@ -1,10 +1,12 @@
-from qiskit import transpile
+from collections.abc import Callable
+
+from qiskit import QuantumCircuit, transpile
 from qiskit_quantuminspire.qi_provider import QIProvider
 
 provider = QIProvider()
 
 
-def get_backend_and_transpilation_function(backend_name: str):
+def get_backend_and_transpilation_function(backend_name: str) -> tuple[object, Callable[[QuantumCircuit], QuantumCircuit]]:
     backend = provider.get_backend(backend_name)
 
     match backend_name:

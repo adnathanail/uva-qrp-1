@@ -2,7 +2,7 @@ from qiskit import QuantumCircuit
 from qiskit.circuit import Gate
 
 
-def get_weyl_operator(a: list, b: list) -> Gate:
+def get_weyl_operator(a: tuple[int, ...], b: tuple[int, ...]) -> Gate:
     """
     Create a gate implementing Weyl operator P_{a,b}.
 
@@ -56,7 +56,7 @@ def maximally_entangled_state(n: int) -> Gate:
     return qc.to_gate(label="Bell")
 
 
-def weyl_choi_state(n: int, x: list) -> Gate:
+def weyl_choi_state(n: int, x: tuple[int, ...]) -> Gate:
     """
     Create a gate that prepares the Choi state of Weyl operator P_x: |P_x⟩⟩
 
