@@ -7,7 +7,7 @@ from qiskit import QuantumCircuit
 from .utils import collision_probability, default_backend_and_transpilation, get_clifford_tester_circuit
 
 
-def clifford_tester(
+def clifford_tester_batched(
     U_circuit: QuantumCircuit, n: int, shots: int = 1000, backend=None, transpilation_function: Callable[[QuantumCircuit], QuantumCircuit] | None = None
 ):
     """
@@ -50,7 +50,7 @@ def clifford_tester(
     return total_collision_prob / len(circuits)
 
 
-def clifford_tester_sampled(
+def clifford_tester_paired_runs(
     U_circuit: QuantumCircuit, n: int, shots: int = 1000, backend=None, transpilation_function: Callable[[QuantumCircuit], QuantumCircuit] | None = None
 ):
     """
