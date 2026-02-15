@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 from pydantic import BaseModel
@@ -37,7 +38,7 @@ class BatchedRawResults(BaseModel):
     @classmethod
     def from_tuples(cls, results: dict[tuple, dict]) -> "BatchedRawResults":
         """Convert from the dict[tuple, dict] returned by the tester."""
-        return cls(counts_by_x={str(k): v for k, v in results.items()})
+        return cls(counts_by_x={json.dumps(k): v for k, v in results.items()})
 
 
 class Summary(BaseModel):
