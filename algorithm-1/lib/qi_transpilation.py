@@ -1,14 +1,18 @@
 from collections.abc import Callable
+from functools import cache
 from typing import Any
 
 from qiskit import QuantumCircuit, transpile
 from qiskit_quantuminspire.qi_provider import QIProvider
 
-provider = QIProvider()
+
+@cache
+def _provider() -> QIProvider:
+    return QIProvider()
 
 
 def get_backend_and_transpilation_function(backend_name: str) -> tuple[Any, Callable[[QuantumCircuit], QuantumCircuit]]:
-    backend = provider.get_backend(backend_name)
+    backend = _provider().get_backend(backend_name)
 
     match backend_name:
         case "Tuna-9":
