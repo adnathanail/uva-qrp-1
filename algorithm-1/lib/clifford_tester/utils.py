@@ -70,4 +70,7 @@ def collision_probability(counts: dict) -> float:
     the same distribution would give the same outcome.
     """
     total = sum(counts.values())
+    # Protect against DivisionByZero
+    if total == 0:
+        return 0.0
     return sum((c / total) ** 2 for c in counts.values())
