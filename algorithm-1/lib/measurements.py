@@ -1,7 +1,7 @@
 from qiskit import QuantumCircuit
 
 
-def measure_bell_basis(qc: QuantumCircuit, qubits_A: list, qubits_B: list, clbits: list):
+def measure_bell_basis(qc: QuantumCircuit, qubits_A: list[int], qubits_B: list[int], clbits: list[int]) -> None:
     """
     Measure in the Bell basis {|P_y⟩⟩⟨⟨P_y|}_y
 

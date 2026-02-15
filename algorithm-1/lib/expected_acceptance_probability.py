@@ -25,7 +25,8 @@ def pauli_n(labels: list[int]) -> np.ndarray:
 
     E.g. pauli_n([1, 0, 3]) = X ⊗ I ⊗ Z
     """
-    return reduce(np.kron, [PAULI[i] for i in labels])
+    result: np.ndarray = reduce(np.kron, [PAULI[i] for i in labels])
+    return result
 
 
 def p_u(U: np.ndarray, x: list[int], y: list[int]) -> float:
@@ -38,7 +39,7 @@ def p_u(U: np.ndarray, x: list[int], y: list[int]) -> float:
     Py = pauli_n(y)
     U_dag = U.conj().T
     trace = np.trace(Px @ U @ Py @ U_dag)
-    return (2 ** (-4 * nn)) * np.abs(trace) ** 2
+    return float((2 ** (-4 * nn)) * np.abs(trace) ** 2)
 
 
 def pauli_labels_for_n(nn: int) -> list[tuple[int, ...]]:
@@ -62,7 +63,7 @@ def p_acc_from_table(p_table: np.ndarray, nn: int) -> float:
 
     p_acc = 2^(2n) * sum(p_U(x,y)^2)
     """
-    return (2 ** (2 * nn)) * np.sum(p_table**2)
+    return float((2 ** (2 * nn)) * np.sum(p_table**2))
 
 
 def expected_acceptance_probability(U_matrix: np.ndarray, n: int) -> float:
