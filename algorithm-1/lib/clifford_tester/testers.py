@@ -5,8 +5,9 @@ from pathlib import Path
 from typing import Any
 
 import numpy as np
-from qiskit import QuantumCircuit
+from qiskit import QuantumCircuit, qpy
 from qiskit.providers import BackendV2
+from qiskit_quantuminspire.qi_jobs import QIJob
 
 from .results import (
     JOB_GLOB,
@@ -53,7 +54,7 @@ def _save_job(job: Any, checkpoint_dir: Path) -> None:
     job.serialize(checkpoint_dir / f"job_{jid}.qpy")
 
 
-def _load_job(backend: Any, checkpoint_dir: Path, job_id: str) -> Any | None:
+def _load_job(backend: BackendV2, checkpoint_dir: Path, job_id: str) -> QIJob | None:
     """Try to reconstruct a QI job from a serialized checkpoint.
 
     QIJob.deserialize() requires a provider just to call provider.get_backend(),
@@ -62,24 +63,19 @@ def _load_job(backend: Any, checkpoint_dir: Path, job_id: str) -> Any | None:
     job_path = checkpoint_dir / f"job_{job_id}.qpy"
     if not job_path.exists():
         return None
-    try:
-        from qiskit import qpy
-        from qiskit_quantuminspire.qi_jobs import QIJob
 
-        with open(job_path, "rb") as f:
-            circuits = qpy.load(f)
-        if not circuits:
-            return None
-        batch_job_id = circuits[0].metadata.get("batch_job_id")
-        if batch_job_id is None:
-            return None
-        job = QIJob(circuits, backend)
-        job.batch_job_id = batch_job_id
-        for cd in job.circuits_run_data:
-            cd.job_id = cd.circuit.metadata.get("job_id")
-        return job
-    except Exception:
+    with open(job_path, "rb") as f:
+        circuits = qpy.load(f)
+    if not circuits:
         return None
+    batch_job_id = circuits[0].metadata.get("batch_job_id")
+    if batch_job_id is None:
+        return None
+    job = QIJob(circuits, backend)
+    job.batch_job_id = batch_job_id
+    for cd in job.circuits_run_data:
+        cd.job_id = cd.circuit.metadata.get("job_id")
+    return job
 
 
 def clifford_tester_batched(
