@@ -29,8 +29,10 @@ def get_job_id(job: AerJob | QIJob) -> str:
             else:
                 raise JobManagementError("Error getting job ID from QIJob: Circuit job ID was None")
         else:
-            msg = f"Error getting job ID from QIJob: Expected one circuit, got {len(job.circuits_run_data)}"
-            raise JobManagementError(msg)
+            if (job_batch_id := job.batch_job_id) is not None:
+                return str(job_batch_id)
+            else:
+                raise JobManagementError("Error getting job ID from QIJob: Job batch ID was None")
     else:
         msg = f"Error getting job ID: Invalid job type {type(job)}"
         raise JobManagementError(msg)
