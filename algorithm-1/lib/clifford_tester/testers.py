@@ -25,6 +25,23 @@ from .results import (
 from .utils import default_backend_and_transpilation, get_clifford_tester_circuit
 
 
+def _get_job_id(job: Any) -> str | None:
+    """Extract a usable job identifier from a backend job.
+
+    QI jobs use batch_job_id (job_id() returns ""), Aer jobs use job_id().
+    Returns None if no identifier is available.
+    """
+    # QI jobs store the real ID in batch_job_id
+    batch_id = getattr(job, "batch_job_id", None)
+    if batch_id is not None:
+        return str(batch_id)
+    # Standard Qiskit jobs
+    jid = job.job_id()
+    if jid:
+        return jid
+    return None
+
+
 def clifford_tester_batched(
     U_circuit: QuantumCircuit,
     n: int,
@@ -71,17 +88,17 @@ def clifford_tester_batched(
     jobs_state = load_batched_jobs(checkpoint_dir) if checkpoint_dir else None
     result = None
 
-    if jobs_state is not None:
+    if jobs_state is not None and jobs_state.job_id is not None:
         try:
             job = backend.retrieve_job(jobs_state.job_id)
             result = job.result(timeout=timeout)
         except Exception:
-            jobs_state = None
+            pass
 
     if result is None:
         job = backend.run(circuits, shots=shots)
         if checkpoint_dir:
-            save_batched_jobs(BatchedJobsState(job_id=job.job_id()), checkpoint_dir)
+            save_batched_jobs(BatchedJobsState(job_id=_get_job_id(job)), checkpoint_dir)
         result = job.result(timeout=timeout)
 
     # Phase 4: Collect raw counts
@@ -170,12 +187,13 @@ def clifford_tester_paired_runs(
 
         # Submit new job
         job = backend.run(circuits[x], shots=2 * count)
-        jobs_state.set_entry(x, PairedJobEntry(job_id=job.job_id()))
+        jid = _get_job_id(job)
+        jobs_state.set_entry(x, PairedJobEntry(job_id=jid))
         if checkpoint_dir:
             save_paired_jobs(jobs_state, checkpoint_dir)
 
         counts = job.result(timeout=timeout).get_counts()
-        jobs_state.set_entry(x, PairedJobEntry(job_id=job.job_id(), counts=counts))
+        jobs_state.set_entry(x, PairedJobEntry(job_id=jid, counts=counts))
         if checkpoint_dir:
             save_paired_jobs(jobs_state, checkpoint_dir)
 

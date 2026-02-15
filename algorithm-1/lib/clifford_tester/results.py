@@ -140,7 +140,7 @@ class BatchedPlan(BaseModel):
 
 
 class PairedJobEntry(BaseModel):
-    job_id: str
+    job_id: str | None = None
     counts: dict[str, int] | None = None
 
 
@@ -155,7 +155,7 @@ class PairedJobsState(BaseModel):
 
 
 class BatchedJobsState(BaseModel):
-    job_id: str
+    job_id: str | None = None
 
 
 # --- Checkpoint Save / Load ---
