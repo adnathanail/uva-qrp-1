@@ -7,11 +7,12 @@ Install dependencies and install `lib/` folder so scripts can access it
 uv sync
 ```
 
-Run tests and type checking
+Run linting, typechecking, and tests
 
 ```shell
-pytest algorithm-1/tests -v
-uv run mypy
+uv run ty check
+uv run ruff check
+uv run pytest
 ```
 
 Run the result collection harness
