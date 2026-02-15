@@ -89,7 +89,7 @@ def clifford_tester(
         qc_transpiled = transpilation_function(qc)
 
         # Run the same circuit twice
-        result = backend.run(qc_transpiled, shots=2).result()
+        result = backend.run(qc_transpiled, shots=2).result(timeout=None)
         counts = result.get_counts()
 
         # Accept if both shots gave the same outcome (y == y' therefore only one key in counts)
