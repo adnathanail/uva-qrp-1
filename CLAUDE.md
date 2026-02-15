@@ -9,8 +9,6 @@ Research project implementing quantum algorithms for testing whether a unitary g
 ```
 algorithm-1/
 ├── README.md                                       # Mathematical breakdown of the algorithm
-├── algorithm-1.ipynb                               # Main implementation and tests
-├── qi-testing.ipynb                                # Testing on Quantum Inspire hardware
 ├── lib/
 │   ├── __init__.py
 │   ├── gates.py                                    # Reusable quantum gate functions
