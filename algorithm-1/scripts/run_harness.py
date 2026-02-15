@@ -6,7 +6,6 @@ stores raw results to disk, and prints a summary table.
 Skips computations if raw_results.json already exists for a given run.
 """
 
-import json
 from pathlib import Path
 
 from qiskit import QuantumCircuit
@@ -14,13 +13,15 @@ from qiskit_aer import AerSimulator
 
 from lib import clifford_tester_batched, clifford_tester_paired_runs
 from lib.clifford_tester.results import (
+    BatchedRawResults,
+    ExpectedAcceptanceProbability,
+    PairedRawResults,
+    PairedSample,
     load_batched_raw,
     load_paired_raw,
     save_batched_raw,
     save_paired_raw,
     save_summary,
-    summarise_batched,
-    summarise_paired,
 )
 from lib.expected_acceptance_probability import expected_acceptance_probability_from_circuit
 
@@ -41,21 +42,23 @@ BACKENDS = [
 
 # === Execution (no edits below) ===
 
+EXPECTED_FILE = "01_expected_acceptance_probability.json"
+
 
 def main():
     gate_dir = RESULTS_DIR / GATE_NAME
     gate_dir.mkdir(parents=True, exist_ok=True)
 
     # Step 1: Expected acceptance probability
-    expected_path = gate_dir / "01_expected_acceptance_probability.json"
+    expected_path = gate_dir / EXPECTED_FILE
     if expected_path.exists():
-        with open(expected_path) as f:
-            expected = json.load(f)["expected_acceptance_probability"]
+        data = ExpectedAcceptanceProbability.model_validate_json(expected_path.read_text())
+        expected = data.expected_acceptance_probability
         print(f"[skip] Expected acceptance probability already computed: {expected:.6f}")
     else:
         expected = expected_acceptance_probability_from_circuit(U)
-        with open(expected_path, "w") as f:
-            json.dump({"expected_acceptance_probability": expected}, f, indent=2)
+        data = ExpectedAcceptanceProbability(expected_acceptance_probability=expected)
+        expected_path.write_text(data.model_dump_json(indent=2))
         print(f"[done] Expected acceptance probability: {expected:.6f}")
 
     # Step 2: Run testers on each backend
@@ -71,11 +74,12 @@ def main():
             print(f"[skip] {backend_name}/paired: raw_results.json exists")
         else:
             print(f"[run]  {backend_name}/paired: running {SHOTS} shots...")
-            paired_raw = clifford_tester_paired_runs(U, N, shots=SHOTS, backend=backend, transpilation_function=transpile_fn, timeout=timeout)
+            raw_dicts = clifford_tester_paired_runs(U, N, shots=SHOTS, backend=backend, transpilation_function=transpile_fn, timeout=timeout)
+            paired_raw = PairedRawResults(samples=[PairedSample(**d) for d in raw_dicts])
             save_paired_raw(paired_raw, paired_dir)
             print(f"[done] {backend_name}/paired: saved raw results")
 
-        paired_rate = summarise_paired(paired_raw)
+        paired_rate = paired_raw.summarise()
         save_summary(paired_rate, paired_dir)
 
         # --- Batched ---
@@ -85,11 +89,12 @@ def main():
             print(f"[skip] {backend_name}/batched: raw_results.json exists")
         else:
             print(f"[run]  {backend_name}/batched: running {SHOTS} shots...")
-            batched_raw = clifford_tester_batched(U, N, shots=SHOTS, backend=backend, transpilation_function=transpile_fn, timeout=timeout)
+            raw_dict = clifford_tester_batched(U, N, shots=SHOTS, backend=backend, transpilation_function=transpile_fn, timeout=timeout)
+            batched_raw = BatchedRawResults.from_tuples(raw_dict)
             save_batched_raw(batched_raw, batched_dir)
             print(f"[done] {backend_name}/batched: saved raw results")
 
-        batched_rate = summarise_batched(batched_raw)
+        batched_rate = batched_raw.summarise()
         save_summary(batched_rate, batched_dir)
 
         summaries.append((backend_name, paired_rate, batched_rate))

@@ -1,76 +1,84 @@
-import ast
-import json
 from pathlib import Path
+
+from pydantic import BaseModel
 
 from .utils import collision_probability
 
-# --- Saving ---
+# --- Models ---
 
 
-def save_paired_raw(results: list[dict], path: Path):
-    """Save paired-runs raw results to raw_results.json."""
+class PairedSample(BaseModel):
+    x: list[int]
+    y1: str
+    y2: str
+
+
+class PairedRawResults(BaseModel):
+    samples: list[PairedSample]
+
+    def summarise(self) -> float:
+        """Compute acceptance rate (fraction where y1 == y2)."""
+        if not self.samples:
+            return 0.0
+        accepts = sum(1 for s in self.samples if s.y1 == s.y2)
+        return accepts / len(self.samples)
+
+
+class BatchedRawResults(BaseModel):
+    counts_by_x: dict[str, dict[str, int]]
+
+    def summarise(self) -> float:
+        """Compute average collision probability across all Weyl operators."""
+        if not self.counts_by_x:
+            return 0.0
+        total = sum(collision_probability(counts) for counts in self.counts_by_x.values())
+        return total / len(self.counts_by_x)
+
+    @classmethod
+    def from_tuples(cls, results: dict[tuple, dict]) -> "BatchedRawResults":
+        """Convert from the dict[tuple, dict] returned by the tester."""
+        return cls(counts_by_x={str(k): v for k, v in results.items()})
+
+
+class Summary(BaseModel):
+    acceptance_rate: float
+
+
+class ExpectedAcceptanceProbability(BaseModel):
+    expected_acceptance_probability: float
+
+
+# --- Save / Load ---
+
+RAW_RESULTS_FILE = "raw_results.json"
+SUMMARY_FILE = "summary.json"
+
+
+def save_paired_raw(results: PairedRawResults, path: Path):
     path.mkdir(parents=True, exist_ok=True)
-    with open(path / "raw_results.json", "w") as f:
-        json.dump(results, f, indent=2)
+    (path / RAW_RESULTS_FILE).write_text(results.model_dump_json(indent=2))
 
 
-def save_batched_raw(results: dict[tuple, dict], path: Path):
-    """Save batched raw results to raw_results.json.
+def load_paired_raw(path: Path) -> PairedRawResults | None:
+    filepath = path / RAW_RESULTS_FILE
+    if not filepath.exists():
+        return None
+    return PairedRawResults.model_validate_json(filepath.read_text())
 
-    Keys are stringified tuples, e.g. "(0, 1)".
-    """
+
+def save_batched_raw(results: BatchedRawResults, path: Path):
     path.mkdir(parents=True, exist_ok=True)
-    serializable = {str(k): v for k, v in results.items()}
-    with open(path / "raw_results.json", "w") as f:
-        json.dump(serializable, f, indent=2)
+    (path / RAW_RESULTS_FILE).write_text(results.model_dump_json(indent=2))
+
+
+def load_batched_raw(path: Path) -> BatchedRawResults | None:
+    filepath = path / RAW_RESULTS_FILE
+    if not filepath.exists():
+        return None
+    return BatchedRawResults.model_validate_json(filepath.read_text())
 
 
 def save_summary(acceptance_rate: float, path: Path):
-    """Save summary with acceptance rate to summary.json."""
     path.mkdir(parents=True, exist_ok=True)
-    with open(path / "summary.json", "w") as f:
-        json.dump({"acceptance_rate": acceptance_rate}, f, indent=2)
-
-
-# --- Summarising ---
-
-
-def summarise_paired(results: list[dict]) -> float:
-    """Compute acceptance rate from paired-runs results (fraction where y1 == y2)."""
-    if not results:
-        return 0.0
-    accepts = sum(1 for r in results if r["y1"] == r["y2"])
-    return accepts / len(results)
-
-
-def summarise_batched(results: dict[tuple, dict]) -> float:
-    """Compute average collision probability from batched results."""
-    if not results:
-        return 0.0
-    total = sum(collision_probability(counts) for counts in results.values())
-    return total / len(results)
-
-
-# --- Loading ---
-
-
-def load_paired_raw(path: Path) -> list[dict] | None:
-    """Load paired-runs raw results, or None if file doesn't exist."""
-    filepath = path / "raw_results.json"
-    if not filepath.exists():
-        return None
-    with open(filepath) as f:
-        return json.load(f)
-
-
-def load_batched_raw(path: Path) -> dict[tuple, dict] | None:
-    """Load batched raw results, or None if file doesn't exist.
-
-    Converts stringified tuple keys back to tuples.
-    """
-    filepath = path / "raw_results.json"
-    if not filepath.exists():
-        return None
-    with open(filepath) as f:
-        data = json.load(f)
-    return {ast.literal_eval(k): v for k, v in data.items()}
+    summary = Summary(acceptance_rate=acceptance_rate)
+    (path / SUMMARY_FILE).write_text(summary.model_dump_json(indent=2))
