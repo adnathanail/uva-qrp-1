@@ -1,26 +1,11 @@
-from collections.abc import Callable
-from typing import Any
-
 from qiskit import QuantumCircuit
-from qiskit_aer import AerSimulator
 
 from ..gates import weyl_choi_state
 from ..measurements import measure_bell_basis
 
 
-def default_backend_and_transpilation(
-    backend: Any, transpilation_function: Callable[[QuantumCircuit], QuantumCircuit] | None
-) -> tuple[Any, Callable[[QuantumCircuit], QuantumCircuit]]:
-    """Return (backend, transpilation_function) with sensible defaults filled in."""
-    if backend is None:
-        backend = AerSimulator()
-
-    if transpilation_function is None:
-
-        def transpilation_function(qcc: QuantumCircuit) -> QuantumCircuit:
-            return qcc.decompose(reps=3)
-
-    return backend, transpilation_function
+def default_transpilation_function(qcc: QuantumCircuit) -> QuantumCircuit:
+    return qcc.decompose(reps=3)
 
 
 def get_clifford_tester_circuit(U_circuit: QuantumCircuit, n: int, x: tuple[int, ...]) -> QuantumCircuit:
