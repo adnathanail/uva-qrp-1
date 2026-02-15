@@ -18,7 +18,7 @@ def default_backend_and_transpilation(backend, transpilation_function):
     return backend, transpilation_function
 
 
-def get_clifford_tester_circuit(U_circuit: QuantumCircuit, n: int, x: tuple[int]) -> QuantumCircuit:
+def get_clifford_tester_circuit(U_circuit: QuantumCircuit, n: int, x: tuple[int, ...]) -> QuantumCircuit:
     """
     Build the circuit for one sample of the Clifford tester.
 
