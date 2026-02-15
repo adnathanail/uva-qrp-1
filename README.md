@@ -7,9 +7,10 @@ Install dependencies and install `lib/` folder so scripts can access it
 uv sync
 ```
 
-Run linting, typechecking, and tests
+Run formatting, linting, typechecking, and tests
 
 ```shell
+uv run ruff format --check  # Remove check for some auto-fixes
 uv run ty check
 uv run ruff check
 uv run pytest
