@@ -1,5 +1,6 @@
 from collections.abc import Callable
 from itertools import product
+from typing import Any
 
 import numpy as np
 from qiskit import QuantumCircuit
@@ -11,10 +12,10 @@ def clifford_tester_batched(
     U_circuit: QuantumCircuit,
     n: int,
     shots: int = 1000,
-    backend=None,
+    backend: Any = None,
     transpilation_function: Callable[[QuantumCircuit], QuantumCircuit] | None = None,
     timeout: float | None = None,
-) -> dict[tuple, dict]:
+) -> dict[tuple[int, ...], dict[str, int]]:
     """
     Four-query Clifford tester algorithm (batched).
 
@@ -56,10 +57,10 @@ def clifford_tester_paired_runs(
     U_circuit: QuantumCircuit,
     n: int,
     shots: int = 1000,
-    backend=None,
+    backend: Any = None,
     transpilation_function: Callable[[QuantumCircuit], QuantumCircuit] | None = None,
     timeout: float | None = None,
-) -> list[dict]:
+) -> list[dict[str, Any]]:
     """
     Four-query Clifford tester algorithm (paired runs).
 

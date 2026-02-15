@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+from typing import Any
 
 from pydantic import BaseModel
 
@@ -35,12 +36,12 @@ class BatchedRawResults(BaseModel):
         total = sum(collision_probability(counts) for counts in self.counts_by_x.values())
         return total / len(self.counts_by_x)
 
-    def to_tuples(self) -> dict[tuple, dict[str, int]]:
+    def to_tuples(self) -> dict[tuple[int, ...], dict[str, int]]:
         """Convert back to the dict[tuple, dict] format."""
         return {tuple(json.loads(k)): v for k, v in self.counts_by_x.items()}
 
     @classmethod
-    def from_tuples(cls, results: dict[tuple, dict]) -> "BatchedRawResults":
+    def from_tuples(cls, results: dict[tuple[int, ...], dict[str, Any]]) -> "BatchedRawResults":
         """Convert from the dict[tuple, dict] returned by the tester."""
         return cls(counts_by_x={json.dumps(k): v for k, v in results.items()})
 
@@ -60,7 +61,7 @@ BATCHED_RAW_RESULTS_FILE = "raw_results.json"
 SUMMARY_FILE = "summary.json"
 
 
-def save_paired_raw(results: PairedRawResults, path: Path):
+def save_paired_raw(results: PairedRawResults, path: Path) -> None:
     path.mkdir(parents=True, exist_ok=True)
     (path / PAIRED_RAW_RESULTS_FILE).write_text(results.model_dump_json(indent=2))
 
@@ -72,7 +73,7 @@ def load_paired_raw(path: Path) -> PairedRawResults | None:
     return PairedRawResults.model_validate_json(filepath.read_text())
 
 
-def save_batched_raw(results: BatchedRawResults, path: Path):
+def save_batched_raw(results: BatchedRawResults, path: Path) -> None:
     path.mkdir(parents=True, exist_ok=True)
     (path / BATCHED_RAW_RESULTS_FILE).write_text(results.model_dump_json(indent=2))
 
@@ -84,7 +85,7 @@ def load_batched_raw(path: Path) -> BatchedRawResults | None:
     return BatchedRawResults.model_validate_json(filepath.read_text())
 
 
-def save_summary(acceptance_rate: float, path: Path):
+def save_summary(acceptance_rate: float, path: Path) -> None:
     path.mkdir(parents=True, exist_ok=True)
     summary = Summary(acceptance_rate=acceptance_rate)
     (path / SUMMARY_FILE).write_text(summary.model_dump_json(indent=2))
