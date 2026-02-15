@@ -4,12 +4,7 @@ Compute expected acceptance probability for the Clifford hierarchy tester.
 Based on Lemma 3.6 and Eq. 90 from https://arxiv.org/abs/2510.07164.
 """
 
-import sys
-from pathlib import Path
-
 import numpy as np
-
-sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from lib.expected_acceptance_probability import expected_acceptance_probability, get_p_table
 
