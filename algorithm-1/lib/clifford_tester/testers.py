@@ -1,3 +1,4 @@
+from collections import Counter
 from collections.abc import Callable
 from itertools import product
 from typing import Any
@@ -81,35 +82,34 @@ def clifford_tester_paired_runs(
     """
     backend, transpilation_function = default_backend_and_transpilation(backend, transpilation_function)
 
-    raw_results = []
-    discarded = 0
+    # Pre-generate all random Weyl strings and deduplicate
+    xs = [tuple(int(v) for v in np.random.randint(0, 2, size=2 * n)) for _ in range(shots)]
+    x_counts = Counter(xs)
 
-    for _ in range(shots):
-        # Sample random x from F_2^{2n}
-        x = tuple(int(v) for v in np.random.randint(0, 2, size=2 * n))
-
-        # Build and fully decompose the circuit (reps=3 handles nested gates)
+    # Build & transpile one circuit per unique x
+    circuits: dict[tuple[int, ...], QuantumCircuit] = {}
+    for x in x_counts:
         qc = get_clifford_tester_circuit(U_circuit, n, x)
-        qc_transpiled = transpilation_function(qc)
+        circuits[x] = transpilation_function(qc)
 
-        # Run the same circuit twice
-        result = backend.run(qc_transpiled, shots=2).result(timeout=timeout)
+    # Run each unique circuit with exact shot count, expand & pair
+    raw_results: list[dict[str, Any]] = []
+    for x, count in x_counts.items():
+        kwargs: dict[str, Any] = {"shots": 2 * count}
+        if timeout is not None:
+            kwargs["timeout"] = timeout
+
+        result = backend.run(circuits[x], **kwargs).result()
         counts = result.get_counts()
 
-        # Extract the two measurement outcomes
-        keys = list(counts.keys())
-        if len(keys) == 1:
-            y1 = y2 = keys[0]
-        elif len(keys) == 2:
-            y1, y2 = keys[0], keys[1]
-        else:
-            # No usable measurements (e.g. all shots filtered on hardware)
-            discarded += 1
-            continue
+        # Expand counts dict to individual outcomes and shuffle
+        outcomes: list[str] = []
+        for bitstring, freq in counts.items():
+            outcomes.extend([bitstring] * freq)
+        np.random.shuffle(outcomes)
 
-        raw_results.append({"x": x, "y1": y1, "y2": y2})
-
-    if discarded:
-        print(f"[warn] {discarded}/{shots} paired runs discarded (empty counts)")
+        # Pair sequentially
+        for i in range(0, len(outcomes) - 1, 2):
+            raw_results.append({"x": x, "y1": outcomes[i], "y2": outcomes[i + 1]})
 
     return raw_results
