@@ -48,6 +48,20 @@ algorithm-1/
 - Statevector simulation memory: 2^(4n) × 16 bytes
 - Practical limits on 32GB machine: ~7 qubits (28 total, ~4GB)
 
+### Tester Approaches
+
+There are two tester implementations in `clifford_tester/testers.py`:
+
+- **`clifford_tester_batched`**: Enumerates all 4^n Weyl operators, builds one circuit per operator, and runs them all in a single `backend.run()` call with many shots each. The acceptance probability is computed from collision probabilities across the full counts distribution.
+- **`clifford_tester_paired_runs`**: Randomly samples Weyl operators, runs the circuit for each sample, and pairs individual measurement outcomes (y1, y2) to check for collisions. Deduplicates circuits so each unique Weyl operator is only built/transpiled once.
+
+On a **noiseless simulator**, both approaches produce statistically equivalent results — they're sampling from the same distribution.
+
+On **noisy hardware**, the batched approach gives better data.
+It runs each circuit with many shots in one job, so all shots for a given circuit experience the same calibration state.
+The paired_runs approach submits many smaller jobs, which may span different calibration windows and accumulate more overhead-related noise.
+The batched approach also avoids the statistical subtlety of pairing expanded counts (where shuffling is needed to prevent bias).
+
 ## Running
 
 ```shell
