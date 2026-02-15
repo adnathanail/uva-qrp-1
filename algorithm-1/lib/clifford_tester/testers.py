@@ -53,16 +53,15 @@ def _save_job(job: Any, checkpoint_dir: Path) -> None:
     job.serialize(checkpoint_dir / f"job_{jid}.qpy")
 
 
-def _load_job(backend: Any, checkpoint_dir: Path) -> Any | None:
+def _load_job(backend: Any, checkpoint_dir: Path, job_id: str) -> Any | None:
     """Try to reconstruct a QI job from a serialized checkpoint.
 
     QIJob.deserialize() requires a provider just to call provider.get_backend(),
     but we already have the backend. So we reconstruct the job directly.
     """
-    matches = list(checkpoint_dir.glob(JOB_GLOB))
-    if not matches:
+    job_path = checkpoint_dir / f"job_{job_id}.qpy"
+    if not job_path.exists():
         return None
-    job_path = matches[0]
     try:
         from qiskit import qpy
         from qiskit_quantuminspire.qi_jobs import QIJob
@@ -131,7 +130,11 @@ def clifford_tester_batched(
     # Phase 3: Check for existing job or submit new one
     result = None
 
-    saved_job = _load_job(backend, checkpoint_dir)
+    if checkpoint_dir:
+        matches = list(checkpoint_dir.glob(JOB_GLOB))
+        saved_job = _load_job(backend, checkpoint_dir, matches[0].stem.removeprefix("job_")) if matches else None
+    else:
+        saved_job = None
     if saved_job is not None:
         jid = _get_job_id(saved_job)
         print(f"       loaded saved job (id={jid}), retrieving result...")
@@ -228,8 +231,8 @@ def clifford_tester_paired_runs(
                 continue
 
             # Have a saved job file — try to retrieve result
-            if entry.job_id:
-                saved_job = _load_job(backend, checkpoint_dir)
+            if checkpoint_dir and entry.job_id:
+                saved_job = _load_job(backend, checkpoint_dir, entry.job_id)
                 if saved_job is not None:
                     jid = _get_job_id(saved_job)
                     print(f"       [{idx}/{len(x_counts)}] x={list(x)}: loaded saved job (id={jid}), retrieving...")
