@@ -4,8 +4,8 @@ import numpy as np
 from qiskit import QuantumCircuit
 from qiskit_aer import AerSimulator
 
-from lib import weyl_choi_state
-from lib.measurements import measure_bell_basis
+from .gates import weyl_choi_state
+from .measurements import measure_bell_basis
 
 
 def get_clifford_tester_circuit(U_circuit: QuantumCircuit, n: int, x: list) -> QuantumCircuit:
