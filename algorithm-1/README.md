@@ -3,10 +3,12 @@ https://www.arxiv.org/abs/2510.07164 pg. 21
 
 ## Structure
 
-- `lib/` contains various utility functions, which come together into `lib.clifford_tester.clifford_tester`
-- `algorithm-1.ipynb` contains some demo usage of the Clifford tester
-- `qi-testing.ipynb` contains demos of running the Clifford tester on Quantum Inspire's hardware
-- `scripts/expected_acceptance_probability.py` calculates the theoretical acceptance probability for a given unitary (in the demo script, a TOFFOLI) using the formula from the paper above
+- `lib/` contains various utility functions, which come together into `lib.clifford_tester.testers`
+- `scripts/run_harness.py` tests a given unitary with 2 different algorithms, on the AER simulator, and QI's Tuna-9
+
+```shell
+uv run python algorithm-1/scripts/run_harness.py
+```
 
 ## Algorithm breakdown
 
