@@ -81,6 +81,7 @@ def clifford_tester_paired_runs(
     backend, transpilation_function = default_backend_and_transpilation(backend, transpilation_function)
 
     raw_results = []
+    discarded = 0
 
     for _ in range(shots):
         # Sample random x from F_2^{2n}
@@ -98,10 +99,16 @@ def clifford_tester_paired_runs(
         keys = list(counts.keys())
         if len(keys) == 1:
             y1 = y2 = keys[0]
-        else:
-            # Two different outcomes, one count each
+        elif len(keys) == 2:
             y1, y2 = keys[0], keys[1]
+        else:
+            # No usable measurements (e.g. all shots filtered on hardware)
+            discarded += 1
+            continue
 
         raw_results.append({"x": x, "y1": y1, "y2": y2})
+
+    if discarded:
+        print(f"[warn] {discarded}/{shots} paired runs discarded (empty counts)")
 
     return raw_results
