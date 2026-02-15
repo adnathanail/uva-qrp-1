@@ -95,11 +95,7 @@ def clifford_tester_paired_runs(
     # Run each unique circuit with exact shot count, expand & pair
     raw_results: list[dict[str, Any]] = []
     for x, count in x_counts.items():
-        kwargs: dict[str, Any] = {"shots": 2 * count}
-        if timeout is not None:
-            kwargs["timeout"] = timeout
-
-        result = backend.run(circuits[x], **kwargs).result()
+        result = backend.run(circuits[x], shots=2 * count).result(timeout=timeout)
         counts = result.get_counts()
 
         # Expand counts dict to individual outcomes and shuffle
