@@ -85,7 +85,7 @@ def clifford_tester_paired_runs(
 
     for _ in range(shots):
         # Sample random x from F_2^{2n}
-        x = [int(v) for v in np.random.randint(0, 2, size=2 * n)]
+        x = tuple(int(v) for v in np.random.randint(0, 2, size=2 * n))
 
         # Build and fully decompose the circuit (reps=3 handles nested gates)
         qc = get_clifford_tester_circuit(U_circuit, n, x)
