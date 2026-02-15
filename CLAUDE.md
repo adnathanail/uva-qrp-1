@@ -8,27 +8,28 @@ Research project implementing quantum algorithms for testing whether a unitary g
 
 ```
 algorithm-1/
-├── README.md              # Mathematical breakdown of the algorithm
-├── algorithm-1.ipynb      # Main implementation and tests
-├── qi-testing.ipynb       # Testing on Quantum Inspire hardware
+├── README.md                                       # Mathematical breakdown of the algorithm
+├── algorithm-1.ipynb                               # Main implementation and tests
+├── qi-testing.ipynb                                # Testing on Quantum Inspire hardware
 ├── lib/
 │   ├── __init__.py
-│   ├── gates.py           # Reusable quantum gate functions
-│   ├── measurements.py    # Bell basis measurement
-│   ├── qi_transpilation.py # Quantum Inspire backend helpers
-│   ├── expected_acceptance_probability.py  # Theoretical p_acc computation
+│   ├── gates.py                                    # Reusable quantum gate functions
+│   ├── measurements.py                             # Bell basis measurement
+│   ├── qi_transpilation.py                         # Quantum Inspire backend helpers
+│   ├── expected_acceptance_probability.py          # Theoretical p_acc computation
 │   └── clifford_tester/
 │       ├── __init__.py
-│       ├── testers.py     # paired_runs and batched tester implementations
-│       ├── utils.py       # Circuit building, collision probability
-│       └── results.py     # Pydantic models for raw results + save/load/summarise
+│       ├── testers.py                              # paired_runs and batched tester implementations
+│       ├── utils.py                                # Circuit building, collision probability
+│       └── results.py                              # Pydantic models for raw results + save/load/summarise
 ├── scripts/
-│   ├── expected_acceptance_probability.py  # Compute p_acc for specific gates
-│   └── run_harness.py     # Result collection harness (multi-backend, skip-if-exists)
-├── results/               # Generated output from run_harness.py (gitignored)
+│   ├── expected_acceptance_probability.py          # Compute p_acc for specific gates
+│   └── run_harness.py                              # Result collection harness (multi-backend, skip-if-exists)
+├── results/                                        # Generated output from run_harness.py (gitignored)
 └── tests/
-    ├── test_gates.py      # pytest tests with explicit matrix comparisons
-    └── utils.py           # Test utilities
+    ├── test_gates.py                               # pytest tests with explicit matrix comparisons
+    ├── test_expected_acceptance_probability.py     # Tests for theoretical p_acc values
+    └── utils.py                                    # Test utilities
 ```
 
 ## Key Technical Notes
@@ -52,6 +53,7 @@ algorithm-1/
 ```shell
 uv sync                                               # Install dependencies (also installs lib/ as a package)
 pytest algorithm-1/tests -v                           # Run tests
+uv run ty check                                       # Type checking
 uv run python algorithm-1/scripts/run_harness.py      # Run result collection harness
 jupyter notebook algorithm-1/                         # Open notebook
 ```
@@ -63,6 +65,10 @@ jupyter notebook algorithm-1/                         # Open notebook
 ### Package Setup
 
 `lib/` is installed as a Python package via hatchling (configured in `pyproject.toml`), so `from lib import ...` works everywhere — scripts, tests, and notebooks — without `sys.path` hacks.
+
+### Quantum Inspire
+- `qi_transpilation.py` lazily initializes `QIProvider` (only on first call to `get_backend_and_transpilation_function`), so importing the module doesn't require a QI connection.
+- Run `qi login` before using QI backends.
 
 ## Testing Philosophy
 
