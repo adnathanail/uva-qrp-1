@@ -8,17 +8,15 @@ import numpy as np
 from qiskit import QuantumCircuit
 
 from .results import (
-    BatchedJobsState,
+    JOB_GLOB,
     BatchedPlan,
     PairedJobEntry,
     PairedJobsState,
     PairedPlan,
     cleanup_checkpoint,
-    load_batched_jobs,
     load_batched_plan,
     load_paired_jobs,
     load_paired_plan,
-    save_batched_jobs,
     save_paired_jobs,
     save_plan,
 )
@@ -31,15 +29,57 @@ def _get_job_id(job: Any) -> str | None:
     QI jobs use batch_job_id (job_id() returns ""), Aer jobs use job_id().
     Returns None if no identifier is available.
     """
-    # QI jobs store the real ID in batch_job_id
     batch_id = getattr(job, "batch_job_id", None)
     if batch_id is not None:
         return str(batch_id)
-    # Standard Qiskit jobs
     jid = job.job_id()
     if jid:
         return jid
     return None
+
+
+def _save_job(job: Any, checkpoint_dir: Path) -> None:
+    """Serialize a job to checkpoint_dir if it supports serialization (QI jobs).
+
+    Saves as job_{id}.qpy. Removes any previous job_*.qpy first.
+    """
+    if not hasattr(job, "serialize"):
+        return
+    # Clean old serialized jobs
+    for old in checkpoint_dir.glob(JOB_GLOB):
+        old.unlink()
+    jid = _get_job_id(job) or "unknown"
+    job.serialize(checkpoint_dir / f"job_{jid}.qpy")
+
+
+def _load_job(backend: Any, checkpoint_dir: Path) -> Any | None:
+    """Try to reconstruct a QI job from a serialized checkpoint.
+
+    QIJob.deserialize() requires a provider just to call provider.get_backend(),
+    but we already have the backend. So we reconstruct the job directly.
+    """
+    matches = list(checkpoint_dir.glob(JOB_GLOB))
+    if not matches:
+        return None
+    job_path = matches[0]
+    try:
+        from qiskit import qpy
+        from qiskit_quantuminspire.qi_jobs import QIJob
+
+        with open(job_path, "rb") as f:
+            circuits = qpy.load(f)
+        if not circuits:
+            return None
+        batch_job_id = circuits[0].metadata.get("batch_job_id")
+        if batch_job_id is None:
+            return None
+        job = QIJob(circuits, backend)
+        job.batch_job_id = batch_job_id
+        for cd in job.circuits_run_data:
+            cd.job_id = cd.circuit.metadata.get("job_id")
+        return job
+    except Exception:
+        return None
 
 
 def clifford_tester_batched(
@@ -88,24 +128,25 @@ def clifford_tester_batched(
     circuits = [transpilation_function(get_clifford_tester_circuit(U_circuit, n, x)) for x in all_x]
 
     # Phase 3: Check for existing job or submit new one
-    jobs_state = load_batched_jobs(checkpoint_dir) if checkpoint_dir else None
     result = None
 
-    if jobs_state is not None and jobs_state.job_id is not None and hasattr(backend, "retrieve_job"):
-        print(f"       attempting to retrieve job {jobs_state.job_id}...")
-        try:
-            job = backend.retrieve_job(jobs_state.job_id)
-            result = job.result(timeout=timeout)
-            print(f"       retrieved results from job {jobs_state.job_id}")
-        except Exception as e:
-            print(f"       retrieval failed ({e}), will resubmit")
+    if checkpoint_dir:
+        saved_job = _load_job(backend, checkpoint_dir)
+        if saved_job is not None:
+            jid = _get_job_id(saved_job)
+            print(f"       loaded saved job (id={jid}), retrieving result...")
+            try:
+                result = saved_job.result(timeout=timeout)
+                print("       retrieved results from saved job")
+            except Exception as e:
+                print(f"       retrieval failed ({e}), will resubmit")
 
     if result is None:
         print(f"       submitting job ({len(circuits)} circuits, {shots} shots each)...")
         job = backend.run(circuits, shots=shots)
         jid = _get_job_id(job)
         if checkpoint_dir:
-            save_batched_jobs(BatchedJobsState(job_id=jid), checkpoint_dir)
+            _save_job(job, checkpoint_dir)
         print(f"       job submitted (id={jid}), waiting for result...")
         result = job.result(timeout=timeout)
         print("       result received")
@@ -189,19 +230,21 @@ def clifford_tester_paired_runs(
         if entry is not None and entry.counts is not None:
             continue
 
-        # Have job_id but no counts — try to retrieve
-        if entry is not None and entry.job_id:
-            print(f"       [{idx}/{len(x_counts)}] x={list(x)}: retrieving job {entry.job_id}...")
-            try:
-                job = backend.retrieve_job(entry.job_id)
-                counts = job.result(timeout=timeout).get_counts()
-                jobs_state.set_entry(x, PairedJobEntry(job_id=entry.job_id, counts=counts))
-                if checkpoint_dir:
-                    save_paired_jobs(jobs_state, checkpoint_dir)
-                print(f"       [{idx}/{len(x_counts)}] x={list(x)}: retrieved")
-                continue
-            except Exception as e:
-                print(f"       [{idx}/{len(x_counts)}] x={list(x)}: retrieval failed ({e}), resubmitting")
+        # Have a saved job file — try to retrieve result
+        if checkpoint_dir and entry is not None and entry.job_id:
+            saved_job = _load_job(backend, checkpoint_dir)
+            if saved_job is not None:
+                jid = _get_job_id(saved_job)
+                print(f"       [{idx}/{len(x_counts)}] x={list(x)}: loaded saved job (id={jid}), retrieving...")
+                try:
+                    counts = saved_job.result(timeout=timeout).get_counts()
+                    jobs_state.set_entry(x, PairedJobEntry(job_id=entry.job_id, counts=counts))
+                    if checkpoint_dir:
+                        save_paired_jobs(jobs_state, checkpoint_dir)
+                    print(f"       [{idx}/{len(x_counts)}] x={list(x)}: retrieved")
+                    continue
+                except Exception as e:
+                    print(f"       [{idx}/{len(x_counts)}] x={list(x)}: retrieval failed ({e}), resubmitting")
 
         # Submit new job
         print(f"       [{idx}/{len(x_counts)}] x={list(x)}: submitting ({2 * count} shots)...")
@@ -209,6 +252,7 @@ def clifford_tester_paired_runs(
         jid = _get_job_id(job)
         jobs_state.set_entry(x, PairedJobEntry(job_id=jid))
         if checkpoint_dir:
+            _save_job(job, checkpoint_dir)
             save_paired_jobs(jobs_state, checkpoint_dir)
 
         counts = job.result(timeout=timeout).get_counts()

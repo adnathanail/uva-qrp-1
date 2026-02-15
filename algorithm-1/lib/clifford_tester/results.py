@@ -103,6 +103,7 @@ def load_summary(path: Path) -> Summary | None:
 
 PLAN_FILE = "plan.json"
 JOBS_FILE = "jobs.json"
+JOB_GLOB = "job_*.qpy"
 
 
 def _key(x: tuple[int, ...]) -> str:
@@ -209,3 +210,5 @@ def cleanup_checkpoint(path: Path) -> None:
         f = path / filename
         if f.exists():
             f.unlink()
+    for f in path.glob(JOB_GLOB):
+        f.unlink()
