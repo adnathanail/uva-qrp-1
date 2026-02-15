@@ -4,21 +4,18 @@ from itertools import product
 import numpy as np
 from qiskit import QuantumCircuit
 
-from .utils import collision_probability, default_backend_and_transpilation, get_clifford_tester_circuit
+from .utils import default_backend_and_transpilation, get_clifford_tester_circuit
 
 
 def clifford_tester_batched(
     U_circuit: QuantumCircuit, n: int, shots: int = 1000, backend=None, transpilation_function: Callable[[QuantumCircuit], QuantumCircuit] | None = None
-):
+) -> dict[tuple, dict]:
     """
     Four-query Clifford tester algorithm (batched).
 
     Tests whether a unitary U is a Clifford gate by enumerating all 4^n
     Weyl operators, running each circuit with the given number of shots,
-    and computing the average collision probability.
-
-    For Clifford gates, each circuit produces a deterministic outcome,
-    so the collision probability is 1.0 for every Weyl operator.
+    and returning the raw counts for each Weyl operator.
 
     Args:
         U_circuit: A quantum circuit implementing the n-qubit unitary U
@@ -28,7 +25,7 @@ def clifford_tester_batched(
         transpilation_function: Optional function to transpile circuits
 
     Returns:
-        acceptance_rate: Average collision probability across all Weyl operators
+        dict mapping each Weyl operator x (tuple) to its Qiskit counts dict
     """
     backend, transpilation_function = default_backend_and_transpilation(backend, transpilation_function)
 
@@ -41,25 +38,25 @@ def clifford_tester_batched(
     # Run all circuits in a single backend call
     result = backend.run(circuits, shots=shots).result(timeout=None)
 
-    # Compute average collision probability across all Weyl operators
-    total_collision_prob = 0.0
-    for i in range(len(circuits)):
+    # Collect raw counts for each Weyl operator
+    raw_results = {}
+    for i, x in enumerate(all_x):
         counts = result.get_counts(i)
-        total_collision_prob += collision_probability(counts)
+        raw_results[x] = counts
 
-    return total_collision_prob / len(circuits)
+    return raw_results
 
 
 def clifford_tester_paired_runs(
     U_circuit: QuantumCircuit, n: int, shots: int = 1000, backend=None, transpilation_function: Callable[[QuantumCircuit], QuantumCircuit] | None = None
-):
+) -> list[dict]:
     """
-    Four-query Clifford tester algorithm (sampled).
+    Four-query Clifford tester algorithm (paired runs).
 
     Tests whether a unitary U is a Clifford gate by:
     1. Sampling random x from F_2^{2n}
     2. Running U^{⊗2}|P_x⟩⟩ twice with Bell basis measurement
-    3. Accepting if both runs give the same outcome y = y'
+    3. Recording both outcomes y1, y2
 
     Args:
         U_circuit: A quantum circuit implementing the n-qubit unitary U
@@ -69,15 +66,15 @@ def clifford_tester_paired_runs(
         transpilation_function: Optional function to transpile circuits
 
     Returns:
-        acceptance_rate: Fraction of runs where y = y'
+        list of dicts, each with keys "x", "y1", "y2"
     """
     backend, transpilation_function = default_backend_and_transpilation(backend, transpilation_function)
 
-    accepts = 0
+    raw_results = []
 
     for _ in range(shots):
         # Sample random x from F_2^{2n}
-        x = list(np.random.randint(0, 2, size=2 * n))
+        x = [int(v) for v in np.random.randint(0, 2, size=2 * n)]
 
         # Build and fully decompose the circuit (reps=3 handles nested gates)
         qc = get_clifford_tester_circuit(U_circuit, n, x)
@@ -87,8 +84,14 @@ def clifford_tester_paired_runs(
         result = backend.run(qc_transpiled, shots=2).result(timeout=None)
         counts = result.get_counts()
 
-        # Accept if both shots gave the same outcome (y == y' therefore only one key in counts)
-        if len(counts) == 1:
-            accepts += 1
+        # Extract the two measurement outcomes
+        keys = list(counts.keys())
+        if len(keys) == 1:
+            y1 = y2 = keys[0]
+        else:
+            # Two different outcomes, one count each
+            y1, y2 = keys[0], keys[1]
 
-    return accepts / shots
+        raw_results.append({"x": x, "y1": y1, "y2": y2})
+
+    return raw_results
