@@ -7,10 +7,7 @@ Skips computations if raw_results.json already exists for a given run.
 """
 
 import json
-import sys
 from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from qiskit import QuantumCircuit
 from qiskit_aer import AerSimulator
