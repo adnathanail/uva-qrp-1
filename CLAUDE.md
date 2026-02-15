@@ -89,7 +89,7 @@ On completion, checkpoint files are cleaned up automatically. On AerSimulator, j
 `lib/` is installed as a Python package via hatchling (configured in `pyproject.toml`), so `from lib import ...` works everywhere — scripts, tests, and notebooks — without `sys.path` hacks.
 
 ### Quantum Inspire
-- `qi_transpilation.py` lazily initializes `QIProvider` (only on first call to `get_backend_and_transpilation_function`), so importing the module doesn't require a QI connection.
+- `qi_transpilation.py` lazily initializes `QIProvider` (only on first call to `get_qi_backend_and_transpilation_function`), so importing the module doesn't require a QI connection.
 - Run `qi login` before using QI backends.
 
 ## Testing Philosophy

@@ -17,7 +17,7 @@ from qiskit import QuantumCircuit
 from qiskit_aer import AerSimulator
 from scripts.unitaries import UNITARIES
 
-from lib import clifford_tester_batched, clifford_tester_paired_runs
+from lib import clifford_tester_batched, clifford_tester_paired_runs, get_qi_backend_and_transpilation_function
 from lib.clifford_tester.results import (
     BatchedRawResults,
     ExpectedAcceptanceProbability,
@@ -37,7 +37,7 @@ RESULTS_DIR = Path(__file__).parent.parent / "results"
 
 BACKENDS = [
     ("aer_simulator", AerSimulator(), None, None),  # (name, backend, transpilation_fn, timeout)
-    # ("qi_tuna_9", *get_backend_and_transpilation_function("Tuna-9"), 300),
+    ("qi_tuna_9", *get_qi_backend_and_transpilation_function("Tuna-9"), 300),
 ]
 
 EXPECTED_FILE = "01_expected_acceptance_probability.json"

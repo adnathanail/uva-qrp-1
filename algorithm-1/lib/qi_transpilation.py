@@ -11,7 +11,7 @@ def _provider() -> QIProvider:
     return QIProvider()
 
 
-def get_backend_and_transpilation_function(backend_name: str) -> tuple[Any, Callable[[QuantumCircuit], QuantumCircuit]]:
+def get_qi_backend_and_transpilation_function(backend_name: str) -> tuple[Any, Callable[[QuantumCircuit], QuantumCircuit]]:
     backend = _provider().get_backend(backend_name)
 
     match backend_name:
