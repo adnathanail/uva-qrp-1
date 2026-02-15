@@ -8,7 +8,12 @@ from .utils import default_backend_and_transpilation, get_clifford_tester_circui
 
 
 def clifford_tester_batched(
-    U_circuit: QuantumCircuit, n: int, shots: int = 1000, backend=None, transpilation_function: Callable[[QuantumCircuit], QuantumCircuit] | None = None
+    U_circuit: QuantumCircuit,
+    n: int,
+    shots: int = 1000,
+    backend=None,
+    transpilation_function: Callable[[QuantumCircuit], QuantumCircuit] | None = None,
+    timeout: float | None = None,
 ) -> dict[tuple, dict]:
     """
     Four-query Clifford tester algorithm (batched).
@@ -36,7 +41,7 @@ def clifford_tester_batched(
     circuits = [transpilation_function(get_clifford_tester_circuit(U_circuit, n, x)) for x in all_x]
 
     # Run all circuits in a single backend call
-    result = backend.run(circuits, shots=shots).result(timeout=None)
+    result = backend.run(circuits, shots=shots).result(timeout=timeout)
 
     # Collect raw counts for each Weyl operator
     raw_results = {}
@@ -48,7 +53,12 @@ def clifford_tester_batched(
 
 
 def clifford_tester_paired_runs(
-    U_circuit: QuantumCircuit, n: int, shots: int = 1000, backend=None, transpilation_function: Callable[[QuantumCircuit], QuantumCircuit] | None = None
+    U_circuit: QuantumCircuit,
+    n: int,
+    shots: int = 1000,
+    backend=None,
+    transpilation_function: Callable[[QuantumCircuit], QuantumCircuit] | None = None,
+    timeout: float | None = None,
 ) -> list[dict]:
     """
     Four-query Clifford tester algorithm (paired runs).
@@ -81,7 +91,7 @@ def clifford_tester_paired_runs(
         qc_transpiled = transpilation_function(qc)
 
         # Run the same circuit twice
-        result = backend.run(qc_transpiled, shots=2).result(timeout=None)
+        result = backend.run(qc_transpiled, shots=2).result(timeout=timeout)
         counts = result.get_counts()
 
         # Extract the two measurement outcomes

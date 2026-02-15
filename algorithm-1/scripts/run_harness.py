@@ -35,8 +35,8 @@ SHOTS = 1000
 RESULTS_DIR = Path(__file__).parent.parent / "results"
 
 BACKENDS = [
-    ("aer_simulator", AerSimulator(), None),  # (name, backend, transpilation_fn)
-    # ("qi_tuna_9", *get_backend_and_transpilation_function("Tuna-9")),
+    ("aer_simulator", AerSimulator(), None, None),  # (name, backend, transpilation_fn, timeout)
+    # ("qi_tuna_9", *get_backend_and_transpilation_function("Tuna-9"), 300),
 ]
 
 # === Execution (no edits below) ===
@@ -61,7 +61,7 @@ def main():
     # Step 2: Run testers on each backend
     summaries = []
 
-    for idx, (backend_name, backend, transpile_fn) in enumerate(BACKENDS, start=2):
+    for idx, (backend_name, backend, transpile_fn, timeout) in enumerate(BACKENDS, start=2):
         backend_dir = gate_dir / f"{idx:02d}_{backend_name}"
 
         # --- Paired runs ---
@@ -71,7 +71,7 @@ def main():
             print(f"[skip] {backend_name}/paired: raw_results.json exists")
         else:
             print(f"[run]  {backend_name}/paired: running {SHOTS} shots...")
-            paired_raw = clifford_tester_paired_runs(U, N, shots=SHOTS, backend=backend, transpilation_function=transpile_fn)
+            paired_raw = clifford_tester_paired_runs(U, N, shots=SHOTS, backend=backend, transpilation_function=transpile_fn, timeout=timeout)
             save_paired_raw(paired_raw, paired_dir)
             print(f"[done] {backend_name}/paired: saved raw results")
 
@@ -85,7 +85,7 @@ def main():
             print(f"[skip] {backend_name}/batched: raw_results.json exists")
         else:
             print(f"[run]  {backend_name}/batched: running {SHOTS} shots...")
-            batched_raw = clifford_tester_batched(U, N, shots=SHOTS, backend=backend, transpilation_function=transpile_fn)
+            batched_raw = clifford_tester_batched(U, N, shots=SHOTS, backend=backend, transpilation_function=transpile_fn, timeout=timeout)
             save_batched_raw(batched_raw, batched_dir)
             print(f"[done] {backend_name}/batched: saved raw results")
 
