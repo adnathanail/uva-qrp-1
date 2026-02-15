@@ -38,7 +38,7 @@ def get_clifford_tester_circuit(U_circuit: QuantumCircuit, n: int, x: tuple[int,
     qc = QuantumCircuit(2 * n, 2 * n)
 
     # Qubit layout: qubits 0 to n-1 (A), qubits n to 2n-1 (B)
-    A = list(range(0, n))
+    A = list(range(n))
     B = list(range(n, 2 * n))
 
     # Step 1: Prepare |P_x⟩⟩
