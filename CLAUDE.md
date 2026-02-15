@@ -19,7 +19,7 @@ algorithm-1/
 │       ├── __init__.py
 │       ├── testers.py                              # paired_runs and batched tester implementations
 │       ├── utils.py                                # Circuit building, collision probability
-│       └── results.py                              # Pydantic models for raw results + save/load/summarise
+│       └── results.py                              # Pydantic models for raw results + checkpoint state + save/load
 ├── scripts/
 │   ├── expected_acceptance_probability.py          # Compute p_acc for specific gates
 │   └── run_harness.py                              # Result collection harness (multi-backend, skip-if-exists)
@@ -73,6 +73,16 @@ jupyter notebook algorithm-1/                         # Open notebook
 ### Result Collection Harness
 
 `run_harness.py` runs both tester variants (paired_runs, batched) across configured backends and writes results to `algorithm-1/results/`. It skips runs if `raw_results.json` already exists, so re-running is safe and fast. Configure gate, shots, and backends in the script's configuration section.
+
+### Checkpoint / Resumption
+
+Both testers support checkpoint files via `checkpoint_dir` (passed automatically by the harness). If a run is interrupted, re-running resumes from where it left off:
+
+- **`plan.json`** — saves the testing plan (which Weyl operators, how many shots) so resumed runs use the same random samples.
+- **`jobs.json`** (paired only) — tracks per-x progress: which have counts collected, which have a job submitted but not yet collected.
+- **`job_{id}.qpy`** — serialized QI job (via `QIJob.serialize()`), allowing retrieval of results from jobs still running on QI hardware. Named with the batch job ID for easy identification.
+
+On completion, checkpoint files are cleaned up automatically. On AerSimulator, jobs are ephemeral so incomplete x values are simply resubmitted (fast). On QI hardware, the serialized job is reconstructed via `_load_job()` (a lightweight alternative to `QIJob.deserialize()` that takes a backend directly instead of requiring a provider).
 
 ### Package Setup
 
