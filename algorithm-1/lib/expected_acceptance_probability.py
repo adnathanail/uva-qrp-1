@@ -8,6 +8,7 @@ import itertools
 from functools import reduce
 
 import numpy as np
+from qiskit import QuantumCircuit
 from qiskit.quantum_info import Operator
 
 # Pauli matrices indexed 0=I, 1=X, 2=Y, 3=Z
@@ -73,7 +74,7 @@ def expected_acceptance_probability(U_matrix: np.ndarray, n: int) -> float:
     return p_acc_from_table(table, n)
 
 
-def expected_acceptance_probability_from_circuit(U_circuit) -> float:
+def expected_acceptance_probability_from_circuit(U_circuit: QuantumCircuit) -> float:
     """Compute expected acceptance probability from a QuantumCircuit.
 
     Converts the circuit to a unitary matrix via Operator, infers n from num_qubits.
