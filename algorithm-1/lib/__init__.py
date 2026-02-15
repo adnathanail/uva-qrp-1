@@ -1,10 +1,13 @@
-from .clifford_tester import clifford_tester, get_clifford_tester_circuit
+from .clifford_tester import clifford_tester, collision_probability, get_clifford_tester_circuit
+from .clifford_tester_sampled import clifford_tester_sampled
 from .gates import get_weyl_operator, maximally_entangled_state, weyl_choi_state
 from .measurements import measure_bell_basis
 from .qi_transpilation import get_backend_and_transpilation_function
 
 __all__ = [
     "clifford_tester",
+    "clifford_tester_sampled",
+    "collision_probability",
     "get_backend_and_transpilation_function",
     "get_clifford_tester_circuit",
     "get_weyl_operator",
