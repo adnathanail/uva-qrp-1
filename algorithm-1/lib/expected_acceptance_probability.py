@@ -25,7 +25,7 @@ def pauli_n(labels: list[int]) -> np.ndarray:
 
     E.g. pauli_n([1, 0, 3]) = X ⊗ I ⊗ Z
     """
-    result: np.ndarray = reduce(np.kron, [PAULI[i] for i in labels])
+    result: np.ndarray = reduce(np.kron, [PAULI[i] for i in labels])  # type: ignore[arg-type]
     return result
 
 
