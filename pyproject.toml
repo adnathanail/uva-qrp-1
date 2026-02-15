@@ -14,6 +14,7 @@ dependencies = [
 dev = [
     "ipykernel>=7.1.0",
     "matplotlib>=3.10.8",
+    "mypy>=1.19.1",
     "pylatexenc>=2.10",
     "pytest>=9.0.2",
     "qiskit-aer>=0.17.2",
@@ -28,6 +29,21 @@ packages = ["algorithm-1/lib"]
 
 [tool.pytest.ini_options]
 pythonpath = ["algorithm-1"]
+
+[tool.mypy]
+mypy_path = "algorithm-1"
+packages = ["lib"]
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+
+[[tool.mypy.overrides]]
+module = [
+    "qiskit.*",
+    "qiskit_aer.*",
+    "qiskit_quantuminspire.*",
+]
+ignore_missing_imports = true
 
 [tool.ruff]
 line-length = 160
