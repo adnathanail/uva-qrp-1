@@ -12,7 +12,7 @@ def default_backend_and_transpilation(backend, transpilation_function):
 
     if transpilation_function is None:
 
-        def transpilation_function(qcc: QuantumCircuit):
+        def transpilation_function(qcc: QuantumCircuit) -> QuantumCircuit:
             return qcc.decompose(reps=3)
 
     return backend, transpilation_function
