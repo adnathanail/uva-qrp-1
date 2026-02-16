@@ -69,7 +69,7 @@ def c_4_t_gate():
     return _n_t_gate(4)
 
 
-UNITARIES: dict[str, Callable[[], QuantumCircuit]] = {
+STANDARD_UNITARIES: dict[str, Callable[[], QuantumCircuit]] = {
     "hadamard": hadamard,
     "s_gate": s_gate,
     "identity": identity,
