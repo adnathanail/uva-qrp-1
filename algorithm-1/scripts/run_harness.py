@@ -15,7 +15,6 @@ from pathlib import Path
 
 from qiskit import QuantumCircuit
 from qiskit_aer import AerSimulator
-from scripts.unitaries import UNITARIES
 
 from lib import clifford_tester_batched, clifford_tester_paired_runs, get_qi_backend_and_transpilation_function
 from lib.clifford_tester.results import (
@@ -30,6 +29,7 @@ from lib.clifford_tester.results import (
     save_summary,
 )
 from lib.expected_acceptance_probability import expected_acceptance_probability_from_circuit
+from lib.unitaries import UNITARIES
 
 # === Configuration ===
 SHOTS = 1000

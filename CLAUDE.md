@@ -21,7 +21,6 @@ algorithm-1/
 │       ├── utils.py                                # Circuit building, collision probability
 │       └── results.py                              # Pydantic models for raw results + checkpoint state + save/load
 ├── scripts/
-│   ├── expected_acceptance_probability.py          # Compute p_acc for specific gates
 │   └── run_harness.py                              # Result collection harness (multi-backend, skip-if-exists)
 ├── results/                                        # Generated output from run_harness.py (gitignored)
 └── tests/
