@@ -14,5 +14,6 @@ def clifford_group_size(n):
     return result
 
 
-for i in range(1, 11):
-    print(f"There are {clifford_group_size(i)} {i}-qubit Cliffords")
+if __name__ == "__main__":
+    for i in range(1, 11):
+        print(f"There are {clifford_group_size(i)} {i}-qubit Cliffords")
