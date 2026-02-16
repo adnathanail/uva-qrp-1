@@ -1,32 +1,14 @@
 import json
-import os
 from collections import Counter
 from pathlib import Path
 
 from pydantic import BaseModel
 
-# --- Constants ---
+from .utils import atomic_write, serialize_key
 
 PLAN_FILE = "plan.json"
 JOBS_FILE = "jobs.json"
 JOB_GLOB = "job_*.qpy"
-
-
-# --- Helpers ---
-
-
-def _key(x: tuple[int, ...]) -> str:
-    return json.dumps(list(x))
-
-
-def _atomic_write(path: Path, content: str) -> None:
-    tmp = path.with_name(path.name + ".tmp")
-    try:
-        tmp.write_text(content)
-        os.replace(tmp, path)
-    except BaseException:
-        tmp.unlink(missing_ok=True)
-        raise
 
 
 # --- Models ---
@@ -40,7 +22,7 @@ class PairedPlan(BaseModel):
 
     @classmethod
     def from_counter(cls, n: int, total_shots: int, counter: Counter[tuple[int, ...]]) -> "PairedPlan":
-        return cls(n=n, total_shots=total_shots, x_counts={_key(x): count for x, count in counter.items()})
+        return cls(n=n, total_shots=total_shots, x_counts={serialize_key(x): count for x, count in counter.items()})
 
     def to_counter(self) -> Counter[tuple[int, ...]]:
         return Counter({tuple(json.loads(k)): v for k, v in self.x_counts.items()})
@@ -65,10 +47,10 @@ class PairedJobsState(BaseModel):
     jobs: dict[str, PairedJobEntry] = {}
 
     def get_entry(self, x: tuple[int, ...]) -> PairedJobEntry | None:
-        return self.jobs.get(_key(x))
+        return self.jobs.get(serialize_key(x))
 
     def set_entry(self, x: tuple[int, ...], entry: PairedJobEntry) -> None:
-        self.jobs[_key(x)] = entry
+        self.jobs[serialize_key(x)] = entry
 
 
 class BatchedJobsState(BaseModel):
@@ -80,7 +62,7 @@ class BatchedJobsState(BaseModel):
 
 def save_plan(plan: PairedPlan | BatchedPlan, path: Path) -> None:
     path.mkdir(parents=True, exist_ok=True)
-    _atomic_write(path / PLAN_FILE, plan.model_dump_json(indent=2))
+    atomic_write(path / PLAN_FILE, plan.model_dump_json(indent=2))
 
 
 def load_paired_plan(path: Path) -> PairedPlan | None:
@@ -105,7 +87,7 @@ def load_batched_plan(path: Path) -> BatchedPlan | None:
 
 def save_paired_jobs(state: PairedJobsState, path: Path) -> None:
     path.mkdir(parents=True, exist_ok=True)
-    _atomic_write(path / JOBS_FILE, state.model_dump_json(indent=2))
+    atomic_write(path / JOBS_FILE, state.model_dump_json(indent=2))
 
 
 def load_paired_jobs(path: Path) -> PairedJobsState | None:
@@ -117,7 +99,7 @@ def load_paired_jobs(path: Path) -> PairedJobsState | None:
 
 def save_batched_jobs(state: BatchedJobsState, path: Path) -> None:
     path.mkdir(parents=True, exist_ok=True)
-    _atomic_write(path / JOBS_FILE, state.model_dump_json(indent=2))
+    atomic_write(path / JOBS_FILE, state.model_dump_json(indent=2))
 
 
 def load_batched_jobs(path: Path) -> BatchedJobsState | None:

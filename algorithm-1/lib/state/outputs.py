@@ -5,6 +5,11 @@ from pydantic import BaseModel
 
 from ..clifford_tester.utils import collision_probability
 
+PAIRED_RAW_RESULTS_FILE = "raw_results.json"
+BATCHED_RAW_RESULTS_FILE = "raw_results.json"
+SUMMARY_FILE = "summary.json"
+
+
 # --- Models ---
 
 
@@ -54,10 +59,6 @@ class ExpectedAcceptanceProbability(BaseModel):
 
 
 # --- Save / Load ---
-
-PAIRED_RAW_RESULTS_FILE = "raw_results.json"
-BATCHED_RAW_RESULTS_FILE = "raw_results.json"
-SUMMARY_FILE = "summary.json"
 
 
 def save_paired_raw(results: PairedRawResults, path: Path) -> None:
