@@ -2,7 +2,6 @@
 
 import numpy as np
 import stim
-from qiskit import QuantumCircuit
 from qiskit.circuit.library import UnitaryGate
 
 
@@ -15,18 +14,6 @@ def stim_random_clifford_gate(n: int) -> UnitaryGate:
     tab = stim.Tableau.random(n)
     unitary = tab.to_unitary_matrix(endian="little").astype(np.complex128)
     return UnitaryGate(unitary)
-
-
-def stim_random_clifford_circuit(n: int) -> QuantumCircuit:
-    """Generate a uniformly random n-qubit Clifford as a QuantumCircuit.
-
-    Returns a single-gate circuit wrapping the random Clifford unitary,
-    compatible with the tester harness.
-    """
-    gate = stim_random_clifford_gate(n)
-    qc = QuantumCircuit(n)
-    qc.append(gate, range(n))
-    return qc
 
 
 def freeze_stim_clifford(n: int) -> str:
