@@ -1,13 +1,16 @@
 from .checkpoints import (
     JOB_GLOB,
+    BatchedJobsState,
     BatchedPlan,
     PairedJobEntry,
     PairedJobsState,
     PairedPlan,
     cleanup_checkpoint,
+    load_batched_jobs,
     load_batched_plan,
     load_paired_jobs,
     load_paired_plan,
+    save_batched_jobs,
     save_paired_jobs,
     save_plan,
 )
@@ -25,6 +28,7 @@ from .outputs import (
 
 __all__ = [
     "JOB_GLOB",
+    "BatchedJobsState",
     "BatchedPlan",
     "BatchedRawResults",
     "ExpectedAcceptanceProbability",
@@ -34,11 +38,13 @@ __all__ = [
     "PairedRawResults",
     "PairedSample",
     "cleanup_checkpoint",
+    "load_batched_jobs",
     "load_batched_plan",
     "load_batched_raw",
     "load_paired_jobs",
     "load_paired_plan",
     "load_paired_raw",
+    "save_batched_jobs",
     "save_batched_raw",
     "save_paired_jobs",
     "save_paired_raw",
