@@ -20,9 +20,9 @@ def get_job_id(job: AerJob | QIJob) -> str:
         - batch_job_id otherwise
     - Aer jobs use job_id()
     """
-    if type(job) is AerJob:
+    if isinstance(job, AerJob):
         return job.job_id()
-    elif type(job) is QIJob:
+    elif isinstance(job, QIJob):
         if len(job.circuits_run_data) == 1:
             if (job_circuit_id := job.circuits_run_data[0].job_id) is not None:
                 return str(job_circuit_id)
@@ -43,13 +43,13 @@ def save_job(job: AerJob | QIJob, checkpoint_dir: Path) -> None:
 
     Saves as job_{id}.qpy. Removes any previous job_*.qpy first.
     """
-    if type(job) is QIJob:
+    if isinstance(job, QIJob):
         # Clean old serialized jobs
         for old in checkpoint_dir.glob(JOB_GLOB):
             old.unlink()
         jid = get_job_id(job)
         job.serialize(checkpoint_dir / f"job_{jid}.qpy")
-    elif type(job) is not AerJob:
+    elif isinstance(job, AerJob):
         msg = f"Error saving job: Invalid job type {type(job)}"
         raise JobManagementError(msg)
 
