@@ -206,7 +206,8 @@ def clifford_tester_paired_runs(
     raw_results: list[dict[str, Any]] = []
     for x, _ in x_counts.items():
         entry = jobs_state.get_entry(x)
-        assert entry is not None and entry.counts is not None
+        if entry is None or entry.counts is None:
+            raise RuntimeError(f"Missing counts for x={list(x)} after job collection phase")
         counts = entry.counts
 
         outcomes: list[str] = []
