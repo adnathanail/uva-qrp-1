@@ -38,23 +38,19 @@ class BatchedPlan(BaseModel):
         return [tuple(x) for x in self.all_x]
 
 
-class PairedJobEntry(BaseModel):
+class JobEntry(BaseModel):
     job_id: str | None = None
     counts: dict[str, int] | None = None
 
 
-class PairedJobsState(BaseModel):
-    jobs: dict[str, PairedJobEntry] = {}
+class JobsState(BaseModel):
+    jobs: dict[str, JobEntry] = {}
 
-    def get_entry(self, x: tuple[int, ...]) -> PairedJobEntry | None:
+    def get_entry(self, x: tuple[int, ...]) -> JobEntry | None:
         return self.jobs.get(serialize_key(x))
 
-    def set_entry(self, x: tuple[int, ...], entry: PairedJobEntry) -> None:
+    def set_entry(self, x: tuple[int, ...], entry: JobEntry) -> None:
         self.jobs[serialize_key(x)] = entry
-
-
-class BatchedJobsState(BaseModel):
-    job_id: str | None = None
 
 
 # --- Save / Load ---
@@ -85,28 +81,16 @@ def load_batched_plan(path: Path) -> BatchedPlan | None:
     return plan
 
 
-def save_paired_jobs(state: PairedJobsState, path: Path) -> None:
+def save_jobs(state: JobsState, path: Path) -> None:
     path.mkdir(parents=True, exist_ok=True)
     atomic_write(path / JOBS_FILE, state.model_dump_json(indent=2))
 
 
-def load_paired_jobs(path: Path) -> PairedJobsState | None:
+def load_jobs(path: Path) -> JobsState | None:
     filepath = path / JOBS_FILE
     if not filepath.exists():
         return None
-    return PairedJobsState.model_validate_json(filepath.read_text())
-
-
-def save_batched_jobs(state: BatchedJobsState, path: Path) -> None:
-    path.mkdir(parents=True, exist_ok=True)
-    atomic_write(path / JOBS_FILE, state.model_dump_json(indent=2))
-
-
-def load_batched_jobs(path: Path) -> BatchedJobsState | None:
-    filepath = path / JOBS_FILE
-    if not filepath.exists():
-        return None
-    return BatchedJobsState.model_validate_json(filepath.read_text())
+    return JobsState.model_validate_json(filepath.read_text())
 
 
 def cleanup_checkpoint(path: Path) -> None:

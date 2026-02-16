@@ -10,18 +10,15 @@ from qiskit.providers import BackendV2
 
 from ..jobs import get_job_id, load_job, save_job
 from ..state import (
-    BatchedJobsState,
     BatchedPlan,
-    PairedJobEntry,
-    PairedJobsState,
+    JobEntry,
+    JobsState,
     PairedPlan,
     cleanup_checkpoint,
-    load_batched_jobs,
     load_batched_plan,
-    load_paired_jobs,
+    load_jobs,
     load_paired_plan,
-    save_batched_jobs,
-    save_paired_jobs,
+    save_jobs,
     save_plan,
 )
 from .utils import default_transpilation_function, get_clifford_tester_circuit
@@ -68,42 +65,61 @@ def clifford_tester_batched(
         save_plan(plan, checkpoint_dir)
         print(f"       created new plan ({len(all_x)} Weyl operators, {shots} shots each)")
 
-    # Phase 2: Build circuits
+    # Phase 2: Build & transpile one circuit per Weyl operator
     print(f"       building {len(all_x)} circuits...")
-    circuits = [transpilation_function(get_clifford_tester_circuit(U_circuit, n, x)) for x in all_x]
+    circuits: dict[tuple[int, ...], QuantumCircuit] = {}
+    for x in all_x:
+        circuits[x] = transpilation_function(get_clifford_tester_circuit(U_circuit, n, x))
 
-    # Phase 3: Check for existing job or submit new one
-    result = None
-    jobs_state = load_batched_jobs(checkpoint_dir)
+    # Phase 3: Load existing jobs state
+    jobs_state = load_jobs(checkpoint_dir)
+    if jobs_state is not None:
+        already_done = sum(1 for k in jobs_state.jobs if jobs_state.jobs[k].counts is not None)
+        print(f"       loaded jobs checkpoint ({already_done}/{len(all_x)} already collected)")
+    else:
+        jobs_state = JobsState()
 
-    if jobs_state is not None and jobs_state.job_id is not None:
-        saved_job = load_job(backend, checkpoint_dir, jobs_state.job_id)
-        if saved_job is not None:
-            jid = get_job_id(saved_job)
-            print(f"       loaded saved job (id={jid}), retrieving result...")
-            try:
-                result = saved_job.result(timeout=timeout)
-                print("       retrieved results from saved job")
-            except Exception as e:
-                print(f"       retrieval failed ({e}), will resubmit")
+    # Phase 4: For each x, collect results (skip/retrieve/submit as needed)
+    for idx, x in enumerate(all_x, 1):
+        if (entry := jobs_state.get_entry(x)) is not None:
+            if entry.counts is not None:
+                continue
 
-    if result is None:
-        print(f"       submitting job ({len(circuits)} circuits, {shots} shots each)...")
-        job = backend.run(circuits, shots=shots)
+            if entry.job_id:
+                saved_job = load_job(backend, checkpoint_dir, entry.job_id)
+                if saved_job is not None:
+                    jid = get_job_id(saved_job)
+                    print(f"       [{idx}/{len(all_x)}] x={list(x)}: loaded saved job (id={jid}), retrieving...")
+                    try:
+                        counts = saved_job.result(timeout=timeout).get_counts()
+                        jobs_state.set_entry(x, JobEntry(job_id=entry.job_id, counts=counts))
+                        save_jobs(jobs_state, checkpoint_dir)
+                        print(f"       [{idx}/{len(all_x)}] x={list(x)}: retrieved")
+                        continue
+                    except Exception as e:
+                        print(f"       [{idx}/{len(all_x)}] x={list(x)}: retrieval failed ({e}), resubmitting")
+
+        print(f"       [{idx}/{len(all_x)}] x={list(x)}: submitting ({shots} shots)...")
+        job = backend.run(circuits[x], shots=shots)
         jid = get_job_id(job)
-        save_batched_jobs(BatchedJobsState(job_id=jid), checkpoint_dir)
+        jobs_state.set_entry(x, JobEntry(job_id=jid))
         save_job(job, checkpoint_dir)
-        print(f"       job submitted (id={jid}), waiting for result...")
-        result = job.result(timeout=timeout)
-        print("       result received")
+        save_jobs(jobs_state, checkpoint_dir)
 
-    # Phase 4: Collect raw counts
+        counts = job.result(timeout=timeout).get_counts()
+        jobs_state.set_entry(x, JobEntry(job_id=jid, counts=counts))
+        save_jobs(jobs_state, checkpoint_dir)
+        print(f"       [{idx}/{len(all_x)}] x={list(x)}: done (id={jid})")
+
+    # Phase 5: Collect raw counts
     raw_results = {}
-    for i, x in enumerate(all_x):
-        counts = result.get_counts(i)
-        raw_results[x] = counts
+    for x in all_x:
+        entry = jobs_state.get_entry(x)
+        if entry is None or entry.counts is None:
+            raise RuntimeError(f"Missing counts for x={list(x)} after job collection phase")
+        raw_results[x] = entry.counts
 
-    # Phase 5: Clean up checkpoint files
+    # Phase 6: Clean up checkpoint files
     cleanup_checkpoint(checkpoint_dir)
     print("       checkpoint cleaned up")
 
@@ -160,12 +176,12 @@ def clifford_tester_paired_runs(
         circuits[x] = transpilation_function(qc)
 
     # Phase 3: Load existing jobs state
-    jobs_state = load_paired_jobs(checkpoint_dir)
+    jobs_state = load_jobs(checkpoint_dir)
     if jobs_state is not None:
         already_done = sum(1 for k in jobs_state.jobs if jobs_state.jobs[k].counts is not None)
         print(f"       loaded jobs checkpoint ({already_done}/{len(x_counts)} already collected)")
     else:
-        jobs_state = PairedJobsState()
+        jobs_state = JobsState()
 
     # Phase 4: For each x, collect results (skip/retrieve/submit as needed)
     for idx, (x, count) in enumerate(x_counts.items(), 1):
@@ -182,8 +198,8 @@ def clifford_tester_paired_runs(
                     print(f"       [{idx}/{len(x_counts)}] x={list(x)}: loaded saved job (id={jid}), retrieving...")
                     try:
                         counts = saved_job.result(timeout=timeout).get_counts()
-                        jobs_state.set_entry(x, PairedJobEntry(job_id=entry.job_id, counts=counts))
-                        save_paired_jobs(jobs_state, checkpoint_dir)
+                        jobs_state.set_entry(x, JobEntry(job_id=entry.job_id, counts=counts))
+                        save_jobs(jobs_state, checkpoint_dir)
                         print(f"       [{idx}/{len(x_counts)}] x={list(x)}: retrieved")
                         continue
                     except Exception as e:
@@ -193,13 +209,13 @@ def clifford_tester_paired_runs(
         print(f"       [{idx}/{len(x_counts)}] x={list(x)}: submitting ({2 * count} shots)...")
         job = backend.run(circuits[x], shots=2 * count)
         jid = get_job_id(job)
-        jobs_state.set_entry(x, PairedJobEntry(job_id=jid))
+        jobs_state.set_entry(x, JobEntry(job_id=jid))
         save_job(job, checkpoint_dir)
-        save_paired_jobs(jobs_state, checkpoint_dir)
+        save_jobs(jobs_state, checkpoint_dir)
 
         counts = job.result(timeout=timeout).get_counts()
-        jobs_state.set_entry(x, PairedJobEntry(job_id=jid, counts=counts))
-        save_paired_jobs(jobs_state, checkpoint_dir)
+        jobs_state.set_entry(x, JobEntry(job_id=jid, counts=counts))
+        save_jobs(jobs_state, checkpoint_dir)
         print(f"       [{idx}/{len(x_counts)}] x={list(x)}: done (id={jid})")
 
     # Phase 5: Expand counts → shuffle → pair
