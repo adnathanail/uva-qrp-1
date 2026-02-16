@@ -45,6 +45,30 @@ def toffoli() -> QuantumCircuit:
     return qc
 
 
+def _n_hadamard_cnot(n: int) -> QuantumCircuit:
+    out = QuantumCircuit(n)
+    for i in range(n):
+        out.h(i)
+    for i in range(n - 1):
+        out.cx(i, i + 1)
+    return out
+
+
+def c_4_hadamard_3_cnot() -> QuantumCircuit:
+    return _n_hadamard_cnot(4)
+
+
+def _n_t_gate(n: int):
+    out = QuantumCircuit(n)
+    for i in range(n):
+        out.t(i)
+    return out
+
+
+def c_4_t_gate():
+    return _n_t_gate(4)
+
+
 UNITARIES: dict[str, Callable[[], QuantumCircuit]] = {
     "hadamard": hadamard,
     "s_gate": s_gate,
@@ -53,4 +77,6 @@ UNITARIES: dict[str, Callable[[], QuantumCircuit]] = {
     "rx_0_3": rx_0_3,
     "cnot": cnot,
     "toffoli": toffoli,
+    "c_4_hadamard_3_cnot": c_4_hadamard_3_cnot,
+    "c_4_t_gate": c_4_t_gate,
 }
