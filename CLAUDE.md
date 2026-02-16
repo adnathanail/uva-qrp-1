@@ -12,9 +12,9 @@ algorithm-1/
 ├── lib/
 │   ├── __init__.py
 │   ├── jobs.py                                     # Job ID extraction, QI job serialize/load
-│   ├── qi_transpilation.py                         # Quantum Inspire backend helpers
+│   ├── backends.py                                 # BackendName type, transpilation functions, resolve_backend()
 │   ├── expected_acceptance_probability.py          # Theoretical p_acc computation
-│   ├── result_collection.py                        # BackendName type, backend resolution, collect_results_for_unitary()
+│   ├── result_collection.py                        # collect_results_for_unitary() orchestrator
 │   ├── unitaries/
 │   │   ├── __init__.py                             # Merges STANDARD + STIM into UNITARIES registry + gate_source
 │   │   ├── standard.py                             # Hand-written gates (hadamard, cnot, etc.)
@@ -109,8 +109,9 @@ On completion, checkpoint files are cleaned up automatically. On AerSimulator, j
 
 `lib/` is installed as a Python package via hatchling (configured in `pyproject.toml`), so `from lib import ...` works everywhere — scripts, tests, and notebooks — without `sys.path` hacks.
 
-### Quantum Inspire
-- `qi_transpilation.py` lazily initializes `QIProvider` (only on first call to `get_qi_backend_and_transpilation_function`), so importing the module doesn't require a QI connection.
+### Backends
+- `lib/backends.py` consolidates backend resolution, transpilation functions, and QI provider logic. All QI imports are lazy (inside `_qi_provider()` and `_get_qi_backend_and_transpilation_function()`), so importing the module doesn't require QI or a connection.
+- `resolve_backend(name)` returns `(backend, transpile_fn, timeout)` — `transpile_fn` is **never None**.
 - Run `qi login` before using QI backends.
 
 ## Testing Philosophy
