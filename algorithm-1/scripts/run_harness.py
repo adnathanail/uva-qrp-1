@@ -29,7 +29,7 @@ from lib.state import (
     save_paired_raw,
     save_summary,
 )
-from lib.unitaries import UNITARIES
+from lib.unitaries import STANDARD_UNITARIES
 
 # === Configuration ===
 SHOTS = 1000
@@ -123,15 +123,15 @@ def run_gate(
 
 
 def main():
-    gates = UNITARIES
+    gates = STANDARD_UNITARIES
     if len(sys.argv) > 1:
         names = sys.argv[1:]
-        unknown = set(names) - set(UNITARIES)
+        unknown = set(names) - set(STANDARD_UNITARIES)
         if unknown:
             print(f"Unknown unitaries: {', '.join(sorted(unknown))}")
-            print(f"Available: {', '.join(UNITARIES)}")
+            print(f"Available: {', '.join(STANDARD_UNITARIES)}")
             sys.exit(1)
-        gates = {k: v for k, v in UNITARIES.items() if k in names}
+        gates = {k: v for k, v in STANDARD_UNITARIES.items() if k in names}
 
     for name, make_circuit in gates.items():
         print(f"\n{'=' * 50}")
