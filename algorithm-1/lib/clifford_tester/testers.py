@@ -73,11 +73,9 @@ def clifford_tester_batched(
     # Phase 3: Check for existing job or submit new one
     result = None
 
-    if checkpoint_dir:
-        matches = list(checkpoint_dir.glob(JOB_GLOB))
-        saved_job = load_job(backend, checkpoint_dir, matches[0].stem.removeprefix("job_")) if matches else None
-    else:
-        saved_job = None
+    matches = list(checkpoint_dir.glob(JOB_GLOB))
+    saved_job = load_job(backend, checkpoint_dir, matches[0].stem.removeprefix("job_")) if matches else None
+
     if saved_job is not None:
         jid = get_job_id(saved_job)
         print(f"       loaded saved job (id={jid}), retrieving result...")
@@ -174,7 +172,7 @@ def clifford_tester_paired_runs(
                 continue
 
             # Have a saved job file — try to retrieve result
-            if checkpoint_dir and entry.job_id:
+            if entry.job_id:
                 saved_job = load_job(backend, checkpoint_dir, entry.job_id)
                 if saved_job is not None:
                     jid = get_job_id(saved_job)
