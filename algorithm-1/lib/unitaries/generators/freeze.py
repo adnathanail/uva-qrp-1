@@ -34,6 +34,12 @@ def freeze_gate(
     The target file must already import numpy as np, QuantumCircuit,
     and UnitaryGate at the top level.
     """
+    # Check that the generated Python code will be valid
+    if not name_prefix.isidentifier():
+        raise ValueError(f"name_prefix must be a valid identifier, got {name_prefix!r}")
+    if not dict_name.isidentifier():
+        raise ValueError(f"dict_name must be a valid identifier, got {dict_name!r}")
+
     name = _gate_name(name_prefix, gate)
     matrix = np.array(gate.to_matrix())
     n = gate.num_qubits
