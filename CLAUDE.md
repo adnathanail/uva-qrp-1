@@ -11,16 +11,16 @@ algorithm-1/
 ├── README.md                                       # Mathematical breakdown of the algorithm
 ├── lib/
 │   ├── __init__.py
-│   ├── gates.py                                    # Reusable quantum gate functions
 │   ├── jobs.py                                     # Job ID extraction, QI job serialize/load
-│   ├── measurements.py                             # Bell basis measurement
 │   ├── qi_transpilation.py                         # Quantum Inspire backend helpers
 │   ├── expected_acceptance_probability.py          # Theoretical p_acc computation
 │   ├── unitaries.py                                # Registry of unitary gates for the harness
 │   ├── clifford_tester/
 │   │   ├── __init__.py
 │   │   ├── testers.py                              # paired_runs and batched tester implementations
-│   │   └── utils.py                                # Circuit building, collision probability
+│   │   ├── utils.py                                # Circuit building, collision probability
+│   │   ├── gates.py                                # Reusable quantum gate functions (Weyl, Bell, etc.)
+│   │   └── measurements.py                         # Bell basis measurement
 │   └── state/
 │       ├── __init__.py
 │       ├── outputs.py                              # Pydantic models for raw results + summary + save/load
@@ -83,10 +83,10 @@ uv run python algorithm-1/scripts/run_harness.py      # Run result collection ha
 Both testers support checkpoint files via `checkpoint_dir` (passed automatically by the harness). If a run is interrupted, re-running resumes from where it left off:
 
 - **`plan.json`** — saves the testing plan (which Weyl operators, how many shots) so resumed runs use the same random samples.
-- **`jobs.json`** (paired only) — tracks per-x progress: which have counts collected, which have a job submitted but not yet collected.
+- **`jobs.json`** — tracks job progress. For paired: per-x state (counts collected vs job submitted). For batched: the single job ID.
 - **`job_{id}.qpy`** — serialized QI job (via `QIJob.serialize()`), allowing retrieval of results from jobs still running on QI hardware. Named with the batch job ID for easy identification.
 
-On completion, checkpoint files are cleaned up automatically. On AerSimulator, jobs are ephemeral so incomplete x values are simply resubmitted (fast). On QI hardware, the serialized job is reconstructed via `_load_job()` (a lightweight alternative to `QIJob.deserialize()` that takes a backend directly instead of requiring a provider).
+On completion, checkpoint files are cleaned up automatically. On AerSimulator, jobs are ephemeral so incomplete x values are simply resubmitted (fast). On QI hardware, the serialized job is reconstructed via `load_job()` in `lib/jobs.py` (a lightweight alternative to `QIJob.deserialize()` that takes a backend directly instead of requiring a provider).
 
 ### Package Setup
 
