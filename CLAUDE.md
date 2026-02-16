@@ -14,7 +14,14 @@ algorithm-1/
 │   ├── jobs.py                                     # Job ID extraction, QI job serialize/load
 │   ├── qi_transpilation.py                         # Quantum Inspire backend helpers
 │   ├── expected_acceptance_probability.py          # Theoretical p_acc computation
-│   ├── unitaries.py                                # Registry of unitary gates for the harness
+│   ├── unitaries/
+│   │   ├── __init__.py                             # Merges STANDARD + STIM into UNITARIES registry
+│   │   ├── standard.py                             # Hand-written gates (hadamard, cnot, etc.)
+│   │   ├── stim_random_cliffords.py                # Frozen random Cliffords generated via Stim
+│   │   └── generators/
+│   │       ├── __init__.py                         # Re-exports freeze_gate, stim helpers
+│   │       ├── freeze.py                           # Generic gate freezing (appends to target .py file)
+│   │       └── stim.py                             # Stim random Clifford generation + freeze wrapper
 │   ├── clifford_tester/
 │   │   ├── __init__.py
 │   │   ├── testers.py                              # paired_runs and batched tester implementations
@@ -27,7 +34,9 @@ algorithm-1/
 │       ├── checkpoints.py                          # Checkpoint models (plans, jobs) + save/load/cleanup
 │       └── utils.py                                # File reading/writing utils
 ├── scripts/
-│   └── run_harness.py                              # Result collection harness (multi-backend, skip-if-exists)
+│   ├── run_harness.py                              # Result collection harness (multi-backend, skip-if-exists)
+│   ├── freeze_new_stim_clifford.py                 # CLI to freeze a random Stim Clifford (takes n qubits)
+│   └── how_many_n_qubit_cliffords.py               # Counts n-qubit Cliffords
 ├── results/                                        # Generated output from run_harness.py (gitignored)
 └── tests/
     ├── test_gates.py                               # pytest tests with explicit matrix comparisons
@@ -67,7 +76,18 @@ uv sync                                               # Install dependencies (al
 pytest algorithm-1/tests -v                           # Run tests
 uv run ty check                                       # Type checking
 uv run python algorithm-1/scripts/run_harness.py      # Run result collection harness
+uv run python algorithm-1/scripts/freeze_new_stim_clifford.py 4  # Freeze a random 4-qubit Stim Clifford
 ```
+
+### Unitaries Package
+
+`lib/unitaries/` manages the registry of gates available to the harness:
+
+- **`standard.py`** — `STANDARD_UNITARIES`: hand-written gates (hadamard, cnot, toffoli, etc.)
+- **`stim_random_cliffords.py`** — `STIM_UNITARIES`: frozen random Cliffords generated via Stim
+- **`__init__.py`** — merges both dicts into `UNITARIES` (with collision check), so `from lib.unitaries import UNITARIES` always has everything
+
+**Freezing random gates**: `freeze_gate()` in `generators/freeze.py` is a generic utility that takes any `UnitaryGate`, a name prefix, a target `.py` file, and a dict name. It generates a unique name from the gate's matrix hash, checks for duplicates, and appends the function definition + dict registration to the target file. `freeze_stim_clifford(n)` in `generators/stim.py` wraps this for Stim Cliffords. To add a new generator source, create a new generator module and target file following the same pattern.
 
 ### Result Collection Harness
 
