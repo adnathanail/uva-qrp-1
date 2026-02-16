@@ -14,10 +14,12 @@ algorithm-1/
 │   ├── jobs.py                                     # Job ID extraction, QI job serialize/load
 │   ├── qi_transpilation.py                         # Quantum Inspire backend helpers
 │   ├── expected_acceptance_probability.py          # Theoretical p_acc computation
+│   ├── result_collection.py                        # BackendName type, backend resolution, collect_results_for_unitary()
 │   ├── unitaries/
-│   │   ├── __init__.py                             # Merges STANDARD + STIM into UNITARIES registry
+│   │   ├── __init__.py                             # Merges STANDARD + STIM into UNITARIES registry + gate_source
 │   │   ├── standard.py                             # Hand-written gates (hadamard, cnot, etc.)
 │   │   ├── stim_random_cliffords.py                # Frozen random Cliffords generated via Stim
+│   │   ├── utils.py                                # gate_source() helper
 │   │   └── generators/
 │   │       ├── __init__.py                         # Re-exports freeze_gate, stim helpers
 │   │       ├── freeze.py                           # Generic gate freezing (appends to target .py file)
@@ -34,10 +36,10 @@ algorithm-1/
 │       ├── checkpoints.py                          # Checkpoint models (plans, jobs) + save/load/cleanup
 │       └── utils.py                                # File reading/writing utils
 ├── scripts/
-│   ├── run_harness.py                              # Result collection harness (multi-backend, skip-if-exists)
+│   ├── collect_full_results_for_standard_unitaries.py  # Thin script: runs testers on all standard unitaries
 │   ├── freeze_new_stim_clifford.py                 # CLI to freeze a random Stim Clifford (takes n qubits)
 │   └── how_many_n_qubit_cliffords.py               # Counts n-qubit Cliffords
-├── results/                                        # Generated output from run_harness.py (gitignored)
+├── results/                                        # Generated output (gitignored)
 └── tests/
     ├── test_gates.py                               # pytest tests with explicit matrix comparisons
     ├── test_expected_acceptance_probability.py     # Tests for theoretical p_acc values
@@ -75,7 +77,7 @@ Both testers submit jobs individually per Weyl operator, allowing interrupted ru
 uv sync                                               # Install dependencies (also installs lib/ as a package)
 pytest algorithm-1/tests -v                           # Run tests
 uv run ty check                                       # Type checking
-uv run python algorithm-1/scripts/run_harness.py      # Run result collection harness
+uv run python algorithm-1/scripts/collect_full_results_for_standard_unitaries.py  # Run result collection
 uv run python algorithm-1/scripts/freeze_new_stim_clifford.py 4  # Freeze a random 4-qubit Stim Clifford
 ```
 
@@ -89,9 +91,9 @@ uv run python algorithm-1/scripts/freeze_new_stim_clifford.py 4  # Freeze a rand
 
 **Freezing random gates**: `freeze_gate()` in `generators/freeze.py` is a generic utility that takes any `UnitaryGate`, a name prefix, a target `.py` file, and a dict name. It generates a unique name from the gate's matrix hash, checks for duplicates, and appends the function definition + dict registration to the target file. `freeze_stim_clifford(n)` in `generators/stim.py` wraps this for Stim Cliffords. To add a new generator source, create a new generator module and target file following the same pattern.
 
-### Result Collection Harness
+### Result Collection
 
-`run_harness.py` runs both tester variants (paired_runs, batched) across configured backends and writes results to `algorithm-1/results/`. It skips runs if `raw_results.json` already exists, so re-running is safe and fast. Configure gate, shots, and backends in the script's configuration section.
+`lib/result_collection.py` provides `collect_results_for_unitary(gate_name, U, backend, shots=1000)` — runs both tester variants (paired_runs, batched) on a single backend and writes results to `algorithm-1/results/`. It skips runs if `raw_results.json` already exists, so re-running is safe and fast. `collect_full_results_for_standard_unitaries.py` is a thin script that iterates over `STANDARD_UNITARIES` and calls this function for each gate/backend combination.
 
 ### Checkpoint / Resumption
 
