@@ -29,18 +29,29 @@ from lib.state import (
     save_paired_raw,
     save_summary,
 )
-from lib.unitaries import STANDARD_UNITARIES
+from lib.unitaries import STANDARD_UNITARIES, STIM_UNITARIES, UNITARIES
 
 # === Configuration ===
 SHOTS = 1000
-RESULTS_DIR = Path(__file__).parent.parent / "results"
+RESULTS_DIR = Path(__file__).parent.parent / "results" / "clifford_tester"
 
 BACKENDS = [
     ("aer_simulator", AerSimulator(), None, None),  # (name, backend, transpilation_fn, timeout)
     ("qi_tuna_9", *get_qi_backend_and_transpilation_function("Tuna-9"), 300),
 ]
 
-EXPECTED_FILE = "01_expected_acceptance_probability.json"
+EXPECTED_FILE = "expected_acceptance_probability.json"
+
+
+# === Helpers ===
+
+
+def gate_source(name: str) -> str:
+    if name in STANDARD_UNITARIES:
+        return "standard"
+    if name in STIM_UNITARIES:
+        return "stim_random_cliffords"
+    raise ValueError(f"Unknown gate source for '{name}'")
 
 
 # === Execution ===
@@ -48,13 +59,14 @@ EXPECTED_FILE = "01_expected_acceptance_probability.json"
 
 def run_gate(
     gate_name: str,
+    source: str,
     U: QuantumCircuit,
     shots: int,
     backends: list,
     results_dir: Path,
 ):
     n = U.num_qubits
-    gate_dir = results_dir / f"{gate_name}_{shots}"
+    gate_dir = results_dir / source / gate_name / f"{shots}_shots"
     gate_dir.mkdir(parents=True, exist_ok=True)
 
     # Step 1: Expected acceptance probability
@@ -72,11 +84,11 @@ def run_gate(
     # Step 2: Run testers on each backend
     summaries = []
 
-    for idx, (backend_name, backend, transpile_fn, timeout) in enumerate(backends, start=2):
-        backend_dir = gate_dir / f"{idx:02d}_{backend_name}"
+    for backend_name, backend, transpile_fn, timeout in backends:
+        backend_dir = gate_dir / backend_name
 
         # --- Paired runs ---
-        paired_dir = backend_dir / "01_paired"
+        paired_dir = backend_dir / "paired"
         paired_raw = load_paired_raw(paired_dir)
         if paired_raw is not None:
             print(f"[skip] {backend_name}/paired: raw_results.json exists")
@@ -93,7 +105,7 @@ def run_gate(
         save_summary(paired_rate, paired_dir)
 
         # --- Batched ---
-        batched_dir = backend_dir / "02_batched"
+        batched_dir = backend_dir / "batched"
         batched_raw = load_batched_raw(batched_dir)
         if batched_raw is not None:
             print(f"[skip] {backend_name}/batched: raw_results.json exists")
@@ -123,21 +135,21 @@ def run_gate(
 
 
 def main():
-    gates = STANDARD_UNITARIES
+    gates = UNITARIES
     if len(sys.argv) > 1:
         names = sys.argv[1:]
-        unknown = set(names) - set(STANDARD_UNITARIES)
+        unknown = set(names) - set(UNITARIES)
         if unknown:
             print(f"Unknown unitaries: {', '.join(sorted(unknown))}")
-            print(f"Available: {', '.join(STANDARD_UNITARIES)}")
+            print(f"Available: {', '.join(UNITARIES)}")
             sys.exit(1)
-        gates = {k: v for k, v in STANDARD_UNITARIES.items() if k in names}
+        gates = {k: v for k, v in UNITARIES.items() if k in names}
 
     for name, make_circuit in gates.items():
         print(f"\n{'=' * 50}")
         print(f"Gate: {name}")
         print(f"{'=' * 50}")
-        run_gate(name, make_circuit(), SHOTS, BACKENDS, RESULTS_DIR)
+        run_gate(name, gate_source(name), make_circuit(), SHOTS, BACKENDS, RESULTS_DIR)
 
 
 if __name__ == "__main__":
