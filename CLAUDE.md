@@ -55,15 +55,10 @@ algorithm-1/
 
 There are two tester implementations in `clifford_tester/testers.py`:
 
-- **`clifford_tester_batched`**: Enumerates all 4^n Weyl operators, builds one circuit per operator, and runs them all in a single `backend.run()` call with many shots each. The acceptance probability is computed from collision probabilities across the full counts distribution.
-- **`clifford_tester_paired_runs`**: Randomly samples Weyl operators, runs the circuit for each sample, and pairs individual measurement outcomes (y1, y2) to check for collisions. Deduplicates circuits so each unique Weyl operator is only built/transpiled once.
+- **`clifford_tester_batched`**: Enumerates all 4^n Weyl operators, builds one circuit per operator, and submits one job per operator (each with many shots). The acceptance probability is computed from collision probabilities across the full counts distribution.
+- **`clifford_tester_paired_runs`**: Randomly samples Weyl operators, submits one job per unique operator, and pairs individual measurement outcomes (y1, y2) to check for collisions.
 
-On a **noiseless simulator**, both approaches produce statistically equivalent results — they're sampling from the same distribution.
-
-On **noisy hardware**, the batched approach gives better data.
-It runs each circuit with many shots in one job, so all shots for a given circuit experience the same calibration state.
-The paired_runs approach submits many smaller jobs, which may span different calibration windows and accumulate more overhead-related noise.
-The batched approach also avoids the statistical subtlety of pairing expanded counts (where shuffling is needed to prevent bias).
+Both testers submit jobs individually per Weyl operator, allowing interrupted runs to resume via checkpoints. On a **noiseless simulator**, both produce statistically equivalent results. On **noisy hardware**, the batched approach gives better data — it avoids the statistical subtlety of pairing expanded counts (where shuffling is needed to prevent bias).
 
 ## Running
 
@@ -83,7 +78,7 @@ uv run python algorithm-1/scripts/run_harness.py      # Run result collection ha
 Both testers support checkpoint files via `checkpoint_dir` (passed automatically by the harness). If a run is interrupted, re-running resumes from where it left off:
 
 - **`plan.json`** — saves the testing plan (which Weyl operators, how many shots) so resumed runs use the same random samples.
-- **`jobs.json`** — tracks job progress. For paired: per-x state (counts collected vs job submitted). For batched: the single job ID.
+- **`jobs.json`** — tracks per-x job progress (counts collected vs job submitted). Both testers submit one job per Weyl operator and share the same `JobsState` model.
 - **`job_{id}.qpy`** — serialized QI job (via `QIJob.serialize()`), allowing retrieval of results from jobs still running on QI hardware. Named with the batch job ID for easy identification.
 
 On completion, checkpoint files are cleaned up automatically. On AerSimulator, jobs are ephemeral so incomplete x values are simply resubmitted (fast). On QI hardware, the serialized job is reconstructed via `load_job()` in `lib/jobs.py` (a lightweight alternative to `QIJob.deserialize()` that takes a backend directly instead of requiring a provider).
