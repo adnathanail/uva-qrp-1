@@ -1,7 +1,7 @@
 from qiskit import QuantumCircuit
 
-from ..gates import weyl_choi_state
-from ..measurements import measure_bell_basis
+from .gates import weyl_choi_state
+from .measurements import measure_bell_basis
 
 
 def default_transpilation_function(qcc: QuantumCircuit) -> QuantumCircuit:

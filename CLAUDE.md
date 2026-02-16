@@ -24,7 +24,8 @@ algorithm-1/
 │   └── state/
 │       ├── __init__.py
 │       ├── outputs.py                              # Pydantic models for raw results + summary + save/load
-│       └── checkpoints.py                          # Checkpoint models (plans, jobs) + save/load/cleanup
+│       ├── checkpoints.py                          # Checkpoint models (plans, jobs) + save/load/cleanup
+│       └── utils.py                                # File reading/writing utils
 ├── scripts/
 │   └── run_harness.py                              # Result collection harness (multi-backend, skip-if-exists)
 ├── results/                                        # Generated output from run_harness.py (gitignored)
@@ -71,7 +72,6 @@ uv sync                                               # Install dependencies (al
 pytest algorithm-1/tests -v                           # Run tests
 uv run ty check                                       # Type checking
 uv run python algorithm-1/scripts/run_harness.py      # Run result collection harness
-jupyter notebook algorithm-1/                         # Open notebook
 ```
 
 ### Result Collection Harness
