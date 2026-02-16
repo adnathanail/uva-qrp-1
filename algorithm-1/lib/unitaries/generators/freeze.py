@@ -41,6 +41,12 @@ def freeze_gate(
         raise ValueError(f"dict_name must be a valid identifier, got {dict_name!r}")
 
     name = _gate_name(name_prefix, gate)
+
+    # Check if this gate has already been frozen
+    existing = target_file.read_text()
+    if f"def {name}()" in existing:
+        raise ValueError(f"Gate '{name}' already exists in {target_file.name}")
+
     matrix = np.array(gate.to_matrix())
     n = gate.num_qubits
     matrix_repr = repr(matrix.tolist())
