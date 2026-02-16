@@ -81,7 +81,7 @@ Both testers support checkpoint files via `checkpoint_dir` (passed automatically
 - **`jobs.json`** — tracks per-x job progress (counts collected vs job submitted). Both testers submit one job per Weyl operator and share the same `JobsState` model.
 - **`job_{id}.qpy`** — serialized QI job (via `QIJob.serialize()`), allowing retrieval of results from jobs still running on QI hardware. Named with the batch job ID for easy identification.
 
-On completion, checkpoint files are cleaned up automatically. On AerSimulator, jobs are ephemeral so incomplete x values are simply resubmitted (fast). On QI hardware, the serialized job is reconstructed via `load_job()` in `lib/jobs.py` (a lightweight alternative to `QIJob.deserialize()` that takes a backend directly instead of requiring a provider).
+On completion, checkpoint files are cleaned up automatically. On AerSimulator, jobs are ephemeral so incomplete x values are simply resubmitted (fast). On QI hardware, the serialized job is reconstructed via `load_job()` in `lib/jobs.py` (a lightweight alternative to `QIJob.deserialize()` that takes a backend directly instead of requiring a provider). If a job retrieval times out (`JobTimeoutError`), the program exits — the job is still running on the backend, and re-running will attempt retrieval again from the checkpoint.
 
 ### Package Setup
 
