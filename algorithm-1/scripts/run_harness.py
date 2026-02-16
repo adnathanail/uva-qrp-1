@@ -54,7 +54,7 @@ def run_gate(
     results_dir: Path,
 ):
     n = U.num_qubits
-    gate_dir = results_dir / gate_name
+    gate_dir = results_dir / f"{gate_name}_{shots}"
     gate_dir.mkdir(parents=True, exist_ok=True)
 
     # Step 1: Expected acceptance probability
