@@ -49,7 +49,7 @@ def save_job(job: AerJob | QIJob, checkpoint_dir: Path) -> None:
             old.unlink()
         jid = get_job_id(job)
         job.serialize(checkpoint_dir / f"job_{jid}.qpy")
-    elif isinstance(job, AerJob):
+    elif not isinstance(job, AerJob):
         msg = f"Error saving job: Invalid job type {type(job)}"
         raise JobManagementError(msg)
 
