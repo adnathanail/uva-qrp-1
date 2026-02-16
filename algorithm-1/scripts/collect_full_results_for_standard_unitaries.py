@@ -7,7 +7,8 @@ Usage:
 
 import sys
 
-from lib.result_collection import BackendName, collect_results_for_unitary
+from lib.backends import BackendName
+from lib.result_collection import collect_results_for_unitary
 from lib.unitaries import STANDARD_UNITARIES
 
 SHOTS = 1000

@@ -4,10 +4,6 @@ from .gates import weyl_choi_state
 from .measurements import measure_bell_basis
 
 
-def default_transpilation_function(qcc: QuantumCircuit) -> QuantumCircuit:
-    return qcc.decompose(reps=3)
-
-
 def get_clifford_tester_circuit(U_circuit: QuantumCircuit, n: int, x: tuple[int, ...]) -> QuantumCircuit:
     """
     Build the circuit for one sample of the Clifford tester.

@@ -7,12 +7,11 @@ Skips computations if raw_results.json already exists for a given run.
 
 from __future__ import annotations
 
-from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Literal, get_args
 
 from qiskit import QuantumCircuit
 
+from lib.backends import BackendName, resolve_backend
 from lib.clifford_tester import clifford_tester_batched, clifford_tester_paired_runs
 from lib.expected_acceptance_probability import expected_acceptance_probability_from_circuit
 from lib.state import (
@@ -28,32 +27,9 @@ from lib.state import (
 )
 from lib.unitaries import gate_source
 
-BackendName = Literal["aer_simulator", "qi_tuna_9"]
-_VALID_BACKENDS = set(get_args(BackendName))
-
 DEFAULT_RESULTS_DIR = Path(__file__).parent.parent / "results" / "clifford_tester"
 
 EXPECTED_FILE = "expected_acceptance_probability.json"
-
-
-def _resolve_backend(name: BackendName) -> tuple[Any, Callable[..., Any] | None, float | None]:
-    """Map a backend name to ``(backend_instance, transpile_fn, timeout)``.
-
-    Imports are lazy so that importing this module doesn't require QI or Aer.
-    """
-    if name not in _VALID_BACKENDS:
-        raise ValueError(f"Unknown backend '{name}'. Valid: {', '.join(sorted(_VALID_BACKENDS))}")
-    if name == "aer_simulator":
-        from qiskit_aer import AerSimulator
-
-        return AerSimulator(), None, None
-    if name == "qi_tuna_9":
-        from lib.qi_transpilation import get_qi_backend_and_transpilation_function
-
-        backend, transpile_fn = get_qi_backend_and_transpilation_function("Tuna-9")
-        return backend, transpile_fn, 300
-
-    raise ValueError(f"Unhandled backend '{name}'")  # unreachable, keeps type-checkers happy
 
 
 def collect_results_for_unitary(
@@ -100,7 +76,7 @@ def collect_results_for_unitary(
         print(f"[done] Expected acceptance probability: {expected:.6f}")
 
     # --- Resolve backend ---
-    backend_instance, transpile_fn, default_timeout = _resolve_backend(backend)
+    backend_instance, transpile_fn, default_timeout = resolve_backend(backend)
     effective_timeout = timeout if timeout is not None else default_timeout
 
     backend_dir = gate_dir / backend

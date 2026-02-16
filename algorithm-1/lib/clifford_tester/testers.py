@@ -22,7 +22,7 @@ from ..state import (
     save_jobs,
     save_plan,
 )
-from .utils import default_transpilation_function, get_clifford_tester_circuit
+from .utils import get_clifford_tester_circuit
 
 
 def clifford_tester_batched(
@@ -31,7 +31,7 @@ def clifford_tester_batched(
     *,
     shots: int = 1000,
     backend: BackendV2,
-    transpilation_function: Callable[[QuantumCircuit], QuantumCircuit] | None = None,
+    transpilation_function: Callable[[QuantumCircuit], QuantumCircuit],
     timeout: float | None = None,
     checkpoint_dir: Path,
 ) -> dict[tuple[int, ...], dict[str, int]]:
@@ -47,13 +47,12 @@ def clifford_tester_batched(
         n: Number of qubits U acts on
         shots: Number of backend shots per Weyl operator circuit
         backend: Qiskit backend to run on (defaults to AerSimulator)
-        transpilation_function: Optional function to transpile circuits
+        transpilation_function: Function to transpile circuits before execution
         checkpoint_dir: Directory for checkpoint files (plan.json, jobs.json)
 
     Returns:
         dict mapping each Weyl operator x (tuple) to its Qiskit counts dict
     """
-    transpilation_function = transpilation_function or default_transpilation_function
 
     # Phase 1: Load or generate plan
     plan = load_batched_plan(checkpoint_dir)
@@ -136,7 +135,7 @@ def clifford_tester_paired_runs(
     *,
     shots: int = 1000,
     backend: BackendV2,
-    transpilation_function: Callable[[QuantumCircuit], QuantumCircuit] | None = None,
+    transpilation_function: Callable[[QuantumCircuit], QuantumCircuit],
     timeout: float | None = None,
     checkpoint_dir: Path,
 ) -> list[dict[str, Any]]:
@@ -153,13 +152,12 @@ def clifford_tester_paired_runs(
         n: Number of qubits U acts on
         shots: Number of times to run the test
         backend: Qiskit backend to run on (defaults to AerSimulator)
-        transpilation_function: Optional function to transpile circuits
+        transpilation_function: Function to transpile circuits before execution
         checkpoint_dir: Directory for checkpoint files (plan.json, jobs.json)
 
     Returns:
         list of dicts, each with keys "x", "y1", "y2"
     """
-    transpilation_function = transpilation_function or default_transpilation_function
 
     # Phase 1: Load or generate plan
     plan = load_paired_plan(checkpoint_dir)
