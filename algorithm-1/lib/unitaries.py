@@ -50,7 +50,7 @@ UNITARIES: dict[str, Callable[[], QuantumCircuit]] = {
     "s_gate": s_gate,
     "identity": identity,
     "t_gate": t_gate,
-    "rx_0.3": rx_0_3,
+    "rx_0_3": rx_0_3,
     "cnot": cnot,
     "toffoli": toffoli,
 }
