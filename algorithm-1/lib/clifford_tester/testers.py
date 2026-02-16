@@ -10,15 +10,17 @@ from qiskit.providers import BackendV2
 
 from ..jobs import get_job_id, load_job, save_job
 from .results import (
-    JOB_GLOB,
+    BatchedJobsState,
     BatchedPlan,
     PairedJobEntry,
     PairedJobsState,
     PairedPlan,
     cleanup_checkpoint,
+    load_batched_jobs,
     load_batched_plan,
     load_paired_jobs,
     load_paired_plan,
+    save_batched_jobs,
     save_paired_jobs,
     save_plan,
 )
@@ -72,23 +74,24 @@ def clifford_tester_batched(
 
     # Phase 3: Check for existing job or submit new one
     result = None
+    jobs_state = load_batched_jobs(checkpoint_dir)
 
-    matches = list(checkpoint_dir.glob(JOB_GLOB))
-    saved_job = load_job(backend, checkpoint_dir, matches[0].stem.removeprefix("job_")) if matches else None
-
-    if saved_job is not None:
-        jid = get_job_id(saved_job)
-        print(f"       loaded saved job (id={jid}), retrieving result...")
-        try:
-            result = saved_job.result(timeout=timeout)
-            print("       retrieved results from saved job")
-        except Exception as e:
-            print(f"       retrieval failed ({e}), will resubmit")
+    if jobs_state is not None and jobs_state.job_id is not None:
+        saved_job = load_job(backend, checkpoint_dir, jobs_state.job_id)
+        if saved_job is not None:
+            jid = get_job_id(saved_job)
+            print(f"       loaded saved job (id={jid}), retrieving result...")
+            try:
+                result = saved_job.result(timeout=timeout)
+                print("       retrieved results from saved job")
+            except Exception as e:
+                print(f"       retrieval failed ({e}), will resubmit")
 
     if result is None:
         print(f"       submitting job ({len(circuits)} circuits, {shots} shots each)...")
         job = backend.run(circuits, shots=shots)
         jid = get_job_id(job)
+        save_batched_jobs(BatchedJobsState(job_id=jid), checkpoint_dir)
         save_job(job, checkpoint_dir)
         print(f"       job submitted (id={jid}), waiting for result...")
         result = job.result(timeout=timeout)
