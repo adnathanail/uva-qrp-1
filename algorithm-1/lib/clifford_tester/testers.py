@@ -7,6 +7,7 @@ from typing import Any
 import numpy as np
 from qiskit import QuantumCircuit
 from qiskit.providers import BackendV2
+from qiskit.providers.exceptions import JobTimeoutError
 
 from ..jobs import get_job_id, load_job, save_job
 from ..state import (
@@ -96,6 +97,9 @@ def clifford_tester_batched(
                         save_jobs(jobs_state, checkpoint_dir)
                         print(f"       [{idx}/{len(all_x)}] x={list(x)}: retrieved")
                         continue
+                    except JobTimeoutError:
+                        print(f"       [{idx}/{len(all_x)}] x={list(x)}: timed out, exiting (job still running)")
+                        raise
                     except Exception as e:
                         print(f"       [{idx}/{len(all_x)}] x={list(x)}: retrieval failed ({e}), resubmitting")
 
@@ -202,6 +206,9 @@ def clifford_tester_paired_runs(
                         save_jobs(jobs_state, checkpoint_dir)
                         print(f"       [{idx}/{len(x_counts)}] x={list(x)}: retrieved")
                         continue
+                    except JobTimeoutError:
+                        print(f"       [{idx}/{len(x_counts)}] x={list(x)}: timed out, exiting (job still running)")
+                        raise
                     except Exception as e:
                         print(f"       [{idx}/{len(x_counts)}] x={list(x)}: retrieval failed ({e}), resubmitting")
 
