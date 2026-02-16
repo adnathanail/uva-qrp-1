@@ -15,8 +15,10 @@ class JobManagementError(Exception):
 def get_job_id(job: AerJob | QIJob) -> str:
     """Extract a usable job identifier from a backend job.
 
-    QI jobs use batch_job_id (job_id() returns ""), Aer jobs use job_id().
-    Returns None if no identifier is available.
+    - QI jobs use
+        - circuits_run_data[0].job_id when there is only 1 circuit (as this matches the ID's on My QI)
+        - batch_job_id otherwise
+    - Aer jobs use job_id()
     """
     if type(job) is AerJob:
         return job.job_id()
