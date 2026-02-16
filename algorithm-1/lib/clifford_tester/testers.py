@@ -9,7 +9,7 @@ from qiskit import QuantumCircuit
 from qiskit.providers import BackendV2
 
 from ..jobs import get_job_id, load_job, save_job
-from .results import (
+from ..state import (
     BatchedJobsState,
     BatchedPlan,
     PairedJobEntry,

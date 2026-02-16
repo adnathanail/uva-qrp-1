@@ -5,7 +5,7 @@ from qiskit.providers import BackendV2
 from qiskit_aer import AerJob
 from qiskit_quantuminspire.qi_jobs import QIJob
 
-from .clifford_tester.results import JOB_GLOB
+from .state import JOB_GLOB
 
 
 class JobManagementError(Exception):

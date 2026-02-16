@@ -12,14 +12,19 @@ algorithm-1/
 ├── lib/
 │   ├── __init__.py
 │   ├── gates.py                                    # Reusable quantum gate functions
+│   ├── jobs.py                                     # Job ID extraction, QI job serialize/load
 │   ├── measurements.py                             # Bell basis measurement
 │   ├── qi_transpilation.py                         # Quantum Inspire backend helpers
 │   ├── expected_acceptance_probability.py          # Theoretical p_acc computation
-│   └── clifford_tester/
+│   ├── unitaries.py                                # Registry of unitary gates for the harness
+│   ├── clifford_tester/
+│   │   ├── __init__.py
+│   │   ├── testers.py                              # paired_runs and batched tester implementations
+│   │   └── utils.py                                # Circuit building, collision probability
+│   └── state/
 │       ├── __init__.py
-│       ├── testers.py                              # paired_runs and batched tester implementations
-│       ├── utils.py                                # Circuit building, collision probability
-│       └── results.py                              # Pydantic models for raw results + checkpoint state + save/load
+│       ├── outputs.py                              # Pydantic models for raw results + summary + save/load
+│       └── checkpoints.py                          # Checkpoint models (plans, jobs) + save/load/cleanup
 ├── scripts/
 │   └── run_harness.py                              # Result collection harness (multi-backend, skip-if-exists)
 ├── results/                                        # Generated output from run_harness.py (gitignored)
