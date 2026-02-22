@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 import sys
+import time
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -98,20 +99,29 @@ def collect() -> None:
                 if entry and entry.get("execution_time_seconds") is not None:
                     continue
 
-                # Have job_id but no timing → re-query API
+                # Have job_id but no timing → poll API until result appears
                 if entry and entry.get("job_id") is not None:
-                    print(f"[{key}] Re-querying job {entry['job_id']}...")
-                    exec_time = get_execution_time(int(entry["job_id"]), token)
+                    job_id_str = entry["job_id"]
+                    print(f"[{key}] Polling job {job_id_str}...")
+                    poll_interval = 10  # seconds
+                    elapsed = 0
+                    exec_time = None
+                    while elapsed < timeout:
+                        exec_time = get_execution_time(int(job_id_str), token)
+                        if exec_time is not None:
+                            break
+                        print(f"[{key}] Not ready, retrying in {poll_interval}s ({elapsed}s elapsed)...")
+                        time.sleep(poll_interval)
+                        elapsed += poll_interval
+
                     if exec_time is not None:
                         entry["execution_time_seconds"] = exec_time
                         save_results(results)
                         done += 1
                         print(f"[{key}] {exec_time:.4f}s  ({done}/{total})")
                     else:
-                        print(f"[{key}] No result yet, re-submitting...")
-                        # Fall through to submit a new job
-                        del results[key]
-                        entry = None
+                        print(f"[{key}] Timed out after {timeout}s, will retry next run")
+                    continue
 
                 # Submit new job
                 if entry is None:
