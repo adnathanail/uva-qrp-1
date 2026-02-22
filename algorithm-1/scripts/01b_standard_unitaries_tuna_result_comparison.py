@@ -57,7 +57,7 @@ def collect_entries() -> list[dict]:
 
 
 def print_table(entries: list[dict]) -> None:
-    header = f"{'Gate':<30} {'Source':<10} {'p_expected':>10} {'Paired':>10} {'Batched':>10} {'Diff (B-P)':>10} {'% Diff':>8}"
+    header = f"{'Gate':<30} {'Source':<10} {'p_expected':>10} {'Paired':>10} {'Batched':>10} {'(B-P)':>10} {'% Diff':>8}"
     print(header)
     print("-" * len(header))
 

@@ -22,12 +22,6 @@ uv run ruff check
 uv run pytest
 ```
 
-Run the result collection harness
-
-```shell
-uv run python algorithm-1/scripts/run_harness.py
-```
-
 Log in to QI
 
 ```shell
@@ -35,5 +29,30 @@ qi login
 # Then restart Jupyter
 ```
 
-Projects
-- [Algorithm 1](algorithm-1/README.md)
+## Algorithm 1 scripts
+
+### 1. Collect full results for standard unitaries
+
+Runs the paired and batched algorithms on the 9 "standard" unitaries, declared in `algorithm-1/lib/unitaries/standard.py`
+
+```shell
+uv run python algorithm-1/scripts/01_collect_full_results_for_standard_unitaries.py
+```
+
+Used to get a baseline set of results, to compare approaches/backends, and refine future approaches
+
+### 1b. Compare Tuna-9 results on standard unitaries
+
+Uses the saved results from script 1a, and produces a table comparing the results of the paired vs batched algorithms on the Tuna-9 backend
+
+```shell
+uv run python algorithm-1/scripts/01b_standard_unitaries_tuna_result_comparison.py
+```
+
+### Calculate how many n-qubit Cliffords there are
+
+Based on the formula from [Robert Koenig, John A. Smolin](https://arxiv.org/abs/1406.2170), calculates how many Clifford unitaries there are for 1-10 qubits
+
+```shell
+uv run python algorithm-1/scripts/02_how_many_n_qubit_cliffords.py
+```
