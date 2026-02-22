@@ -36,9 +36,11 @@ algorithm-1/
 │       ├── checkpoints.py                          # Checkpoint models (plans, jobs) + save/load/cleanup
 │       └── utils.py                                # File reading/writing utils
 ├── scripts/
-│   ├── collect_full_results_for_standard_unitaries.py  # Thin script: runs testers on all standard unitaries
-│   ├── freeze_new_stim_clifford.py                 # CLI to freeze a random Stim Clifford (takes n qubits)
-│   └── how_many_n_qubit_cliffords.py               # Counts n-qubit Cliffords
+│   ├── 01_collect_full_results_for_standard_unitaries.py  # Runs testers on all standard unitaries
+│   ├── 01b_standard_unitaries_tuna_result_comparison.py   # Table comparing paired vs batched on Tuna-9
+│   ├── 02_how_many_n_qubit_cliffords.py                   # Counts n-qubit Cliffords
+│   ├── 03_num_shots_time_comparison_tuna_9.py             # Benchmark: shot count vs execution time on Tuna-9
+│   └── freeze_new_stim_clifford.py                        # CLI to freeze a random Stim Clifford (takes n qubits)
 ├── results/                                        # Generated output (gitignored)
 └── tests/
     ├── test_gates.py                               # pytest tests with explicit matrix comparisons
@@ -77,8 +79,10 @@ Both testers submit jobs individually per Weyl operator, allowing interrupted ru
 uv sync                                               # Install dependencies (also installs lib/ as a package)
 pytest algorithm-1/tests -v                           # Run tests
 uv run ty check                                       # Type checking
-uv run python algorithm-1/scripts/collect_full_results_for_standard_unitaries.py  # Run result collection
-uv run python algorithm-1/scripts/freeze_new_stim_clifford.py 4  # Freeze a random 4-qubit Stim Clifford
+uv run python algorithm-1/scripts/01_collect_full_results_for_standard_unitaries.py       # Run result collection
+uv run python algorithm-1/scripts/freeze_new_stim_clifford.py 4                         # Freeze a random 4-qubit Stim Clifford
+uv run python algorithm-1/scripts/03_num_shots_time_comparison_tuna_9.py                 # Shot timing benchmark (collect + plot)
+uv run python algorithm-1/scripts/03_num_shots_time_comparison_tuna_9.py plot            # Plot only from existing data
 ```
 
 ### Unitaries Package

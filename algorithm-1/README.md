@@ -1,15 +1,6 @@
 # Algorithm 1: Four-query Clifford tester
 https://www.arxiv.org/abs/2510.07164 pg. 21
 
-## Structure
-
-- `lib/` contains various utility functions, which come together into `lib.clifford_tester.testers`
-- `scripts/run_harness.py` tests a given unitary with 2 different algorithms, on the AER simulator, and QI's Tuna-9
-
-```shell
-uv run python algorithm-1/scripts/run_harness.py
-```
-
 ## Algorithm breakdown
 
 - Input: Black-box access to an $n$-qubit unitary $U$.

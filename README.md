@@ -56,3 +56,12 @@ Based on the formula from [Robert Koenig, John A. Smolin](https://arxiv.org/abs/
 ```shell
 uv run python algorithm-1/scripts/02_how_many_n_qubit_cliffords.py
 ```
+
+### 3. Shot count vs execution time on Tuna-9
+
+Benchmarks how shot count affects execution time on Tuna-9. Submits random Clifford circuits at 1/2/4-qubit gate sizes with 1–1000 shots, 10 reps each (120 jobs total). Resumable — saves progress after each job. Results and plot go to `algorithm-1/results/shot_timing/`.
+
+```shell
+uv run python algorithm-1/scripts/03_num_shots_time_comparison_tuna_9.py       # collect + plot
+uv run python algorithm-1/scripts/03_num_shots_time_comparison_tuna_9.py plot  # plot only
+```
