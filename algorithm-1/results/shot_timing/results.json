@@ -1,0 +1,482 @@
+{
+  "1_qubits/1_shots/rep_0": {
+    "job_id": "453259",
+    "execution_time_seconds": 11.095901
+  },
+  "1_qubits/1_shots/rep_1": {
+    "job_id": "453260",
+    "execution_time_seconds": 12.110355
+  },
+  "1_qubits/1_shots/rep_2": {
+    "job_id": "453261",
+    "execution_time_seconds": 14.161893
+  },
+  "1_qubits/1_shots/rep_3": {
+    "job_id": "453262",
+    "execution_time_seconds": 11.085831
+  },
+  "1_qubits/1_shots/rep_4": {
+    "job_id": "453263",
+    "execution_time_seconds": 14.140619
+  },
+  "1_qubits/1_shots/rep_5": {
+    "job_id": "453264",
+    "execution_time_seconds": 11.763961
+  },
+  "1_qubits/1_shots/rep_6": {
+    "job_id": "453265",
+    "execution_time_seconds": 13.846497
+  },
+  "1_qubits/1_shots/rep_7": {
+    "job_id": "453266",
+    "execution_time_seconds": 10.778832
+  },
+  "1_qubits/1_shots/rep_8": {
+    "job_id": "453267",
+    "execution_time_seconds": 13.794823
+  },
+  "1_qubits/1_shots/rep_9": {
+    "job_id": "453268",
+    "execution_time_seconds": 15.840911
+  },
+  "1_qubits/10_shots/rep_0": {
+    "job_id": "453294",
+    "execution_time_seconds": 11.023409
+  },
+  "1_qubits/10_shots/rep_1": {
+    "job_id": "453321",
+    "execution_time_seconds": 14.796396
+  },
+  "1_qubits/10_shots/rep_2": {
+    "job_id": "453355",
+    "execution_time_seconds": 11.928419
+  },
+  "1_qubits/10_shots/rep_3": {
+    "job_id": "459924",
+    "execution_time_seconds": 0.963296
+  },
+  "1_qubits/10_shots/rep_4": {
+    "job_id": "459965",
+    "execution_time_seconds": 1.03514
+  },
+  "1_qubits/10_shots/rep_5": {
+    "job_id": "459997",
+    "execution_time_seconds": 1.041127
+  },
+  "1_qubits/10_shots/rep_6": {
+    "job_id": "460122",
+    "execution_time_seconds": 0.975085
+  },
+  "1_qubits/10_shots/rep_7": {
+    "job_id": "461185",
+    "execution_time_seconds": 0.94827
+  },
+  "1_qubits/10_shots/rep_8": {
+    "job_id": "461186",
+    "execution_time_seconds": 0.84201
+  },
+  "1_qubits/10_shots/rep_9": {
+    "job_id": "461187",
+    "execution_time_seconds": 0.915639
+  },
+  "1_qubits/100_shots/rep_0": {
+    "job_id": "461188",
+    "execution_time_seconds": 0.959721
+  },
+  "1_qubits/100_shots/rep_1": {
+    "job_id": "461189",
+    "execution_time_seconds": 0.950808
+  },
+  "1_qubits/100_shots/rep_2": {
+    "job_id": "461190",
+    "execution_time_seconds": 0.959503
+  },
+  "1_qubits/100_shots/rep_3": {
+    "job_id": "461191",
+    "execution_time_seconds": 0.951863
+  },
+  "1_qubits/100_shots/rep_4": {
+    "job_id": "461192",
+    "execution_time_seconds": 0.951227
+  },
+  "1_qubits/100_shots/rep_5": {
+    "job_id": "461193",
+    "execution_time_seconds": 0.86152
+  },
+  "1_qubits/100_shots/rep_6": {
+    "job_id": "461194",
+    "execution_time_seconds": 0.960932
+  },
+  "1_qubits/100_shots/rep_7": {
+    "job_id": "461195",
+    "execution_time_seconds": 0.968434
+  },
+  "1_qubits/100_shots/rep_8": {
+    "job_id": "461196",
+    "execution_time_seconds": 0.892454
+  },
+  "1_qubits/100_shots/rep_9": {
+    "job_id": "461197",
+    "execution_time_seconds": 0.940857
+  },
+  "1_qubits/1000_shots/rep_0": {
+    "job_id": "461198",
+    "execution_time_seconds": 1.303138
+  },
+  "1_qubits/1000_shots/rep_1": {
+    "job_id": "461199",
+    "execution_time_seconds": 1.321767
+  },
+  "1_qubits/1000_shots/rep_2": {
+    "job_id": "461200",
+    "execution_time_seconds": 1.342853
+  },
+  "1_qubits/1000_shots/rep_3": {
+    "job_id": "461201",
+    "execution_time_seconds": 1.318634
+  },
+  "1_qubits/1000_shots/rep_4": {
+    "job_id": "461202",
+    "execution_time_seconds": 1.380447
+  },
+  "1_qubits/1000_shots/rep_5": {
+    "job_id": "461203",
+    "execution_time_seconds": 1.581639
+  },
+  "1_qubits/1000_shots/rep_6": {
+    "job_id": "461204",
+    "execution_time_seconds": 1.329656
+  },
+  "1_qubits/1000_shots/rep_7": {
+    "job_id": "461205",
+    "execution_time_seconds": 1.262523
+  },
+  "1_qubits/1000_shots/rep_8": {
+    "job_id": "461206",
+    "execution_time_seconds": 1.244186
+  },
+  "1_qubits/1000_shots/rep_9": {
+    "job_id": "461207",
+    "execution_time_seconds": 1.314889
+  },
+  "2_qubits/1_shots/rep_0": {
+    "job_id": "461208",
+    "execution_time_seconds": 1.384809
+  },
+  "2_qubits/1_shots/rep_1": {
+    "job_id": "461209",
+    "execution_time_seconds": 1.265729
+  },
+  "2_qubits/1_shots/rep_2": {
+    "job_id": "461210",
+    "execution_time_seconds": 1.345938
+  },
+  "2_qubits/1_shots/rep_3": {
+    "job_id": "461211",
+    "execution_time_seconds": 1.019578
+  },
+  "2_qubits/1_shots/rep_4": {
+    "job_id": "461212",
+    "execution_time_seconds": 1.31359
+  },
+  "2_qubits/1_shots/rep_5": {
+    "job_id": "461213",
+    "execution_time_seconds": 1.571817
+  },
+  "2_qubits/1_shots/rep_6": {
+    "job_id": "461214",
+    "execution_time_seconds": 1.370498
+  },
+  "2_qubits/1_shots/rep_7": {
+    "job_id": "461215",
+    "execution_time_seconds": 1.476103
+  },
+  "2_qubits/1_shots/rep_8": {
+    "job_id": "461216",
+    "execution_time_seconds": 1.513607
+  },
+  "2_qubits/1_shots/rep_9": {
+    "job_id": "461217",
+    "execution_time_seconds": 1.297195
+  },
+  "2_qubits/10_shots/rep_0": {
+    "job_id": "461218",
+    "execution_time_seconds": 1.224608
+  },
+  "2_qubits/10_shots/rep_1": {
+    "job_id": "461219",
+    "execution_time_seconds": 1.420247
+  },
+  "2_qubits/10_shots/rep_2": {
+    "job_id": "461220",
+    "execution_time_seconds": 1.335074
+  },
+  "2_qubits/10_shots/rep_3": {
+    "job_id": "461221",
+    "execution_time_seconds": 1.295663
+  },
+  "2_qubits/10_shots/rep_4": {
+    "job_id": "461222",
+    "execution_time_seconds": 1.297014
+  },
+  "2_qubits/10_shots/rep_5": {
+    "job_id": "461223",
+    "execution_time_seconds": 1.320951
+  },
+  "2_qubits/10_shots/rep_6": {
+    "job_id": "461224",
+    "execution_time_seconds": 1.342738
+  },
+  "2_qubits/10_shots/rep_7": {
+    "job_id": "461225",
+    "execution_time_seconds": 1.412634
+  },
+  "2_qubits/10_shots/rep_8": {
+    "job_id": "461226",
+    "execution_time_seconds": 1.474705
+  },
+  "2_qubits/10_shots/rep_9": {
+    "job_id": "461227",
+    "execution_time_seconds": 1.267859
+  },
+  "2_qubits/100_shots/rep_0": {
+    "job_id": "461228",
+    "execution_time_seconds": 1.337376
+  },
+  "2_qubits/100_shots/rep_1": {
+    "job_id": "461229",
+    "execution_time_seconds": 1.317125
+  },
+  "2_qubits/100_shots/rep_2": {
+    "job_id": "461230",
+    "execution_time_seconds": 1.345448
+  },
+  "2_qubits/100_shots/rep_3": {
+    "job_id": "461231",
+    "execution_time_seconds": 1.410592
+  },
+  "2_qubits/100_shots/rep_4": {
+    "job_id": "461232",
+    "execution_time_seconds": 1.346004
+  },
+  "2_qubits/100_shots/rep_5": {
+    "job_id": "461233",
+    "execution_time_seconds": 1.314029
+  },
+  "2_qubits/100_shots/rep_6": {
+    "job_id": "461234",
+    "execution_time_seconds": 1.319294
+  },
+  "2_qubits/100_shots/rep_7": {
+    "job_id": "461235",
+    "execution_time_seconds": 1.322301
+  },
+  "2_qubits/100_shots/rep_8": {
+    "job_id": "461236",
+    "execution_time_seconds": 1.346601
+  },
+  "2_qubits/100_shots/rep_9": {
+    "job_id": "461237",
+    "execution_time_seconds": 1.257056
+  },
+  "2_qubits/1000_shots/rep_0": {
+    "job_id": "461238",
+    "execution_time_seconds": 1.779873
+  },
+  "2_qubits/1000_shots/rep_1": {
+    "job_id": "461239",
+    "execution_time_seconds": 1.698512
+  },
+  "2_qubits/1000_shots/rep_2": {
+    "job_id": "461240",
+    "execution_time_seconds": 1.70363
+  },
+  "2_qubits/1000_shots/rep_3": {
+    "job_id": "461242",
+    "execution_time_seconds": 1.800146
+  },
+  "2_qubits/1000_shots/rep_4": {
+    "job_id": "461243",
+    "execution_time_seconds": 1.753152
+  },
+  "2_qubits/1000_shots/rep_5": {
+    "job_id": "461244",
+    "execution_time_seconds": 1.743083
+  },
+  "2_qubits/1000_shots/rep_6": {
+    "job_id": "461245",
+    "execution_time_seconds": 1.756627
+  },
+  "2_qubits/1000_shots/rep_7": {
+    "job_id": "461246",
+    "execution_time_seconds": 1.508743
+  },
+  "2_qubits/1000_shots/rep_8": {
+    "job_id": "461247",
+    "execution_time_seconds": 1.744055
+  },
+  "2_qubits/1000_shots/rep_9": {
+    "job_id": "461248",
+    "execution_time_seconds": 1.636946
+  },
+  "4_qubits/1_shots/rep_0": {
+    "job_id": "461249",
+    "execution_time_seconds": 2.157801
+  },
+  "4_qubits/1_shots/rep_1": {
+    "job_id": "461250",
+    "execution_time_seconds": 1.924396
+  },
+  "4_qubits/1_shots/rep_2": {
+    "job_id": "461251",
+    "execution_time_seconds": 2.186234
+  },
+  "4_qubits/1_shots/rep_3": {
+    "job_id": "461252",
+    "execution_time_seconds": 2.161672
+  },
+  "4_qubits/1_shots/rep_4": {
+    "job_id": "461253",
+    "execution_time_seconds": 1.969619
+  },
+  "4_qubits/1_shots/rep_5": {
+    "job_id": "461254",
+    "execution_time_seconds": 1.902551
+  },
+  "4_qubits/1_shots/rep_6": {
+    "job_id": "461255",
+    "execution_time_seconds": 2.078645
+  },
+  "4_qubits/1_shots/rep_7": {
+    "job_id": "461256",
+    "execution_time_seconds": 1.92834
+  },
+  "4_qubits/1_shots/rep_8": {
+    "job_id": "461257",
+    "execution_time_seconds": 1.971885
+  },
+  "4_qubits/1_shots/rep_9": {
+    "job_id": "461258",
+    "execution_time_seconds": 1.954404
+  },
+  "4_qubits/10_shots/rep_0": {
+    "job_id": "461259",
+    "execution_time_seconds": 1.960099
+  },
+  "4_qubits/10_shots/rep_1": {
+    "job_id": "461263",
+    "execution_time_seconds": 1.959421
+  },
+  "4_qubits/10_shots/rep_2": {
+    "job_id": "461264",
+    "execution_time_seconds": 1.967996
+  },
+  "4_qubits/10_shots/rep_3": {
+    "job_id": "461265",
+    "execution_time_seconds": 1.975027
+  },
+  "4_qubits/10_shots/rep_4": {
+    "job_id": "461266",
+    "execution_time_seconds": null
+  },
+  "4_qubits/10_shots/rep_5": {
+    "job_id": "461267",
+    "execution_time_seconds": 1.931088
+  },
+  "4_qubits/10_shots/rep_6": {
+    "job_id": "461268",
+    "execution_time_seconds": 1.998303
+  },
+  "4_qubits/10_shots/rep_7": {
+    "job_id": "461269",
+    "execution_time_seconds": 1.979908
+  },
+  "4_qubits/10_shots/rep_8": {
+    "job_id": "461270",
+    "execution_time_seconds": 2.009858
+  },
+  "4_qubits/10_shots/rep_9": {
+    "job_id": "461271",
+    "execution_time_seconds": 1.99164
+  },
+  "4_qubits/100_shots/rep_0": {
+    "job_id": "461272",
+    "execution_time_seconds": 2.128978
+  },
+  "4_qubits/100_shots/rep_1": {
+    "job_id": "461273",
+    "execution_time_seconds": 1.984254
+  },
+  "4_qubits/100_shots/rep_2": {
+    "job_id": "461274",
+    "execution_time_seconds": 2.004484
+  },
+  "4_qubits/100_shots/rep_3": {
+    "job_id": "461275",
+    "execution_time_seconds": 2.013048
+  },
+  "4_qubits/100_shots/rep_4": {
+    "job_id": "461276",
+    "execution_time_seconds": 2.037839
+  },
+  "4_qubits/100_shots/rep_5": {
+    "job_id": "461277",
+    "execution_time_seconds": 2.07603
+  },
+  "4_qubits/100_shots/rep_6": {
+    "job_id": "461278",
+    "execution_time_seconds": 1.98068
+  },
+  "4_qubits/100_shots/rep_7": {
+    "job_id": "461279",
+    "execution_time_seconds": 2.004219
+  },
+  "4_qubits/100_shots/rep_8": {
+    "job_id": "461280",
+    "execution_time_seconds": 2.0219
+  },
+  "4_qubits/100_shots/rep_9": {
+    "job_id": "461281",
+    "execution_time_seconds": 1.954235
+  },
+  "4_qubits/1000_shots/rep_0": {
+    "job_id": "461282",
+    "execution_time_seconds": 2.436086
+  },
+  "4_qubits/1000_shots/rep_1": {
+    "job_id": "461283",
+    "execution_time_seconds": 2.699068
+  },
+  "4_qubits/1000_shots/rep_2": {
+    "job_id": "461284",
+    "execution_time_seconds": 2.555196
+  },
+  "4_qubits/1000_shots/rep_3": {
+    "job_id": "461285",
+    "execution_time_seconds": 2.648149
+  },
+  "4_qubits/1000_shots/rep_4": {
+    "job_id": "461287",
+    "execution_time_seconds": 2.43487
+  },
+  "4_qubits/1000_shots/rep_5": {
+    "job_id": "461293",
+    "execution_time_seconds": 2.45081
+  },
+  "4_qubits/1000_shots/rep_6": {
+    "job_id": "461294",
+    "execution_time_seconds": 2.42549
+  },
+  "4_qubits/1000_shots/rep_7": {
+    "job_id": "461295",
+    "execution_time_seconds": 2.415651
+  },
+  "4_qubits/1000_shots/rep_8": {
+    "job_id": "461296",
+    "execution_time_seconds": 2.533461
+  },
+  "4_qubits/1000_shots/rep_9": {
+    "job_id": "461297",
+    "execution_time_seconds": 2.429743
+  }
+}
