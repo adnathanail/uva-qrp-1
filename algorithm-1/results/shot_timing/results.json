@@ -1,55 +1,55 @@
 {
   "1_qubits/1_shots/rep_0": {
-    "job_id": "453259",
-    "execution_time_seconds": 11.095901
+    "job_id": "461348",
+    "execution_time_seconds": 0.993452
   },
   "1_qubits/1_shots/rep_1": {
-    "job_id": "453260",
-    "execution_time_seconds": 12.110355
+    "job_id": "461350",
+    "execution_time_seconds": 0.957126
   },
   "1_qubits/1_shots/rep_2": {
-    "job_id": "453261",
-    "execution_time_seconds": 14.161893
+    "job_id": "461351",
+    "execution_time_seconds": 0.923873
   },
   "1_qubits/1_shots/rep_3": {
-    "job_id": "453262",
-    "execution_time_seconds": 11.085831
+    "job_id": "461353",
+    "execution_time_seconds": 0.826263
   },
   "1_qubits/1_shots/rep_4": {
-    "job_id": "453263",
-    "execution_time_seconds": 14.140619
+    "job_id": "461354",
+    "execution_time_seconds": 0.928425
   },
   "1_qubits/1_shots/rep_5": {
-    "job_id": "453264",
-    "execution_time_seconds": 11.763961
+    "job_id": "461355",
+    "execution_time_seconds": 0.920079
   },
   "1_qubits/1_shots/rep_6": {
-    "job_id": "453265",
-    "execution_time_seconds": 13.846497
+    "job_id": "461356",
+    "execution_time_seconds": 0.792678
   },
   "1_qubits/1_shots/rep_7": {
-    "job_id": "453266",
-    "execution_time_seconds": 10.778832
+    "job_id": "461358",
+    "execution_time_seconds": 0.914175
   },
   "1_qubits/1_shots/rep_8": {
-    "job_id": "453267",
-    "execution_time_seconds": 13.794823
+    "job_id": "461359",
+    "execution_time_seconds": 0.913081
   },
   "1_qubits/1_shots/rep_9": {
-    "job_id": "453268",
-    "execution_time_seconds": 15.840911
+    "job_id": "461360",
+    "execution_time_seconds": 0.831016
   },
   "1_qubits/10_shots/rep_0": {
-    "job_id": "453294",
-    "execution_time_seconds": 11.023409
+    "job_id": "461361",
+    "execution_time_seconds": 0.938204
   },
   "1_qubits/10_shots/rep_1": {
-    "job_id": "453321",
-    "execution_time_seconds": 14.796396
+    "job_id": "461362",
+    "execution_time_seconds": 0.908601
   },
   "1_qubits/10_shots/rep_2": {
-    "job_id": "453355",
-    "execution_time_seconds": 11.928419
+    "job_id": "461363",
+    "execution_time_seconds": 0.945748
   },
   "1_qubits/10_shots/rep_3": {
     "job_id": "459924",
@@ -376,8 +376,8 @@
     "execution_time_seconds": 1.975027
   },
   "4_qubits/10_shots/rep_4": {
-    "job_id": "461266",
-    "execution_time_seconds": null
+    "job_id": "462232",
+    "execution_time_seconds": 2.174679
   },
   "4_qubits/10_shots/rep_5": {
     "job_id": "461267",
