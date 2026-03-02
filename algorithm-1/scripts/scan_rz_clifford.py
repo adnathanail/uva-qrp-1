@@ -2,8 +2,7 @@
 
 Usage:
     uv run python algorithm-1/scripts/scan_rz_clifford.py --theta-steps 9
-    uv run python algorithm-1/scripts/scan_rz_clifford.py --thetas 0,1.570796,3.141593 --mode both
-    uv run python algorithm-1/scripts/scan_rz_clifford.py --theta-steps 13 --depolarizing 0.01
+    uv run python algorithm-1/scripts/scan_rz_clifford.py --theta-steps 13 --depolarizing-list 0.01
     uv run python algorithm-1/scripts/scan_rz_clifford.py --theta-steps 13 --depolarizing-list 0.01,0.05,0.1 --repeats 5
 """
 
@@ -14,16 +13,16 @@ import math
 import tempfile
 from pathlib import Path
 
-import numpy as np
 import matplotlib
+import numpy as np
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from qiskit import QuantumCircuit, transpile
 
-from lib.clifford_tester import clifford_tester_batched, clifford_tester_paired_runs
+from lib.clifford_tester import clifford_tester_batched
 from lib.expected_acceptance_probability import expected_acceptance_probability_from_circuit
-from lib.state import BatchedRawResults, PairedRawResults, PairedSample, save_batched_raw, save_paired_raw, save_summary
+from lib.state import BatchedRawResults, save_batched_raw, save_summary
 
 
 def _parse_theta_list(raw: str) -> list[float]:
@@ -71,11 +70,8 @@ def _depolarizing_label(depolarizing: float | None) -> str:
 def main() -> None:
     parser = argparse.ArgumentParser(description="Run Clifford tester on Rz(theta) using AerSimulator.")
     parser.add_argument("--shots", type=int, default=1000, help="Shots per Weyl operator (batched) or total shots (paired).")
-    parser.add_argument("--mode", choices=["batched", "paired", "both"], default="batched", help="Which tester variant to run.")
     parser.add_argument("--theta-steps", type=int, default=9, help="Number of theta points from 0 to 2pi (inclusive).")
-    parser.add_argument("--thetas", type=str, help="Comma-separated list of theta values.")
     parser.add_argument("--degrees", action="store_true", help="Interpret theta values as degrees instead of radians.")
-    parser.add_argument("--depolarizing", type=float, default=None, help="Optional depolarizing error rate.")
     parser.add_argument(
         "--depolarizing-list",
         type=str,
@@ -87,15 +83,10 @@ def main() -> None:
     parser.add_argument("--plot-file", type=Path, default=None, help="Optional output path for the plot image.")
     args = parser.parse_args()
 
-    if args.thetas:
-        theta_values = _parse_theta_list(args.thetas)
-    else:
-        theta_values = np.linspace(0.0, 2 * math.pi, args.theta_steps).tolist()
+    theta_values = np.linspace(0.0, 2 * math.pi, args.theta_steps).tolist()
 
     if args.depolarizing_list:
         depol_values: list[float] = _parse_float_list(args.depolarizing_list)
-    elif args.depolarizing is not None:
-        depol_values = [args.depolarizing]
     else:
         depol_values = [0.001, 0.01, 0.05, 0.1]
 
@@ -112,7 +103,8 @@ def main() -> None:
 
     for depol in depol_values:
         backend = _build_backend(depol)
-        transpile_fn = lambda qc, backend=backend: transpile(qc, backend=backend)
+        def transpile_fn(qc, backend=backend):
+            return transpile(qc, backend=backend)
 
         paired_means: list[float] = []
         paired_stds: list[float] = []
@@ -126,55 +118,28 @@ def main() -> None:
             if args.results_dir is not None and args.repeats == 1:
                 base_dir = args.results_dir / _depolarizing_label(depol) / _theta_label(theta_rad)
                 batched_dir = base_dir / "batched"
-                paired_dir = base_dir / "paired"
             else:
                 base_dir = None
                 batched_dir = None
-                paired_dir = None
 
-            if args.mode in ("paired", "both"):
-                samples = []
-                for _ in range(args.repeats):
-                    if base_dir is None:
-                        with tempfile.TemporaryDirectory() as tmp:
-                            raw = clifford_tester_paired_runs(
-                                qc, 1, shots=args.shots, backend=backend, transpilation_function=transpile_fn, checkpoint_dir=Path(tmp)
-                            )
-                    else:
-                        raw = clifford_tester_paired_runs(
-                            qc, 1, shots=args.shots, backend=backend, transpilation_function=transpile_fn, checkpoint_dir=paired_dir
-                        )
-                    paired_raw = PairedRawResults(samples=[PairedSample(**d) for d in raw])
-                    rate = paired_raw.summarise()
-                    samples.append(rate)
-                paired_means.append(float(np.mean(samples)))
-                paired_stds.append(float(np.std(samples, ddof=1)) if args.repeats > 1 else 0.0)
-
-                if base_dir is not None:
-                    save_paired_raw(paired_raw, paired_dir)
-                    save_summary(paired_means[-1], paired_dir)
-
-            if args.mode in ("batched", "both"):
-                samples = []
-                for _ in range(args.repeats):
-                    if base_dir is None:
-                        with tempfile.TemporaryDirectory() as tmp:
-                            raw = clifford_tester_batched(
-                                qc, 1, shots=args.shots, backend=backend, transpilation_function=transpile_fn, checkpoint_dir=Path(tmp)
-                            )
-                    else:
+            samples = []
+            for _ in range(args.repeats):
+                if base_dir is None:
+                    with tempfile.TemporaryDirectory() as tmp:
                         raw = clifford_tester_batched(
-                            qc, 1, shots=args.shots, backend=backend, transpilation_function=transpile_fn, checkpoint_dir=batched_dir
+                            qc, 1, shots=args.shots, backend=backend, transpilation_function=transpile_fn, checkpoint_dir=Path(tmp)
                         )
-                    batched_raw = BatchedRawResults.from_tuples(raw)
-                    rate = batched_raw.summarise()
-                    samples.append(rate)
-                batched_means.append(float(np.mean(samples)))
-                batched_stds.append(float(np.std(samples, ddof=1)) if args.repeats > 1 else 0.0)
+                else:
+                    raw = clifford_tester_batched(qc, 1, shots=args.shots, backend=backend, transpilation_function=transpile_fn, checkpoint_dir=batched_dir)
+                batched_raw = BatchedRawResults.from_tuples(raw)
+                rate = batched_raw.summarise()
+                samples.append(rate)
+            batched_means.append(float(np.mean(samples)))
+            batched_stds.append(float(np.std(samples, ddof=1)) if args.repeats > 1 else 0.0)
 
-                if base_dir is not None:
-                    save_batched_raw(batched_raw, batched_dir)
-                    save_summary(batched_means[-1], batched_dir)
+            if base_dir is not None:
+                save_batched_raw(batched_raw, batched_dir)
+                save_summary(batched_means[-1], batched_dir)
 
         results_by_depol.append(
             {
@@ -190,53 +155,40 @@ def main() -> None:
     print("Rz(theta) Clifford tester results")
     if args.degrees:
         print("Angles: degrees (input) / radians (computed)")
-    print(f"Shots: {args.shots} | Mode: {args.mode} | Repeats: {args.repeats}")
+    print(f"Shots: {args.shots} | Repeats: {args.repeats}")
     print(f"Depolarizing rates: {', '.join(f'{v:g}' for v in depol_values)}")
 
     # --- Plot ---
-    if args.mode == "both":
-        fig, axes = plt.subplots(2, 1, figsize=(8.5, 7.5), sharex=True)
-        ax_list = [axes[0], axes[1]]
-    else:
-        fig, ax = plt.subplots(figsize=(8.5, 4.8))
-        ax_list = [ax]
+    fig, ax = plt.subplots(figsize=(8.5, 4.8))
 
     cmap = plt.cm.viridis
     norm = plt.Normalize(vmin=min(depol_values), vmax=max(depol_values))
 
-    for ax_idx, ax in enumerate(ax_list):
-        ax.plot(
-            theta_rad_values,
-            expected_values,
-            color="black",
-            linewidth=2.0,
-            linestyle="--",
-        )
-        for depol_entry in results_by_depol:
-            depol = float(depol_entry["depol"])
-            color = cmap(norm(depol))
-            if args.mode == "paired" or (args.mode == "both" and ax_idx == 0):
-                means = np.array(depol_entry["paired_mean"], dtype=float)
-                stds = np.array(depol_entry["paired_std"], dtype=float)
-            else:
-                means = np.array(depol_entry["batched_mean"], dtype=float)
-                stds = np.array(depol_entry["batched_std"], dtype=float)
-            ax.plot(theta_rad_values, means, color=color, linewidth=1.6, alpha=0.9)
-            if args.repeats > 1:
-                ax.fill_between(
-                    theta_rad_values,
-                    np.clip(means - stds, 0.0, 1.0),
-                    np.clip(means + stds, 0.0, 1.0),
-                    color=color,
-                    alpha=0.15,
-                    linewidth=0,
-                )
+    ax.plot(
+        theta_rad_values,
+        expected_values,
+        color="black",
+        linewidth=2.0,
+        linestyle="--",
+    )
+    for depol_entry in results_by_depol:
+        depol = float(depol_entry["depol"])
+        color = cmap(norm(depol))
+        means = np.array(depol_entry["batched_mean"], dtype=float)
+        stds = np.array(depol_entry["batched_std"], dtype=float)
+        ax.plot(theta_rad_values, means, color=color, linewidth=1.6, alpha=0.9, label=f"p = {depol}")
+        if args.repeats > 1:
+            ax.fill_between(
+                theta_rad_values,
+                np.clip(means - stds, 0.0, 1.0),
+                np.clip(means + stds, 0.0, 1.0),
+                color=color,
+                alpha=0.15,
+                linewidth=0,
+            )
 
-        ax.set_ylabel(r"$p_{\mathrm{acc}}$")
-        if args.mode == "paired" or (args.mode == "both" and ax_idx == 0):
-            ax.set_title(r"$R_z(\theta)$ Clifford tester (paired)")
-        if args.mode == "batched" or (args.mode == "both" and ax_idx == 1):
-            ax.set_title(r"$R_z(\theta)$ Clifford tester (batched)")
+    ax.set_ylabel(r"$p_{\mathrm{acc}}$")
+    ax.set_title(r"$R_z(\theta)$ Clifford test acceptance probability")
     tick_positions = [0.0, math.pi / 4, math.pi / 2, math.pi, 3 * math.pi / 2, 2 * math.pi]
     tick_labels = [
         r"$0\ (\mathrm{I})$",
@@ -246,13 +198,13 @@ def main() -> None:
         r"$3\pi/2\ (\mathrm{S}^\dagger)$",
         r"$2\pi\ (-\mathrm{I})$",
     ]
-    for ax in ax_list:
-        ax.set_xticks(tick_positions, tick_labels)
-        ax.set_xlim(0, 2 * math.pi)
-        ax.set_ylim(0.0, 1.05)
-        ax.grid(True, alpha=0.3)
+    ax.set_xticks(tick_positions, tick_labels)
+    ax.set_xlim(0, 2 * math.pi)
+    ax.set_ylim(0.0, 1.05)
+    ax.grid(True, alpha=0.3)
 
-    ax_list[-1].set_xlabel(r"$\theta$ (radians)")
+    ax.set_xlabel(r"$\theta$ (radians)")
+    ax.legend()
 
     if args.plot_file is not None:
         plot_path = args.plot_file
@@ -263,7 +215,7 @@ def main() -> None:
 
     plot_path.parent.mkdir(parents=True, exist_ok=True)
     fig.tight_layout()
-    plt.savefig(plot_path, dpi=160)
+    plt.savefig(plot_path, dpi=260)
     print()
     print(f"Plot saved to {plot_path}")
 
