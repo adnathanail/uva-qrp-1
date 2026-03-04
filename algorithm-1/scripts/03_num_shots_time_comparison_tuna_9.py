@@ -101,12 +101,12 @@ def collect() -> None:
 
                 # Have job_id but no timing → poll API until result appears
                 if entry and entry.get("job_id") is not None:
-                    job_id_str = entry["job_id"]
+                    job_id_str = str(entry["job_id"])
                     print(f"[{key}] Polling job {job_id_str}...")
                     poll_interval = 10  # seconds
                     elapsed = 0
                     exec_time = None
-                    while elapsed < timeout:
+                    while timeout is None or elapsed < timeout:
                         exec_time = get_execution_time(int(job_id_str), token)
                         if exec_time is not None:
                             break
