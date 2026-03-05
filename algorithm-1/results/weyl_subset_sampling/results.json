@@ -1,0 +1,578 @@
+[
+  {
+    "label": "cnot (qi_tuna_9)",
+    "gate": "cnot",
+    "source": "standard",
+    "backend": "qi_tuna_9",
+    "shots": "1000_shots",
+    "n_weyl_ops": 16,
+    "full_rate": 0.515506,
+    "p_expected": 1.0,
+    "subsampling": [
+      {
+        "subset_size": 4,
+        "trial_mean": 0.513911049,
+        "trial_std": 0.037411356870542645,
+        "trial_relative_std": 0.072572107541993
+      },
+      {
+        "subset_size": 5,
+        "trial_mean": 0.5157531807999999,
+        "trial_std": 0.03235843035589383,
+        "trial_relative_std": 0.06277023032882997
+      },
+      {
+        "subset_size": 6,
+        "trial_mean": 0.5160536713333334,
+        "trial_std": 0.02801720817836742,
+        "trial_relative_std": 0.05434894681801457
+      },
+      {
+        "subset_size": 7,
+        "trial_mean": 0.5160544274285714,
+        "trial_std": 0.024978356092418733,
+        "trial_relative_std": 0.04845405503023967
+      },
+      {
+        "subset_size": 8,
+        "trial_mean": 0.5153228809999999,
+        "trial_std": 0.021856943945548265,
+        "trial_relative_std": 0.04239900979920363
+      },
+      {
+        "subset_size": 9,
+        "trial_mean": 0.5139326782222222,
+        "trial_std": 0.020031614021230784,
+        "trial_relative_std": 0.038858158821101565
+      },
+      {
+        "subset_size": 10,
+        "trial_mean": 0.5158400036,
+        "trial_std": 0.01749046571757044,
+        "trial_relative_std": 0.03392873355027961
+      },
+      {
+        "subset_size": 11,
+        "trial_mean": 0.5161094952727271,
+        "trial_std": 0.015154161650182494,
+        "trial_relative_std": 0.029396673656916686
+      },
+      {
+        "subset_size": 13,
+        "trial_mean": 0.5155515113846153,
+        "trial_std": 0.010755366096923001,
+        "trial_relative_std": 0.02086370691499808
+      },
+      {
+        "subset_size": 14,
+        "trial_mean": 0.5159412368571428,
+        "trial_std": 0.008316293639073019,
+        "trial_relative_std": 0.016132292619432206
+      },
+      {
+        "subset_size": 16,
+        "trial_mean": 0.5155060000000001,
+        "trial_std": 1.2332973821748198e-16,
+        "trial_relative_std": 2.3924016057520566e-16
+      }
+    ]
+  },
+  {
+    "label": "toffoli (aer_simulator)",
+    "gate": "toffoli",
+    "source": "standard",
+    "backend": "aer_simulator",
+    "shots": "1000_shots",
+    "n_weyl_ops": 64,
+    "full_rate": 0.3445160625,
+    "p_expected": 0.34375,
+    "subsampling": [
+      {
+        "subset_size": 4,
+        "trial_mean": 0.344521792,
+        "trial_std": 0.1216813686122314,
+        "trial_relative_std": 0.3531950520078622
+      },
+      {
+        "subset_size": 5,
+        "trial_mean": 0.3473606368,
+        "trial_std": 0.1077729683152888,
+        "trial_relative_std": 0.31282421937957916
+      },
+      {
+        "subset_size": 7,
+        "trial_mean": 0.33949489085714285,
+        "trial_std": 0.08890482091944749,
+        "trial_relative_std": 0.25805711430202904
+      },
+      {
+        "subset_size": 8,
+        "trial_mean": 0.345454397,
+        "trial_std": 0.08448698014665863,
+        "trial_relative_std": 0.2452337912304412
+      },
+      {
+        "subset_size": 10,
+        "trial_mean": 0.338968606,
+        "trial_std": 0.07047604214654087,
+        "trial_relative_std": 0.20456533038003377
+      },
+      {
+        "subset_size": 13,
+        "trial_mean": 0.3424928661538461,
+        "trial_std": 0.05994305120416276,
+        "trial_relative_std": 0.17399203615988953
+      },
+      {
+        "subset_size": 15,
+        "trial_mean": 0.3427681890666667,
+        "trial_std": 0.05440209938430167,
+        "trial_relative_std": 0.15790874593634271
+      },
+      {
+        "subset_size": 19,
+        "trial_mean": 0.3486551625263158,
+        "trial_std": 0.04774341637421665,
+        "trial_relative_std": 0.13858110425320633
+      },
+      {
+        "subset_size": 23,
+        "trial_mean": 0.34311976730434784,
+        "trial_std": 0.03945002675003763,
+        "trial_relative_std": 0.11450852672518753
+      },
+      {
+        "subset_size": 28,
+        "trial_mean": 0.34692269614285715,
+        "trial_std": 0.035266938761981226,
+        "trial_relative_std": 0.10236660231765311
+      },
+      {
+        "subset_size": 35,
+        "trial_mean": 0.3416261380571428,
+        "trial_std": 0.02745967108979058,
+        "trial_relative_std": 0.07970505319992324
+      },
+      {
+        "subset_size": 43,
+        "trial_mean": 0.34494695283720933,
+        "trial_std": 0.022447434464724456,
+        "trial_relative_std": 0.06515642348235783
+      },
+      {
+        "subset_size": 52,
+        "trial_mean": 0.3446276555384616,
+        "trial_std": 0.014735699914436252,
+        "trial_relative_std": 0.04277217093306427
+      },
+      {
+        "subset_size": 64,
+        "trial_mean": 0.34451606250000005,
+        "trial_std": 5.404859424301949e-17,
+        "trial_relative_std": 1.5688265403596236e-16
+      }
+    ]
+  },
+  {
+    "label": "toffoli (qi_tuna_9)",
+    "gate": "toffoli",
+    "source": "standard",
+    "backend": "qi_tuna_9",
+    "shots": "1000_shots",
+    "n_weyl_ops": 64,
+    "full_rate": 0.04412859375,
+    "p_expected": 0.34375,
+    "subsampling": [
+      {
+        "subset_size": 4,
+        "trial_mean": 0.044710326,
+        "trial_std": 0.007386558442855779,
+        "trial_relative_std": 0.16738712510764697
+      },
+      {
+        "subset_size": 5,
+        "trial_mean": 0.043923224,
+        "trial_std": 0.00665817380094452,
+        "trial_relative_std": 0.1508811687647427
+      },
+      {
+        "subset_size": 7,
+        "trial_mean": 0.043859836,
+        "trial_std": 0.005262476329890236,
+        "trial_relative_std": 0.11925320710883147
+      },
+      {
+        "subset_size": 8,
+        "trial_mean": 0.043917173,
+        "trial_std": 0.00505411863711874,
+        "trial_relative_std": 0.1145316042870444
+      },
+      {
+        "subset_size": 10,
+        "trial_mean": 0.044134700799999996,
+        "trial_std": 0.004372128619434629,
+        "trial_relative_std": 0.0990769985602505
+      },
+      {
+        "subset_size": 13,
+        "trial_mean": 0.04391716738461538,
+        "trial_std": 0.00370510235048323,
+        "trial_relative_std": 0.08396148700032459
+      },
+      {
+        "subset_size": 15,
+        "trial_mean": 0.044026204,
+        "trial_std": 0.003525491706843742,
+        "trial_relative_std": 0.07989132232077398
+      },
+      {
+        "subset_size": 19,
+        "trial_mean": 0.044267955789473686,
+        "trial_std": 0.0028210840299894464,
+        "trial_relative_std": 0.06392870903549802
+      },
+      {
+        "subset_size": 23,
+        "trial_mean": 0.044186371130434776,
+        "trial_std": 0.0025590573885838513,
+        "trial_relative_std": 0.05799091181290705
+      },
+      {
+        "subset_size": 28,
+        "trial_mean": 0.04425163528571428,
+        "trial_std": 0.0022159641275309254,
+        "trial_relative_std": 0.05021606036405648
+      },
+      {
+        "subset_size": 35,
+        "trial_mean": 0.044037541942857146,
+        "trial_std": 0.0017588975906829207,
+        "trial_relative_std": 0.039858455509539564
+      },
+      {
+        "subset_size": 43,
+        "trial_mean": 0.044166409767441864,
+        "trial_std": 0.0012784080075522502,
+        "trial_relative_std": 0.028970059975053027
+      },
+      {
+        "subset_size": 52,
+        "trial_mean": 0.04416981669230769,
+        "trial_std": 0.0009064951663817284,
+        "trial_relative_std": 0.020542126756117815
+      },
+      {
+        "subset_size": 64,
+        "trial_mean": 0.04412859375,
+        "trial_std": 1.0749688212373145e-18,
+        "trial_relative_std": 2.4359915643976634e-17
+      }
+    ]
+  },
+  {
+    "label": "c_4_hadamard_3_cnot (qi_tuna_9)",
+    "gate": "c_4_hadamard_3_cnot",
+    "source": "standard",
+    "backend": "qi_tuna_9",
+    "shots": "1000_shots",
+    "n_weyl_ops": 256,
+    "full_rate": 0.0394609296875,
+    "p_expected": 0.9999999999999987,
+    "subsampling": [
+      {
+        "subset_size": 4,
+        "trial_mean": 0.03945193600000001,
+        "trial_std": 0.005972329574119633,
+        "trial_relative_std": 0.15134791859735336
+      },
+      {
+        "subset_size": 5,
+        "trial_mean": 0.0394900392,
+        "trial_std": 0.005346949188139285,
+        "trial_relative_std": 0.13549982807001715
+      },
+      {
+        "subset_size": 7,
+        "trial_mean": 0.039398792,
+        "trial_std": 0.004373386301786565,
+        "trial_relative_std": 0.11082826320668059
+      },
+      {
+        "subset_size": 9,
+        "trial_mean": 0.03930832133333334,
+        "trial_std": 0.003658593376810773,
+        "trial_relative_std": 0.0927143228956844
+      },
+      {
+        "subset_size": 13,
+        "trial_mean": 0.039742187384615386,
+        "trial_std": 0.003287279069434572,
+        "trial_relative_std": 0.08330465337404051
+      },
+      {
+        "subset_size": 17,
+        "trial_mean": 0.03950495152941177,
+        "trial_std": 0.0027566744747579627,
+        "trial_relative_std": 0.06985832560430506
+      },
+      {
+        "subset_size": 23,
+        "trial_mean": 0.03935404973913043,
+        "trial_std": 0.0023625254368021863,
+        "trial_relative_std": 0.059869989265624465
+      },
+      {
+        "subset_size": 31,
+        "trial_mean": 0.03954416787096774,
+        "trial_std": 0.002055908331343345,
+        "trial_relative_std": 0.052099845280497624
+      },
+      {
+        "subset_size": 43,
+        "trial_mean": 0.0394080536744186,
+        "trial_std": 0.0017258102022530526,
+        "trial_relative_std": 0.0437346564290333
+      },
+      {
+        "subset_size": 57,
+        "trial_mean": 0.039394990666666664,
+        "trial_std": 0.001460141590872334,
+        "trial_relative_std": 0.03700220958896622
+      },
+      {
+        "subset_size": 78,
+        "trial_mean": 0.03940874374358974,
+        "trial_std": 0.0011463519373721464,
+        "trial_relative_std": 0.02905030232309188
+      },
+      {
+        "subset_size": 105,
+        "trial_mean": 0.03955115436190476,
+        "trial_std": 0.0009561774777176032,
+        "trial_relative_std": 0.02423099215578012
+      },
+      {
+        "subset_size": 141,
+        "trial_mean": 0.0394507710070922,
+        "trial_std": 0.0006778532598267166,
+        "trial_relative_std": 0.01717783299062616
+      },
+      {
+        "subset_size": 190,
+        "trial_mean": 0.03946723250526316,
+        "trial_std": 0.0004356742642585201,
+        "trial_relative_std": 0.011040648755838317
+      },
+      {
+        "subset_size": 256,
+        "trial_mean": 0.0394609296875,
+        "trial_std": 4.288663074770283e-18,
+        "trial_relative_std": 1.0868124772358821e-16
+      }
+    ]
+  },
+  {
+    "label": "nc_4_t_gate (aer_simulator)",
+    "gate": "nc_4_t_gate",
+    "source": "standard",
+    "backend": "aer_simulator",
+    "shots": "1000_shots",
+    "n_weyl_ops": 256,
+    "full_rate": 0.31704921875000003,
+    "p_expected": 0.31640624999999956,
+    "subsampling": [
+      {
+        "subset_size": 4,
+        "trial_mean": 0.311939764,
+        "trial_std": 0.10650900302375994,
+        "trial_relative_std": 0.33593838661291436
+      },
+      {
+        "subset_size": 5,
+        "trial_mean": 0.3165827656,
+        "trial_std": 0.09995853404999062,
+        "trial_relative_std": 0.31527765450452044
+      },
+      {
+        "subset_size": 7,
+        "trial_mean": 0.32236029199999994,
+        "trial_std": 0.09046441447314936,
+        "trial_relative_std": 0.28533239990249737
+      },
+      {
+        "subset_size": 9,
+        "trial_mean": 0.3132191306666667,
+        "trial_std": 0.07716790296695285,
+        "trial_relative_std": 0.24339408017214317
+      },
+      {
+        "subset_size": 13,
+        "trial_mean": 0.3130567612307692,
+        "trial_std": 0.06340566860963626,
+        "trial_relative_std": 0.19998683125484365
+      },
+      {
+        "subset_size": 17,
+        "trial_mean": 0.3146441743529412,
+        "trial_std": 0.05340649550952237,
+        "trial_relative_std": 0.1684485952057637
+      },
+      {
+        "subset_size": 23,
+        "trial_mean": 0.31823334121739133,
+        "trial_std": 0.04608243095969762,
+        "trial_relative_std": 0.14534787734655985
+      },
+      {
+        "subset_size": 31,
+        "trial_mean": 0.3147502821935484,
+        "trial_std": 0.037682520605932024,
+        "trial_relative_std": 0.11885385100300623
+      },
+      {
+        "subset_size": 43,
+        "trial_mean": 0.31536699199999996,
+        "trial_std": 0.03107897271265302,
+        "trial_relative_std": 0.09802570350176276
+      },
+      {
+        "subset_size": 57,
+        "trial_mean": 0.3188591190175439,
+        "trial_std": 0.02443141186717788,
+        "trial_relative_std": 0.07705873543389037
+      },
+      {
+        "subset_size": 78,
+        "trial_mean": 0.3168241844102564,
+        "trial_std": 0.021977761637022128,
+        "trial_relative_std": 0.06931971548036539
+      },
+      {
+        "subset_size": 105,
+        "trial_mean": 0.31697961085714293,
+        "trial_std": 0.016287475491353853,
+        "trial_relative_std": 0.051372072625092545
+      },
+      {
+        "subset_size": 141,
+        "trial_mean": 0.31621686734751775,
+        "trial_std": 0.012817770113484542,
+        "trial_relative_std": 0.04042832896425342
+      },
+      {
+        "subset_size": 190,
+        "trial_mean": 0.31629141646315795,
+        "trial_std": 0.008732899566239228,
+        "trial_relative_std": 0.027544302429350267
+      },
+      {
+        "subset_size": 256,
+        "trial_mean": 0.3170492187500001,
+        "trial_std": 7.173621687406365e-17,
+        "trial_relative_std": 2.2626208371334664e-16
+      }
+    ]
+  },
+  {
+    "label": "nc_4_t_gate (qi_tuna_9)",
+    "gate": "nc_4_t_gate",
+    "source": "standard",
+    "backend": "qi_tuna_9",
+    "shots": "1000_shots",
+    "n_weyl_ops": 256,
+    "full_rate": 0.1344104765625,
+    "p_expected": 0.31640624999999956,
+    "subsampling": [
+      {
+        "subset_size": 4,
+        "trial_mean": 0.13298923,
+        "trial_std": 0.03302674947482873,
+        "trial_relative_std": 0.24571558943525887
+      },
+      {
+        "subset_size": 5,
+        "trial_mean": 0.1345174864,
+        "trial_std": 0.0324274563010825,
+        "trial_relative_std": 0.2412569104016527
+      },
+      {
+        "subset_size": 7,
+        "trial_mean": 0.13593735657142858,
+        "trial_std": 0.02824457278517161,
+        "trial_relative_std": 0.2101366910341849
+      },
+      {
+        "subset_size": 9,
+        "trial_mean": 0.13321578844444446,
+        "trial_std": 0.02382002370745853,
+        "trial_relative_std": 0.17721850496067823
+      },
+      {
+        "subset_size": 13,
+        "trial_mean": 0.13303558615384617,
+        "trial_std": 0.01932043976894832,
+        "trial_relative_std": 0.14374206730800812
+      },
+      {
+        "subset_size": 17,
+        "trial_mean": 0.13392096188235292,
+        "trial_std": 0.01648018794081744,
+        "trial_relative_std": 0.1226108883942113
+      },
+      {
+        "subset_size": 23,
+        "trial_mean": 0.13458718,
+        "trial_std": 0.014306570390127069,
+        "trial_relative_std": 0.106439399338597
+      },
+      {
+        "subset_size": 31,
+        "trial_mean": 0.13375234374193548,
+        "trial_std": 0.011824281794542398,
+        "trial_relative_std": 0.08797142973482565
+      },
+      {
+        "subset_size": 43,
+        "trial_mean": 0.1341231490232558,
+        "trial_std": 0.009821742345675752,
+        "trial_relative_std": 0.07307274400674196
+      },
+      {
+        "subset_size": 57,
+        "trial_mean": 0.13485671361403506,
+        "trial_std": 0.0076315739443329235,
+        "trial_relative_std": 0.05677811833949038
+      },
+      {
+        "subset_size": 78,
+        "trial_mean": 0.1342090484102564,
+        "trial_std": 0.006825404520213768,
+        "trial_relative_std": 0.050780301467348785
+      },
+      {
+        "subset_size": 105,
+        "trial_mean": 0.13436153904761902,
+        "trial_std": 0.005085415627601915,
+        "trial_relative_std": 0.037834964637129535
+      },
+      {
+        "subset_size": 141,
+        "trial_mean": 0.13420222017021277,
+        "trial_std": 0.004018415693087123,
+        "trial_relative_std": 0.02989659582985398
+      },
+      {
+        "subset_size": 190,
+        "trial_mean": 0.13422309195789475,
+        "trial_std": 0.0027636037513592677,
+        "trial_relative_std": 0.020560925175160807
+      },
+      {
+        "subset_size": 256,
+        "trial_mean": 0.13441047656250005,
+        "trial_std": 5.3905872593730093e-17,
+        "trial_relative_std": 4.010540991472805e-16
+      }
+    ]
+  }
+]
