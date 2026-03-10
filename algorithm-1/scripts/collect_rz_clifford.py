@@ -75,7 +75,7 @@ def _run_backend(label: str, backend, transpile_fn, theta_values: list[float], s
     record = None
     if data_file.exists():
         existing = json.loads(data_file.read_text())
-        if existing["theta_values"] == theta_values and existing["shots"] == shots and existing["repeats"] == repeats:
+        if np.allclose(existing["theta_values"], theta_values) and existing["shots"] == shots and existing["repeats"] == repeats:
             record = existing
         else:
             print(f"  Parameters changed — overwriting existing data for [{label}]")
