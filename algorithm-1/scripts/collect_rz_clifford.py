@@ -23,7 +23,7 @@ Usage:
     uv run python algorithm-1/scripts/collect_rz_clifford.py --theta-steps 9 --depolarizing-list 0.01,0.05,0.1 --repeats 5
 
     # Real hardware via lib/backends.py (ignores --depolarizing-list)
-    uv run python algorithm-1/scripts/collect_rz_clifford.py --backend ibm_brisbane --theta-steps 9 --repeats 1
+    uv run python algorithm-1/scripts/collect_rz_clifford.py --backend qi_tuna_9 --theta-steps 9 --repeats 1
 """
 
 from __future__ import annotations
@@ -42,6 +42,7 @@ from qiskit_aer.noise import NoiseModel, depolarizing_error
 
 from lib.clifford_tester import clifford_tester_batched
 from lib.state import BatchedRawResults
+from lib.state.utils import atomic_write
 
 RESULTS_DIR = Path(__file__).parent.parent / "results" / "rz_clifford"
 
@@ -137,7 +138,7 @@ def _run_backend(
 
             rate = BatchedRawResults.from_tuples(raw).summarise()
             record["acceptance_rates"][i][rep] = rate
-            data_file.write_text(json.dumps(record, indent=2))
+            atomic_write(data_file, json.dumps(record, indent=2))
             print(f"    p_acc = {rate:.4f}")
 
 
@@ -150,7 +151,7 @@ def main() -> None:
         "--backend",
         type=str,
         default=None,
-        help="Named backend from lib/backends.py (e.g. ibm_brisbane). If omitted, uses AerSimulator with --depolarizing-list.",
+        help="Named backend from lib/backends.py (e.g. qi_tuna_9). If omitted, uses AerSimulator with --depolarizing-list.",
     )
     parser.add_argument(
         "--depolarizing-list",
@@ -159,6 +160,8 @@ def main() -> None:
         help="Aer only. Comma-separated depolarizing rates. Include 0 for noiseless.",
     )
     args = parser.parse_args()
+    if args.shots <= 0 or args.theta_steps <= 0 or args.repeats <= 0:
+        parser.error("--shots, --theta-steps, and --repeats must all be positive integers")
 
     theta_values: list[float] = np.linspace(0.0, 2 * math.pi, args.theta_steps).tolist()
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)

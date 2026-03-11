@@ -46,7 +46,7 @@ def clifford_tester_batched(
         :param U_circuit: A quantum circuit implementing the n-qubit unitary U
         :param n: Number of qubits U acts on
         :param shots: Number of backend shots per Weyl operator circuit
-        :param backend: Qiskit backend to run on (defaults to AerSimulator)
+        :param backend: Qiskit backend to run on
         :param transpilation_function: Function to transpile circuits before execution
         :param timeout: (optional) number of seconds to wait for a job before exiting
         :param checkpoint_dir: Directory for checkpoint files (plan.json, jobs.json)
