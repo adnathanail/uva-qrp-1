@@ -1,4 +1,4 @@
-"""Collect Rz(theta) Clifford tester data.
+"""Collect Rz(theta) Clifford tester data and plot results.
 
 Saves one JSON file per backend to algorithm-1/results/rz_clifford/.
 Re-running is safe: completed repeats are skipped automatically.
@@ -19,8 +19,11 @@ File format (e.g. aer_depol_0.0100.json):
     }
 
 Usage:
-    # Aer simulator with depolarizing noise sweep (default)
+    # Collect + plot (default)
     uv run python algorithm-1/scripts/collect_rz_clifford.py --theta-steps 9 --depolarizing-list 0.01,0.05,0.1 --repeats 5
+
+    # Plot only from existing data
+    uv run python algorithm-1/scripts/collect_rz_clifford.py plot
 
     # Real hardware via lib/backends.py (ignores --depolarizing-list)
     uv run python algorithm-1/scripts/collect_rz_clifford.py --backend qi_tuna_9 --theta-steps 9 --repeats 1
@@ -31,16 +34,21 @@ from __future__ import annotations
 import argparse
 import json
 import math
-import tempfile
+import sys
 from pathlib import Path
 from typing import TypedDict
 
+import matplotlib
+
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 import numpy as np
 from qiskit import QuantumCircuit, transpile
 from qiskit_aer import AerSimulator
 from qiskit_aer.noise import NoiseModel, depolarizing_error
 
 from lib.clifford_tester import clifford_tester_batched
+from lib.expected_acceptance_probability import expected_acceptance_probability_from_circuit
 from lib.state import BatchedRawResults
 from lib.state.utils import atomic_write
 
@@ -125,16 +133,17 @@ def _run_backend(
             qc = QuantumCircuit(1)
             qc.rz(theta, 0)
 
-            with tempfile.TemporaryDirectory() as tmp:
-                raw = clifford_tester_batched(
-                    qc,
-                    1,
-                    shots=shots,
-                    backend=backend,
-                    transpilation_function=transpile_fn,
-                    checkpoint_dir=Path(tmp),
-                    timeout=timeout,
-                )
+            checkpoint_dir = RESULTS_DIR / "checkpoints" / f"{label}_theta{i:04d}_rep{rep:02d}"
+            checkpoint_dir.mkdir(parents=True, exist_ok=True)
+            raw = clifford_tester_batched(
+                qc,
+                1,
+                shots=shots,
+                backend=backend,
+                transpilation_function=transpile_fn,
+                checkpoint_dir=checkpoint_dir,
+                timeout=timeout,
+            )
 
             rate = BatchedRawResults.from_tuples(raw).summarise()
             record["acceptance_rates"][i][rep] = rate
@@ -142,7 +151,111 @@ def _run_backend(
             print(f"    p_acc = {rate:.4f}")
 
 
-def main() -> None:
+def _load_backend_data(data_file: Path) -> dict | None:
+    record = json.loads(data_file.read_text())
+    theta_values: list[float] = record["theta_values"]
+    rates: list[list[float | None]] = record["acceptance_rates"]
+
+    means: list[float] = []
+    stds: list[float] = []
+    n_collected: list[int] = []
+
+    for row in rates:
+        samples = [v for v in row if v is not None]
+        means.append(float(np.mean(samples)) if samples else float("nan"))
+        stds.append(float(np.std(samples, ddof=1)) if len(samples) > 1 else 0.0)
+        n_collected.append(len(samples))
+
+    return {
+        "backend_label": record["backend_label"],
+        "depolarizing": record.get("depolarizing"),
+        "theta_values": theta_values,
+        "means": means,
+        "stds": stds,
+        "n_collected": n_collected,
+    }
+
+
+def plot(plot_file: Path | None = None) -> None:
+    if not RESULTS_DIR.exists():
+        print(f"Results directory not found: {RESULTS_DIR}")
+        return
+
+    backends_data = []
+    for data_file in sorted(RESULTS_DIR.glob("*.json")):
+        data = _load_backend_data(data_file)
+        if data is not None:
+            backends_data.append(data)
+
+    if not backends_data:
+        print(f"No backend data found in {RESULTS_DIR}")
+        return
+
+    print(f"Found {len(backends_data)} backend(s): {[d['backend_label'] for d in backends_data]}")
+
+    # Theory line over a fine grid
+    theory_thetas = np.linspace(0.0, 2 * math.pi, 300).tolist()
+    theory_values = []
+    for theta_rad in theory_thetas:
+        qc = QuantumCircuit(1)
+        qc.rz(theta_rad, 0)
+        theory_values.append(expected_acceptance_probability_from_circuit(qc))
+
+    fig, ax = plt.subplots(figsize=(9, 5))
+    ax.plot(theory_thetas, theory_values, color="black", linewidth=2.0, linestyle="--", label="Theory")
+
+    depol_values = [d["depolarizing"] for d in backends_data if d.get("depolarizing") is not None]
+    use_colormap = len(depol_values) > 1
+    if use_colormap:
+        cmap = plt.colormaps["viridis"]
+        norm = plt.Normalize(vmin=min(depol_values), vmax=max(depol_values))
+
+    for i, data in enumerate(backends_data):
+        depol = data.get("depolarizing")
+        thetas = data["theta_values"]
+        means = np.array(data["means"], dtype=float)
+        stds = np.array(data["stds"], dtype=float)
+        has_std = not np.all(stds == 0) and any(n > 1 for n in data["n_collected"])
+
+        color = cmap(norm(depol)) if (use_colormap and depol is not None) else f"C{i}"
+
+        ax.plot(thetas, means, color=color, linewidth=1.6, alpha=0.9, label=data["backend_label"])
+        if has_std:
+            ax.fill_between(
+                thetas,
+                np.clip(means - stds, 0.0, 1.0),
+                np.clip(means + stds, 0.0, 1.0),
+                color=color,
+                alpha=0.15,
+                linewidth=0,
+            )
+
+    ax.set_ylabel(r"$p_{\mathrm{acc}}$")
+    ax.set_xlabel(r"$\theta$ (radians)")
+    ax.set_title(r"$R_z(\theta)$ Clifford test acceptance probability")
+    tick_positions = [0.0, math.pi / 4, math.pi / 2, math.pi, 3 * math.pi / 2, 2 * math.pi]
+    tick_labels = [
+        r"$0\ (\mathrm{I})$",
+        r"$\pi/4\ (\mathrm{T})$",
+        r"$\pi/2\ (\mathrm{S})$",
+        r"$\pi\ (\mathrm{Z})$",
+        r"$3\pi/2\ (\mathrm{S}^\dagger)$",
+        r"$2\pi\ (-\mathrm{I})$",
+    ]
+    ax.set_xticks(tick_positions, tick_labels)
+    ax.set_xlim(0, 2 * math.pi)
+    ax.set_ylim(0.0, 1.05)
+    ax.grid(True, alpha=0.3)
+    ax.legend()
+
+    plot_path = plot_file if plot_file is not None else RESULTS_DIR / "rz_clifford_plot.png"
+    plot_path.parent.mkdir(parents=True, exist_ok=True)
+    fig.tight_layout()
+    plt.savefig(plot_path, dpi=260)
+    print(f"Plot saved to {plot_path}")
+
+
+def collect() -> None:
     parser = argparse.ArgumentParser(description="Collect Rz(theta) Clifford tester data.")
     parser.add_argument("--shots", type=int, default=1000, help="Shots per Weyl operator.")
     parser.add_argument("--theta-steps", type=int, default=100, help="Number of theta points from 0 to 2pi (inclusive).")
@@ -159,6 +272,7 @@ def main() -> None:
         default="0.001,0.01,0.05,0.1",
         help="Aer only. Comma-separated depolarizing rates. Include 0 for noiseless.",
     )
+    parser.add_argument("--plot-file", type=Path, default=None, help="Output path for the plot image.")
     args = parser.parse_args()
     if args.shots <= 0 or args.theta_steps <= 0 or args.repeats <= 0:
         parser.error("--shots, --theta-steps, and --repeats must all be positive integers")
@@ -186,8 +300,19 @@ def main() -> None:
 
             _run_backend(_aer_label(depol), backend, transpile_fn, theta_values, args.shots, args.repeats, depolarizing=depol)
 
-    print()
-    print("Done.")
+    print("\nDone collecting.")
+    plot(plot_file=args.plot_file)
+
+
+def main() -> None:
+    if len(sys.argv) > 1 and sys.argv[1] == "plot":
+        sys.argv.pop(1)  # Remove "plot" so argparse in plot() doesn't see it
+        parser = argparse.ArgumentParser(description="Plot Rz(theta) Clifford tester results.")
+        parser.add_argument("--plot-file", type=Path, default=None, help="Output path for the plot image.")
+        args = parser.parse_args()
+        plot(plot_file=args.plot_file)
+    else:
+        collect()
 
 
 if __name__ == "__main__":
