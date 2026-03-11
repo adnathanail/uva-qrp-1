@@ -144,8 +144,8 @@ def _run_backend(
 def main() -> None:
     parser = argparse.ArgumentParser(description="Collect Rz(theta) Clifford tester data.")
     parser.add_argument("--shots", type=int, default=1000, help="Shots per Weyl operator.")
-    parser.add_argument("--theta-steps", type=int, default=9, help="Number of theta points from 0 to 2pi (inclusive).")
-    parser.add_argument("--repeats", type=int, default=5, help="Number of repeats per theta (for mean/std bands).")
+    parser.add_argument("--theta-steps", type=int, default=100, help="Number of theta points from 0 to 2pi (inclusive).")
+    parser.add_argument("--repeats", type=int, default=10, help="Number of repeats per theta (for mean/std bands).")
     parser.add_argument(
         "--backend",
         type=str,
