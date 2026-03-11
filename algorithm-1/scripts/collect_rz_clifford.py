@@ -26,11 +26,14 @@ Usage:
     uv run python algorithm-1/scripts/collect_rz_clifford.py --backend ibm_brisbane --theta-steps 9 --repeats 1
 """
 
+from __future__ import annotations
+
 import argparse
 import json
 import math
 import tempfile
 from pathlib import Path
+from typing import TypedDict
 
 import numpy as np
 from qiskit import QuantumCircuit, transpile
@@ -41,6 +44,15 @@ from lib.clifford_tester import clifford_tester_batched
 from lib.state import BatchedRawResults
 
 RESULTS_DIR = Path(__file__).parent.parent / "results" / "rz_clifford"
+
+
+class RzRecord(TypedDict):
+    backend_label: str
+    depolarizing: float | None
+    theta_values: list[float]
+    shots: int
+    repeats: int
+    acceptance_rates: list[list[float | None]]
 
 
 def _parse_float_list(raw: str) -> list[float]:
@@ -81,9 +93,9 @@ def _run_backend(
 ) -> None:
     data_file = RESULTS_DIR / f"{label}.json"
 
-    record = None
+    record: RzRecord | None = None
     if data_file.exists():
-        existing = json.loads(data_file.read_text())
+        existing: RzRecord = json.loads(data_file.read_text())
         # Check theta grid is the same size, and the theta values are the same(ish)
         same_theta_grid = len(existing["theta_values"]) == len(theta_values) and np.allclose(existing["theta_values"], theta_values)
         if same_theta_grid and existing["shots"] == shots and existing["repeats"] == repeats:
@@ -91,14 +103,14 @@ def _run_backend(
         else:
             print(f"  Parameters changed — overwriting existing data for [{label}]")
     if record is None:
-        record = {
-            "backend_label": label,
-            "depolarizing": depolarizing,
-            "theta_values": theta_values,
-            "shots": shots,
-            "repeats": repeats,
-            "acceptance_rates": [[None] * repeats for _ in theta_values],
-        }
+        record = RzRecord(
+            backend_label=label,
+            depolarizing=depolarizing,
+            theta_values=theta_values,
+            shots=shots,
+            repeats=repeats,
+            acceptance_rates=[[None] * repeats for _ in theta_values],
+        )
 
     print(f"\n[{label}] {len(theta_values)} theta values x {repeats} repeats")
 
