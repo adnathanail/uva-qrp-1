@@ -1,5 +1,5 @@
-from cliff_lib.unitaries.standard import STANDARD_UNITARIES
-from cliff_lib.unitaries.stim_random_cliffords import STIM_UNITARIES
+from .standard import STANDARD_UNITARIES
+from .stim_random_cliffords import STIM_UNITARIES
 
 
 def gate_source(name: str) -> str:

@@ -11,10 +11,10 @@ from pathlib import Path
 
 from qiskit import QuantumCircuit
 
-from cliff_lib.backends import BackendName, resolve_backend
-from cliff_lib.clifford_tester import clifford_tester_batched, clifford_tester_paired_runs
-from cliff_lib.expected_acceptance_probability import expected_acceptance_probability_from_circuit
-from cliff_lib.state import (
+from .backends import BackendName, resolve_backend
+from .clifford_tester import clifford_tester_batched, clifford_tester_paired_runs
+from .expected_acceptance_probability import expected_acceptance_probability_from_circuit
+from .state import (
     BatchedRawResults,
     ExpectedAcceptanceProbability,
     PairedRawResults,
@@ -25,7 +25,7 @@ from cliff_lib.state import (
     save_paired_raw,
     save_summary,
 )
-from cliff_lib.unitaries import gate_source
+from .unitaries import gate_source
 
 DEFAULT_RESULTS_DIR = Path(__file__).parent.parent / "results" / "clifford_tester"
 

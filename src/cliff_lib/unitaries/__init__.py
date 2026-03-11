@@ -1,8 +1,8 @@
 """Registry of unitary gates for the Clifford tester harness."""
 
-from cliff_lib.unitaries.standard import STANDARD_UNITARIES
-from cliff_lib.unitaries.stim_random_cliffords import STIM_UNITARIES
-from cliff_lib.unitaries.utils import gate_source
+from .standard import STANDARD_UNITARIES
+from .stim_random_cliffords import STIM_UNITARIES
+from .utils import gate_source
 
 # Ensure no collisions between the dictionaries
 _overlap = set(STANDARD_UNITARIES) & set(STIM_UNITARIES)
