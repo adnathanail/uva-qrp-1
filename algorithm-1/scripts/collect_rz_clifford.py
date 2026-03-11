@@ -69,13 +69,24 @@ def _aer_label(depolarizing: float | None) -> str:
     return f"aer_depol_{depolarizing:.4f}"
 
 
-def _run_backend(label: str, backend, transpile_fn, theta_values: list[float], shots: int, repeats: int, depolarizing: float | None = None) -> None:
+def _run_backend(
+    label: str,
+    backend,
+    transpile_fn,
+    theta_values: list[float],
+    shots: int,
+    repeats: int,
+    depolarizing: float | None = None,
+    timeout: float | None = None,
+) -> None:
     data_file = RESULTS_DIR / f"{label}.json"
 
     record = None
     if data_file.exists():
         existing = json.loads(data_file.read_text())
-        if np.allclose(existing["theta_values"], theta_values) and existing["shots"] == shots and existing["repeats"] == repeats:
+        # Check theta grid is the same size, and the theta values are the same(ish)
+        same_theta_grid = len(existing["theta_values"]) == len(theta_values) and np.allclose(existing["theta_values"], theta_values)
+        if same_theta_grid and existing["shots"] == shots and existing["repeats"] == repeats:
             record = existing
         else:
             print(f"  Parameters changed — overwriting existing data for [{label}]")
@@ -109,6 +120,7 @@ def _run_backend(label: str, backend, transpile_fn, theta_values: list[float], s
                     backend=backend,
                     transpilation_function=transpile_fn,
                     checkpoint_dir=Path(tmp),
+                    timeout=timeout,
                 )
 
             rate = BatchedRawResults.from_tuples(raw).summarise()
@@ -141,14 +153,17 @@ def main() -> None:
 
     if args.backend is not None:
         from lib.backends import resolve_backend
-        backend, transpile_fn, _ = resolve_backend(args.backend)
-        _run_backend(args.backend, backend, transpile_fn, theta_values, args.shots, args.repeats)
+
+        backend, transpile_fn, timeout = resolve_backend(args.backend)
+        _run_backend(args.backend, backend, transpile_fn, theta_values, args.shots, args.repeats, timeout=timeout)
     else:
         depol_values = sorted({float(v) for v in _parse_float_list(args.depolarizing_list)})
         for depol in depol_values:
             backend = _build_aer_backend(depol)
+
             def transpile_fn(qc: QuantumCircuit, _backend=backend) -> QuantumCircuit:
                 return transpile(qc, backend=_backend)
+
             _run_backend(_aer_label(depol), backend, transpile_fn, theta_values, args.shots, args.repeats, depolarizing=depol)
 
     print()

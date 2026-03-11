@@ -43,12 +43,13 @@ def clifford_tester_batched(
     and returning the raw counts for each Weyl operator.
 
     Args:
-        U_circuit: A quantum circuit implementing the n-qubit unitary U
-        n: Number of qubits U acts on
-        shots: Number of backend shots per Weyl operator circuit
-        backend: Qiskit backend to run on (defaults to AerSimulator)
-        transpilation_function: Function to transpile circuits before execution
-        checkpoint_dir: Directory for checkpoint files (plan.json, jobs.json)
+        :param U_circuit: A quantum circuit implementing the n-qubit unitary U
+        :param n: Number of qubits U acts on
+        :param shots: Number of backend shots per Weyl operator circuit
+        :param backend: Qiskit backend to run on (defaults to AerSimulator)
+        :param transpilation_function: Function to transpile circuits before execution
+        :param timeout: (optional) number of seconds to wait for a job before exiting
+        :param checkpoint_dir: Directory for checkpoint files (plan.json, jobs.json)
 
     Returns:
         dict mapping each Weyl operator x (tuple) to its Qiskit counts dict
