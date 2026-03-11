@@ -87,7 +87,7 @@ def main() -> None:
     depol_values = [d["depolarizing"] for d in backends_data if d.get("depolarizing") is not None]
     use_colormap = len(depol_values) > 1
     if use_colormap:
-        cmap = plt.cm.viridis
+        cmap = plt.colormaps["viridis"]
         norm = plt.Normalize(vmin=min(depol_values), vmax=max(depol_values))
 
     for i, data in enumerate(backends_data):
