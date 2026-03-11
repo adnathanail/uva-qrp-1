@@ -1,15 +1,15 @@
 """Run Clifford tester on all standard unitaries across all backends.
 
 Usage:
-    uv run python algorithm-1/scripts/collect_full_results_for_standard_unitaries.py              # run all
-    uv run python algorithm-1/scripts/collect_full_results_for_standard_unitaries.py hadamard t_gate  # run specific ones
+    uv run python scripts/collect_full_results_for_standard_unitaries.py              # run all
+    uv run python scripts/collect_full_results_for_standard_unitaries.py hadamard t_gate  # run specific ones
 """
 
 import sys
 
-from lib.backends import BackendName
-from lib.result_collection import collect_results_for_unitary
-from lib.unitaries import STANDARD_UNITARIES
+from cliff_lib.backends import BackendName
+from cliff_lib.result_collection import collect_results_for_unitary
+from cliff_lib.unitaries import STANDARD_UNITARIES
 
 SHOTS = 1000
 BACKENDS: list[BackendName] = ["aer_simulator", "qi_tuna_9"]

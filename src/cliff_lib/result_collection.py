@@ -11,10 +11,10 @@ from pathlib import Path
 
 from qiskit import QuantumCircuit
 
-from lib.backends import BackendName, resolve_backend
-from lib.clifford_tester import clifford_tester_batched, clifford_tester_paired_runs
-from lib.expected_acceptance_probability import expected_acceptance_probability_from_circuit
-from lib.state import (
+from cliff_lib.backends import BackendName, resolve_backend
+from cliff_lib.clifford_tester import clifford_tester_batched, clifford_tester_paired_runs
+from cliff_lib.expected_acceptance_probability import expected_acceptance_probability_from_circuit
+from cliff_lib.state import (
     BatchedRawResults,
     ExpectedAcceptanceProbability,
     PairedRawResults,
@@ -25,7 +25,7 @@ from lib.state import (
     save_paired_raw,
     save_summary,
 )
-from lib.unitaries import gate_source
+from cliff_lib.unitaries import gate_source
 
 DEFAULT_RESULTS_DIR = Path(__file__).parent.parent / "results" / "clifford_tester"
 
@@ -56,7 +56,7 @@ def collect_results_for_unitary(
     timeout:
         Optional timeout override.  When *None* the backend default is used.
     results_dir:
-        Root directory for results (default: ``algorithm-1/results/clifford_tester``).
+        Root directory for results (default: ``results/clifford_tester``).
     """
     source = gate_source(gate_name)
     n = U.num_qubits

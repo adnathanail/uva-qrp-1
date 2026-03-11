@@ -7,7 +7,7 @@ _Alex Nathanail UvA QuSoft Research Project 1_
 [![prek](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/j178/prek/master/docs/assets/badge-v0.json)](https://github.com/j178/prek)
 [![Python 3.13+](https://img.shields.io/badge/python-3.13+-blue.svg)](https://www.python.org/downloads/)
 
-Install dependencies and install `lib/` folder so scripts can access it
+Install dependencies and install `cliff_lib/` package so scripts can access it
 
 ```shell
 uv sync
@@ -33,10 +33,10 @@ qi login
 
 ### 1. Collect full results for standard unitaries
 
-Runs the paired and batched algorithms on the 9 "standard" unitaries, declared in `algorithm-1/lib/unitaries/standard.py`
+Runs the paired and batched algorithms on the 9 "standard" unitaries, declared in `src/cliff_lib/unitaries/standard.py`
 
 ```shell
-uv run python algorithm-1/scripts/01_collect_full_results_for_standard_unitaries.py
+uv run python scripts/01_collect_full_results_for_standard_unitaries.py
 ```
 
 Used to get a baseline set of results, to compare approaches/backends, and refine future approaches
@@ -46,7 +46,7 @@ Used to get a baseline set of results, to compare approaches/backends, and refin
 Uses the saved results from script 1a, and produces a table comparing the results of the paired vs batched algorithms on the Tuna-9 backend
 
 ```shell
-uv run python algorithm-1/scripts/01b_standard_unitaries_tuna_result_comparison.py
+uv run python scripts/01b_standard_unitaries_tuna_result_comparison.py
 ```
 
 ### Calculate how many n-qubit Cliffords there are
@@ -54,14 +54,14 @@ uv run python algorithm-1/scripts/01b_standard_unitaries_tuna_result_comparison.
 Based on the formula from [Robert Koenig, John A. Smolin](https://arxiv.org/abs/1406.2170), calculates how many Clifford unitaries there are for 1-10 qubits
 
 ```shell
-uv run python algorithm-1/scripts/02_how_many_n_qubit_cliffords.py
+uv run python scripts/02_how_many_n_qubit_cliffords.py
 ```
 
 ### 3. Shot count vs execution time on Tuna-9
 
-Benchmarks how shot count affects execution time on Tuna-9. Submits random Clifford circuits at 1/2/4-qubit gate sizes with 1–1000 shots, 10 reps each (120 jobs total). Resumable — saves progress after each job. Results and plot go to `algorithm-1/results/shot_timing/`.
+Benchmarks how shot count affects execution time on Tuna-9. Submits random Clifford circuits at 1/2/4-qubit gate sizes with 1–1000 shots, 10 reps each (120 jobs total). Resumable — saves progress after each job. Results and plot go to `results/shot_timing/`.
 
 ```shell
-uv run python algorithm-1/scripts/03_num_shots_time_comparison_tuna_9.py       # collect + plot
-uv run python algorithm-1/scripts/03_num_shots_time_comparison_tuna_9.py plot  # plot only
+uv run python scripts/03_num_shots_time_comparison_tuna_9.py       # collect + plot
+uv run python scripts/03_num_shots_time_comparison_tuna_9.py plot  # plot only
 ```

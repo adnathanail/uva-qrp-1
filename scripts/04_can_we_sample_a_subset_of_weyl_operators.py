@@ -1,5 +1,5 @@
-# uv run algorithm-1/scripts/04_can_we_sample_a_subset_of_weyl_operators.py         # compute + plot
-# uv run algorithm-1/scripts/04_can_we_sample_a_subset_of_weyl_operators.py plot     # plot only
+# uv run scripts/04_can_we_sample_a_subset_of_weyl_operators.py         # compute + plot
+# uv run scripts/04_can_we_sample_a_subset_of_weyl_operators.py plot     # plot only
 """Subsampling analysis: can we estimate acceptance rate from a subset of Weyl operators?
 
 The batched tester enumerates ALL 4^n Weyl operators. This script resamples from
@@ -16,14 +16,14 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 
-from lib.clifford_tester.utils import collision_probability
-from lib.state.outputs import load_batched_raw
-from lib.state.utils import atomic_write
+from cliff_lib.clifford_tester.utils import collision_probability
+from cliff_lib.state.outputs import load_batched_raw
+from cliff_lib.state.utils import atomic_write
 
 # ── Configuration ────────────────────────────────────────────────────────────
 
-CLIFFORD_TESTER_DIR = Path("algorithm-1/results/clifford_tester")
-RESULTS_DIR = Path("algorithm-1/results/weyl_subset_sampling")
+CLIFFORD_TESTER_DIR = Path("results/clifford_tester")
+RESULTS_DIR = Path("results/weyl_subset_sampling")
 RESULTS_FILE = RESULTS_DIR / "results.json"
 CONVERGENCE_PLOT = RESULTS_DIR / "convergence.png"
 RELATIVE_ERROR_PLOT = RESULTS_DIR / "relative_error.png"

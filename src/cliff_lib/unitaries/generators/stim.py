@@ -23,7 +23,7 @@ def freeze_stim_clifford(n: int) -> str:
     """
     from pathlib import Path
 
-    from lib.unitaries.generators.freeze import freeze_gate
+    from cliff_lib.unitaries.generators.freeze import freeze_gate
 
     gate = stim_random_clifford_gate(n)
     target = Path(__file__).resolve().parent.parent / "stim_random_cliffords.py"

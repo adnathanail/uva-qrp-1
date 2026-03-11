@@ -1,5 +1,5 @@
-# uv run algorithm-1/scripts/05_circuit_depth_vs_noise.py         # collect + plot
-# uv run algorithm-1/scripts/05_circuit_depth_vs_noise.py plot     # plot only
+# uv run scripts/05_circuit_depth_vs_noise.py         # collect + plot
+# uv run scripts/05_circuit_depth_vs_noise.py plot     # plot only
 """Circuit depth vs acceptance rate for random 2-qubit Cliffords on Tuna-9.
 
 Generates 50 random 2-qubit Cliffords, runs the batched tester on each via
@@ -17,11 +17,11 @@ import numpy as np
 from qiskit import QuantumCircuit
 from qiskit.circuit.library import UnitaryGate
 
-from lib.backends import resolve_backend
-from lib.clifford_tester.testers import clifford_tester_batched
-from lib.state.outputs import BatchedRawResults
-from lib.state.utils import atomic_write
-from lib.unitaries.generators.stim import stim_random_clifford_gate
+from cliff_lib.backends import resolve_backend
+from cliff_lib.clifford_tester.testers import clifford_tester_batched
+from cliff_lib.state.outputs import BatchedRawResults
+from cliff_lib.state.utils import atomic_write
+from cliff_lib.unitaries.generators.stim import stim_random_clifford_gate
 
 # -- Configuration -----------------------------------------------------------
 
@@ -29,7 +29,7 @@ N_QUBITS = 2
 N_UNITARIES = 50
 SHOTS = 1000
 
-RESULTS_DIR = Path("algorithm-1/results/depth_vs_acceptance")
+RESULTS_DIR = Path("results/depth_vs_acceptance")
 STATE_FILE = RESULTS_DIR / "state.json"
 PLOT_FILE = RESULTS_DIR / "depth_vs_acceptance.png"
 

@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 from qiskit import QuantumCircuit
 
-from lib.expected_acceptance_probability import (
+from cliff_lib.expected_acceptance_probability import (
     expected_acceptance_probability,
     expected_acceptance_probability_from_circuit,
     get_p_table,

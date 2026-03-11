@@ -1,6 +1,6 @@
 """Collect Rz(theta) Clifford tester data and plot results.
 
-Saves one JSON file per backend to algorithm-1/results/rz_clifford/.
+Saves one JSON file per backend to results/rz_clifford/.
 Re-running is safe: completed repeats are skipped automatically.
 Parameters changed? The existing file is overwritten and collection restarts.
 
@@ -20,13 +20,13 @@ File format (e.g. aer_depol_0.0100.json):
 
 Usage:
     # Collect + plot (default)
-    uv run python algorithm-1/scripts/collect_rz_clifford.py --theta-steps 9 --depolarizing-list 0.01,0.05,0.1 --repeats 5
+    uv run python scripts/collect_rz_clifford.py --theta-steps 9 --depolarizing-list 0.01,0.05,0.1 --repeats 5
 
     # Plot only from existing data
-    uv run python algorithm-1/scripts/collect_rz_clifford.py plot
+    uv run python scripts/collect_rz_clifford.py plot
 
-    # Real hardware via lib/backends.py (ignores --depolarizing-list)
-    uv run python algorithm-1/scripts/collect_rz_clifford.py --backend qi_tuna_9 --theta-steps 9 --repeats 1
+    # Real hardware via cliff_lib/backends.py (ignores --depolarizing-list)
+    uv run python scripts/collect_rz_clifford.py --backend qi_tuna_9 --theta-steps 9 --repeats 1
 """
 
 from __future__ import annotations
@@ -47,10 +47,10 @@ from qiskit import QuantumCircuit, transpile
 from qiskit_aer import AerSimulator
 from qiskit_aer.noise import NoiseModel, depolarizing_error
 
-from lib.clifford_tester import clifford_tester_batched
-from lib.expected_acceptance_probability import expected_acceptance_probability_from_circuit
-from lib.state import BatchedRawResults
-from lib.state.utils import atomic_write
+from cliff_lib.clifford_tester import clifford_tester_batched
+from cliff_lib.expected_acceptance_probability import expected_acceptance_probability_from_circuit
+from cliff_lib.state import BatchedRawResults
+from cliff_lib.state.utils import atomic_write
 
 RESULTS_DIR = Path(__file__).parent.parent / "results" / "rz_clifford"
 
@@ -264,7 +264,7 @@ def collect() -> None:
         "--backend",
         type=str,
         default=None,
-        help="Named backend from lib/backends.py (e.g. qi_tuna_9). If omitted, uses AerSimulator with --depolarizing-list.",
+        help="Named backend from cliff_lib/backends.py (e.g. qi_tuna_9). If omitted, uses AerSimulator with --depolarizing-list.",
     )
     parser.add_argument(
         "--depolarizing-list",
@@ -281,7 +281,7 @@ def collect() -> None:
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 
     if args.backend is not None:
-        from lib.backends import resolve_backend
+        from cliff_lib.backends import resolve_backend
 
         backend, transpile_fn, timeout = resolve_backend(args.backend)
         _run_backend(args.backend, backend, transpile_fn, theta_values, args.shots, args.repeats, timeout=timeout)

@@ -1,5 +1,5 @@
-# uv run algorithm-1/scripts/03_num_shots_time_comparison_tuna_9.py         # collect + plot
-# uv run algorithm-1/scripts/03_num_shots_time_comparison_tuna_9.py plot     # plot only
+# uv run scripts/03_num_shots_time_comparison_tuna_9.py         # collect + plot
+# uv run scripts/03_num_shots_time_comparison_tuna_9.py plot     # plot only
 """Benchmark shot count vs execution time on Tuna-9.
 
 Submits random Clifford circuits of varying qubit counts and shot counts,
@@ -19,10 +19,10 @@ import requests
 from qiskit import QuantumCircuit
 from qiskit.quantum_info import random_clifford
 
-from lib.backends import resolve_backend
-from lib.clifford_tester.utils import get_clifford_tester_circuit
-from lib.jobs import get_job_id
-from lib.state.utils import atomic_write
+from cliff_lib.backends import resolve_backend
+from cliff_lib.clifford_tester.utils import get_clifford_tester_circuit
+from cliff_lib.jobs import get_job_id
+from cliff_lib.state.utils import atomic_write
 
 # ── Configuration ────────────────────────────────────────────────────────────
 
@@ -30,7 +30,7 @@ N_QUBITS_LIST = [1, 2, 4]
 SHOTS_LIST = [1, 10, 100, 1000]
 N_REPS = 10
 
-RESULTS_DIR = Path("algorithm-1/results/shot_timing")
+RESULTS_DIR = Path("results/shot_timing")
 RESULTS_FILE = RESULTS_DIR / "results.json"
 PLOT_FILE = RESULTS_DIR / "shots_vs_time.png"
 

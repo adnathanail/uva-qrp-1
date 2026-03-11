@@ -7,45 +7,47 @@ Research project implementing quantum algorithms for testing whether a unitary g
 ## Structure
 
 ```
-algorithm-1/
-├── README.md                                       # Mathematical breakdown of the algorithm
-├── lib/
-│   ├── __init__.py
-│   ├── jobs.py                                     # Job ID extraction, QI job serialize/load
-│   ├── backends.py                                 # BackendName type, transpilation functions, resolve_backend()
-│   ├── expected_acceptance_probability.py          # Theoretical p_acc computation
-│   ├── result_collection.py                        # collect_results_for_unitary() orchestrator
-│   ├── unitaries/
-│   │   ├── __init__.py                             # Merges STANDARD + STIM into UNITARIES registry + gate_source
-│   │   ├── standard.py                             # Hand-written gates (hadamard, cnot, etc.)
-│   │   ├── stim_random_cliffords.py                # Frozen random Cliffords generated via Stim
-│   │   ├── utils.py                                # gate_source() helper
-│   │   └── generators/
-│   │       ├── __init__.py                         # Re-exports freeze_gate, stim helpers
-│   │       ├── freeze.py                           # Generic gate freezing (appends to target .py file)
-│   │       └── stim.py                             # Stim random Clifford generation + freeze wrapper
-│   ├── clifford_tester/
-│   │   ├── __init__.py
-│   │   ├── testers.py                              # paired_runs and batched tester implementations
-│   │   ├── utils.py                                # Circuit building, collision probability
-│   │   ├── gates.py                                # Reusable quantum gate functions (Weyl, Bell, etc.)
-│   │   └── measurements.py                         # Bell basis measurement
-│   └── state/
+uva-qrp-1/
+├── src/
+│   └── cliff_lib/                                  # Python package (installed via hatchling)
 │       ├── __init__.py
-│       ├── outputs.py                              # Pydantic models for raw results + summary + save/load
-│       ├── checkpoints.py                          # Checkpoint models (plans, jobs) + save/load/cleanup
-│       └── utils.py                                # File reading/writing utils
+│       ├── jobs.py                                     # Job ID extraction, QI job serialize/load
+│       ├── backends.py                                 # BackendName type, transpilation functions, resolve_backend()
+│       ├── expected_acceptance_probability.py          # Theoretical p_acc computation
+│       ├── result_collection.py                        # collect_results_for_unitary() orchestrator
+│       ├── unitaries/
+│       │   ├── __init__.py                             # Merges STANDARD + STIM into UNITARIES registry + gate_source
+│       │   ├── standard.py                             # Hand-written gates (hadamard, cnot, etc.)
+│       │   ├── stim_random_cliffords.py                # Frozen random Cliffords generated via Stim
+│       │   ├── utils.py                                # gate_source() helper
+│       │   └── generators/
+│       │       ├── __init__.py                         # Re-exports freeze_gate, stim helpers
+│       │       ├── freeze.py                           # Generic gate freezing (appends to target .py file)
+│       │       └── stim.py                             # Stim random Clifford generation + freeze wrapper
+│       ├── clifford_tester/
+│       │   ├── __init__.py
+│       │   ├── testers.py                              # paired_runs and batched tester implementations
+│       │   ├── utils.py                                # Circuit building, collision probability
+│       │   ├── gates.py                                # Reusable quantum gate functions (Weyl, Bell, etc.)
+│       │   └── measurements.py                         # Bell basis measurement
+│       └── state/
+│           ├── __init__.py
+│           ├── outputs.py                              # Pydantic models for raw results + summary + save/load
+│           ├── checkpoints.py                          # Checkpoint models (plans, jobs) + save/load/cleanup
+│           └── utils.py                                # File reading/writing utils
 ├── scripts/
 │   ├── 01_collect_full_results_for_standard_unitaries.py  # Runs testers on all standard unitaries
 │   ├── 01b_standard_unitaries_tuna_result_comparison.py   # Table comparing paired vs batched on Tuna-9
 │   ├── 02_how_many_n_qubit_cliffords.py                   # Counts n-qubit Cliffords
 │   ├── 03_num_shots_time_comparison_tuna_9.py             # Benchmark: shot count vs execution time on Tuna-9
 │   └── freeze_new_stim_clifford.py                        # CLI to freeze a random Stim Clifford (takes n qubits)
-├── results/                                        # Generated output (gitignored)
-└── tests/
-    ├── test_gates.py                               # pytest tests with explicit matrix comparisons
-    ├── test_expected_acceptance_probability.py     # Tests for theoretical p_acc values
-    └── utils.py                                    # Test utilities
+├── tests/
+│   ├── test_gates.py                               # pytest tests with explicit matrix comparisons
+│   ├── test_expected_acceptance_probability.py     # Tests for theoretical p_acc values
+│   └── utils.py                                    # Test utilities
+├── results/                                        # Generated output
+├── pyproject.toml
+└── ...
 ```
 
 ## Key Technical Notes
@@ -76,28 +78,28 @@ Both testers submit jobs individually per Weyl operator, allowing interrupted ru
 ## Running
 
 ```shell
-uv sync                                               # Install dependencies (also installs lib/ as a package)
-pytest algorithm-1/tests -v                           # Run tests
+uv sync                                               # Install dependencies (also installs cliff_lib/ as a package)
+pytest tests/ -v                                       # Run tests
 uv run ty check                                       # Type checking
-uv run python algorithm-1/scripts/01_collect_full_results_for_standard_unitaries.py       # Run result collection
-uv run python algorithm-1/scripts/freeze_new_stim_clifford.py 4                         # Freeze a random 4-qubit Stim Clifford
-uv run python algorithm-1/scripts/03_num_shots_time_comparison_tuna_9.py                 # Shot timing benchmark (collect + plot)
-uv run python algorithm-1/scripts/03_num_shots_time_comparison_tuna_9.py plot            # Plot only from existing data
+uv run python scripts/01_collect_full_results_for_standard_unitaries.py       # Run result collection
+uv run python scripts/freeze_new_stim_clifford.py 4                         # Freeze a random 4-qubit Stim Clifford
+uv run python scripts/03_num_shots_time_comparison_tuna_9.py                 # Shot timing benchmark (collect + plot)
+uv run python scripts/03_num_shots_time_comparison_tuna_9.py plot            # Plot only from existing data
 ```
 
 ### Unitaries Package
 
-`lib/unitaries/` manages the registry of gates available to the harness:
+`src/cliff_lib/unitaries/` manages the registry of gates available to the harness:
 
 - **`standard.py`** — `STANDARD_UNITARIES`: hand-written gates (hadamard, cnot, toffoli, etc.)
 - **`stim_random_cliffords.py`** — `STIM_UNITARIES`: frozen random Cliffords generated via Stim
-- **`__init__.py`** — merges both dicts into `UNITARIES` (with collision check), so `from lib.unitaries import UNITARIES` always has everything
+- **`__init__.py`** — merges both dicts into `UNITARIES` (with collision check), so `from cliff_lib.unitaries import UNITARIES` always has everything
 
 **Freezing random gates**: `freeze_gate()` in `generators/freeze.py` is a generic utility that takes any `UnitaryGate`, a name prefix, a target `.py` file, and a dict name. It generates a unique name from the gate's matrix hash, checks for duplicates, and appends the function definition + dict registration to the target file. `freeze_stim_clifford(n)` in `generators/stim.py` wraps this for Stim Cliffords. To add a new generator source, create a new generator module and target file following the same pattern.
 
 ### Result Collection
 
-`lib/result_collection.py` provides `collect_results_for_unitary(gate_name, U, backend, shots=1000)` — runs both tester variants (paired_runs, batched) on a single backend and writes results to `algorithm-1/results/`. It skips runs if `raw_results.json` already exists, so re-running is safe and fast. `collect_full_results_for_standard_unitaries.py` is a thin script that iterates over `STANDARD_UNITARIES` and calls this function for each gate/backend combination.
+`cliff_lib/result_collection.py` provides `collect_results_for_unitary(gate_name, U, backend, shots=1000)` — runs both tester variants (paired_runs, batched) on a single backend and writes results to `results/`. It skips runs if `raw_results.json` already exists, so re-running is safe and fast. `collect_full_results_for_standard_unitaries.py` is a thin script that iterates over `STANDARD_UNITARIES` and calls this function for each gate/backend combination.
 
 ### Checkpoint / Resumption
 
@@ -107,14 +109,14 @@ Both testers support checkpoint files via `checkpoint_dir` (passed automatically
 - **`jobs.json`** — tracks per-x job progress (counts collected vs job submitted). Both testers submit one job per Weyl operator and share the same `JobsState` model.
 - **`job_{id}.qpy`** — serialized QI job (via `QIJob.serialize()`), allowing retrieval of results from jobs still running on QI hardware. Named with the batch job ID for easy identification.
 
-On completion, checkpoint files are cleaned up automatically. On AerSimulator, jobs are ephemeral so incomplete x values are simply resubmitted (fast). On QI hardware, the serialized job is reconstructed via `load_job()` in `lib/jobs.py` (a lightweight alternative to `QIJob.deserialize()` that takes a backend directly instead of requiring a provider). If a job retrieval times out (`JobTimeoutError`), the program exits — the job is still running on the backend, and re-running will attempt retrieval again from the checkpoint.
+On completion, checkpoint files are cleaned up automatically. On AerSimulator, jobs are ephemeral so incomplete x values are simply resubmitted (fast). On QI hardware, the serialized job is reconstructed via `load_job()` in `cliff_lib/jobs.py` (a lightweight alternative to `QIJob.deserialize()` that takes a backend directly instead of requiring a provider). If a job retrieval times out (`JobTimeoutError`), the program exits — the job is still running on the backend, and re-running will attempt retrieval again from the checkpoint.
 
 ### Package Setup
 
-`lib/` is installed as a Python package via hatchling (configured in `pyproject.toml`), so `from lib import ...` works everywhere — scripts, tests, and notebooks — without `sys.path` hacks.
+`cliff_lib/` is installed as a Python package via hatchling (configured in `pyproject.toml`), so `from cliff_lib import ...` works everywhere — scripts, tests, and notebooks — without `sys.path` hacks.
 
 ### Backends
-- `lib/backends.py` consolidates backend resolution, transpilation functions, and QI provider logic. All QI imports are lazy (inside `_qi_provider()` and `_get_qi_backend_and_transpilation_function()`), so importing the module doesn't require QI or a connection.
+- `cliff_lib/backends.py` consolidates backend resolution, transpilation functions, and QI provider logic. All QI imports are lazy (inside `_qi_provider()` and `_get_qi_backend_and_transpilation_function()`), so importing the module doesn't require QI or a connection.
 - `resolve_backend(name)` returns `(backend, transpile_fn, timeout)` — `transpile_fn` is **never None**.
 - Run `qi login` before using QI backends.
 

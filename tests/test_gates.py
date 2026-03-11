@@ -1,6 +1,6 @@
 import numpy as np
 
-from lib.clifford_tester.gates import get_weyl_operator, maximally_entangled_state
+from cliff_lib.clifford_tester.gates import get_weyl_operator, maximally_entangled_state
 from tests.utils import QuantumGateMatrixTest
 
 # Pauli matrices
