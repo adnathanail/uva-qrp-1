@@ -173,6 +173,11 @@ def main() -> None:
         _run_backend(args.backend, backend, transpile_fn, theta_values, args.shots, args.repeats, timeout=timeout)
     else:
         depol_values = sorted({float(v) for v in _parse_float_list(args.depolarizing_list)})
+        if not depol_values:
+            parser.error("--depolarizing-list must contain at least one value")
+        if any(v < 0 for v in depol_values):
+            parser.error("--depolarizing-list values must be >= 0")
+
         for depol in depol_values:
             backend = _build_aer_backend(depol)
 
