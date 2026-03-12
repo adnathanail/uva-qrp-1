@@ -87,3 +87,98 @@ def weyl_choi_state(n: int, x: tuple[int, ...]) -> Gate:
     qc.append(P_x, range(n))
 
     return qc.to_gate(label="|P_x⟩⟩")
+
+
+def discrete_derivative_circuit(U_circuit: QuantumCircuit, n: int, a_vec: tuple[int, ...]) -> QuantumCircuit:
+    """
+    Build circuit for the discrete derivative ∂_a⃗ U = w(a⃗) · U · w(a⃗)† · U†.
+
+    Since w(a⃗) is a Weyl/Pauli operator it is self-inverse (up to phase),
+    so w(a⃗)† = w(a⃗) (global phase doesn't matter).
+
+    Args:
+        U_circuit: n-qubit circuit implementing U
+        n: number of qubits
+        a_vec: 2n-bit tuple (a, b) specifying the Weyl operator direction
+
+    Returns:
+        n-qubit QuantumCircuit implementing ∂_a⃗ U
+    """
+    assert len(a_vec) == 2 * n
+
+    a = a_vec[:n]
+    b = a_vec[n:]
+
+    qc = QuantumCircuit(n)
+
+    # U†
+    qc.compose(U_circuit.inverse(), inplace=True)
+
+    # w(a⃗)† = w(a⃗) (Pauli operators are self-inverse up to phase)
+    w = get_weyl_operator(a, b)
+    qc.append(w, range(n))
+
+    # U
+    qc.compose(U_circuit, inplace=True)
+
+    # w(a⃗)
+    qc.append(w, range(n))
+
+    return qc
+
+
+def kth_discrete_derivative_circuit(U_circuit: QuantumCircuit, n: int, a_vectors: list[tuple[int, ...]]) -> QuantumCircuit:
+    """
+    Build circuit for the k-fold discrete derivative ∂_{a⃗_1} ... ∂_{a⃗_k} U.
+
+    Applied recursively: each derivative wraps the previous result.
+
+    Args:
+        U_circuit: n-qubit circuit implementing U
+        n: number of qubits
+        a_vectors: list of 2n-bit direction vectors
+
+    Returns:
+        n-qubit QuantumCircuit implementing the k-fold derivative
+    """
+    result = U_circuit
+    for a_vec in a_vectors:
+        result = discrete_derivative_circuit(result, n, a_vec)
+    return result
+
+
+def convolution_3_gate(m: int) -> Gate:
+    """
+    Build the ⊠_3 convolution gate on 3 copies of m qubits (3m qubits total).
+
+    From Definition 58: per-triple transformation |a,b,c⟩ → |a⊕b⊕c, a⊕b, a⊕c⟩.
+
+    Qubit layout: copy1 [0,m), copy2 [m,2m), copy3 [2m,3m).
+    For each qubit position i, the triple is (copy1[i], copy2[i], copy3[i]).
+
+    Circuit per triple (q1, q2, q3):
+        1. CNOT(q1→q2), CNOT(q1→q3)   — now q2=a⊕b, q3=a⊕c
+        2. CNOT(q2→q1), CNOT(q3→q1)   — now q1=a⊕(a⊕b)⊕(a⊕c)=a⊕b⊕c
+
+    Args:
+        m: number of qubits per copy
+
+    Returns:
+        Gate on 3m qubits implementing V = U^{⊗m}
+    """
+    qc = QuantumCircuit(3 * m)
+
+    for i in range(m):
+        q1 = i  # copy 1
+        q2 = m + i  # copy 2
+        q3 = 2 * m + i  # copy 3
+
+        # Step 1: CNOT(q1→q2), CNOT(q1→q3)
+        qc.cx(q1, q2)
+        qc.cx(q1, q3)
+
+        # Step 2: CNOT(q2→q1), CNOT(q3→q1)
+        qc.cx(q2, q1)
+        qc.cx(q3, q1)
+
+    return qc.to_gate(label="⊠_3")
