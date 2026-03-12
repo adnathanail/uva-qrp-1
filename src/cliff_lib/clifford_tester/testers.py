@@ -22,7 +22,7 @@ from ..state import (
     save_jobs,
     save_plan,
 )
-from .utils import get_clifford_tester_circuit
+from .utils import get_clifford_tester_circuit, get_kth_clifford_tester_circuit
 
 
 def clifford_tester_batched(
@@ -245,3 +245,49 @@ def clifford_tester_paired_runs(
     print("       checkpoint cleaned up")
 
     return raw_results
+
+
+def kth_clifford_tester(
+    U_circuit: QuantumCircuit,
+    n: int,
+    k: int,
+    *,
+    shots: int = 1000,
+    num_a_samples: int = 10,
+    backend: BackendV2,
+    transpilation_function: Callable[[QuantumCircuit], QuantumCircuit],
+) -> float:
+    """
+    k-th level Clifford hierarchy tester.
+
+    Tests whether a unitary U belongs to the k-th level of the Clifford
+    hierarchy by building swap-test circuits with random direction vectors.
+
+    For k=2 (standard Clifford test), no direction vectors are needed so
+    only one circuit is run. For k>2, multiple random a_vector sets are
+    sampled and the acceptance rates are averaged.
+
+    Args:
+        U_circuit: A quantum circuit implementing the n-qubit unitary U
+        n: Number of qubits U acts on
+        k: Hierarchy level to test (k >= 2)
+        shots: Number of backend shots per circuit
+        num_a_samples: Number of random a_vector sets to average over (used when k > 2)
+        backend: Qiskit backend to run on
+        transpilation_function: Function to transpile circuits before execution
+
+    Returns:
+        Average acceptance rate (probability of ancilla measuring 0)
+    """
+    rates = []
+    # k=2 has 0 a_vectors, so only 1 sample needed
+    n_samples = num_a_samples if k > 2 else 1
+    for _ in range(n_samples):
+        a_vectors = [tuple(np.random.randint(0, 2, size=2 * n)) for _ in range(k - 2)]
+        qc = get_kth_clifford_tester_circuit(U_circuit, n, k, a_vectors)
+        qc_transpiled = transpilation_function(qc)
+        result = backend.run(qc_transpiled, shots=shots).result()
+        counts = result.get_counts()
+        pass_count = counts.get("0", 0)
+        rates.append(pass_count / shots)
+    return float(np.mean(rates))
