@@ -1,17 +1,10 @@
-"""Generate bitstring-occurrence graphs for standard unitary raw results.
+"""Generate a focused bitstring-occurrence graph for standard unitary raw results.
 
-Two modes are supported:
+Required arguments:
+    uv run python scripts/01c_graph_standard_unitaries.py \
+        --unitary hadamard --platform qi_tuna_9 --x 0,0 --tester batched
 
-1) Focused mode (recommended for hardware non-determinism demos):
-   uv run python scripts/01c_graph_standard_unitaries.py \
-       --unitary hadamard --platform qi_tuna_9 --x 0,0 --tester batched
-
-   Writes one graph for that exact (unitary, platform, x, tester) slice.
-
-2) Bulk mode:
-   uv run python scripts/01c_graph_standard_unitaries.py
-
-   Scans all available standard-unitary results and writes aggregate graphs.
+This writes one graph for that exact (unitary, platform, x, tester) slice.
 """
 
 from __future__ import annotations
@@ -257,9 +250,9 @@ def focused_plot(unitary: str, platform: str, x_value: list[int], tester: str, c
 
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Graph standard unitary raw results")
-    parser.add_argument("--unitary", help="Unitary name (e.g. hadamard)")
-    parser.add_argument("--platform", help="Platform name (e.g. qi_tuna_9)")
-    parser.add_argument("--x", help="Weyl x as comma list or Python list (e.g. 0,0 or [0, 0])")
+    parser.add_argument("--unitary", required=True, help="Unitary name (e.g. hadamard)")
+    parser.add_argument("--platform", required=True, help="Platform name (e.g. qi_tuna_9)")
+    parser.add_argument("--x", required=True, help="Weyl x as comma list or Python list (e.g. 0,0 or [0, 0])")
     parser.add_argument("--tester", choices=["batched", "paired"], default="batched", help="Tester raw results to use")
     parser.add_argument("--channel", choices=["y1", "y2"], default="y1", help="Paired channel to graph (ignored for batched)")
     parser.add_argument("--shots", help="Shots folder name (e.g. 1000_shots). Defaults to first available.")
@@ -269,41 +262,9 @@ def _build_parser() -> argparse.ArgumentParser:
 def main() -> None:
     args = _build_parser().parse_args()
 
-    focused_args_present = any([args.unitary, args.platform, args.x])
-    if focused_args_present:
-        if not (args.unitary and args.platform and args.x):
-            raise SystemExit("Focused mode requires --unitary, --platform, and --x together.")
-
-        x_value = _parse_x_arg(args.x)
-        out_path = focused_plot(args.unitary, args.platform, x_value, args.tester, args.channel, args.shots)
-        print(f"Created focused graph: {out_path}")
-        return
-
-    total_plots = 0
-    total_platforms = 0
-
-    for unitary_dir in sorted(RESULTS_ROOT.iterdir()):
-        if not unitary_dir.is_dir():
-            continue
-
-        for shots_dir in sorted(unitary_dir.iterdir()):
-            if not shots_dir.is_dir():
-                continue
-
-            for platform_dir in sorted(shots_dir.iterdir()):
-                if not platform_dir.is_dir():
-                    continue
-
-                created = process_platform_dir(unitary_dir.name, shots_dir.name, platform_dir)
-                if created:
-                    total_platforms += 1
-                    total_plots += created
-                    print(f"Created {created} graph(s) in {platform_dir / 'graphs'}")
-
-    if total_plots == 0:
-        print("No raw result files found to graph.")
-    else:
-        print(f"Done. Created {total_plots} graph(s) across {total_platforms} platform folder(s).")
+    x_value = _parse_x_arg(args.x)
+    out_path = focused_plot(args.unitary, args.platform, x_value, args.tester, args.channel, args.shots)
+    print(f"Created focused graph: {out_path}")
 
 
 if __name__ == "__main__":
