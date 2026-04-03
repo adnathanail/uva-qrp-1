@@ -73,21 +73,6 @@ def _load_json(path: Path) -> dict | None:
     return json.loads(path.read_text())
 
 
-def _paired_counts(raw_data: dict) -> tuple[Counter[str], Counter[str]]:
-    y1_counts: Counter[str] = Counter()
-    y2_counts: Counter[str] = Counter()
-
-    for sample in raw_data.get("samples", []):
-        y1 = sample.get("y1")
-        y2 = sample.get("y2")
-        if isinstance(y1, str):
-            y1_counts[y1] += 1
-        if isinstance(y2, str):
-            y2_counts[y2] += 1
-
-    return y1_counts, y2_counts
-
-
 def _paired_counts_for_x(raw_data: dict, x_value: list[int]) -> tuple[Counter[str], Counter[str]]:
     y1_counts: Counter[str] = Counter()
     y2_counts: Counter[str] = Counter()
@@ -105,22 +90,6 @@ def _paired_counts_for_x(raw_data: dict, x_value: list[int]) -> tuple[Counter[st
             y2_counts[y2] += 1
 
     return y1_counts, y2_counts
-
-
-def _batched_counts(raw_data: dict) -> Counter[str]:
-    aggregated: Counter[str] = Counter()
-    counts_by_x = raw_data.get("counts_by_x", {})
-    if not isinstance(counts_by_x, dict):
-        return aggregated
-
-    for per_x in counts_by_x.values():
-        if not isinstance(per_x, dict):
-            continue
-        for bitstring, count in per_x.items():
-            if isinstance(bitstring, str) and isinstance(count, int):
-                aggregated[bitstring] += count
-
-    return aggregated
 
 
 def _batched_counts_for_x(raw_data: dict, x_value: list[int]) -> Counter[str]:
@@ -148,43 +117,6 @@ def _batched_counts_for_x(raw_data: dict, x_value: list[int]) -> Counter[str]:
     return Counter()
 
 
-def process_platform_dir(unitary: str, shots: str, platform_dir: Path) -> int:
-    plots_created = 0
-    graphs_dir = platform_dir / "graphs"
-    graphs_dir.mkdir(parents=True, exist_ok=True)
-
-    paired_raw = _load_json(platform_dir / "paired" / "raw_results.json")
-    if isinstance(paired_raw, dict):
-        y1_counts, y2_counts = _paired_counts(paired_raw)
-        if y1_counts:
-            _plot_counts(
-                y1_counts,
-                graphs_dir / "paired_y1_counts.png",
-                f"{unitary} | {platform_dir.name} | paired y1 ({shots})",
-            )
-            plots_created += 1
-        if y2_counts:
-            _plot_counts(
-                y2_counts,
-                graphs_dir / "paired_y2_counts.png",
-                f"{unitary} | {platform_dir.name} | paired y2 ({shots})",
-            )
-            plots_created += 1
-
-    batched_raw = _load_json(platform_dir / "batched" / "raw_results.json")
-    if isinstance(batched_raw, dict):
-        counts = _batched_counts(batched_raw)
-        if counts:
-            _plot_counts(
-                counts,
-                graphs_dir / "batched_counts.png",
-                f"{unitary} | {platform_dir.name} | batched ({shots})",
-            )
-            plots_created += 1
-
-    return plots_created
-
-
 def _select_shots_dir(unitary: str, shots: str | None) -> Path:
     unitary_dir = RESULTS_ROOT / unitary
     if not unitary_dir.is_dir():
@@ -208,10 +140,12 @@ def focused_plot(unitary: str, platform: str, x_value: list[int], tester: str, c
     if not platform_dir.is_dir():
         raise FileNotFoundError(f"Platform folder not found: {platform_dir}")
 
-    graphs_dir = platform_dir / "graphs"
-    graphs_dir.mkdir(parents=True, exist_ok=True)
+    unitary_dir = RESULTS_ROOT / unitary
+    unitary_dir.mkdir(parents=True, exist_ok=True)
 
     x_label = "[" + ", ".join(str(v) for v in x_value) + "]"
+    x_slug = "_".join(str(v) for v in x_value)
+    base_name = f"{unitary}__{platform}__{shots_dir.name}"
 
     if tester == "batched":
         raw = _load_json(platform_dir / "batched" / "raw_results.json")
@@ -222,7 +156,7 @@ def focused_plot(unitary: str, platform: str, x_value: list[int], tester: str, c
         if not counts:
             raise ValueError(f"No batched results found for x={x_label}")
 
-        out_path = graphs_dir / f"batched_x_{'_'.join(str(v) for v in x_value)}_counts.png"
+        out_path = unitary_dir / f"{base_name}__batched__x_{x_slug}_counts.png"
         _plot_counts(
             counts,
             out_path,
@@ -239,7 +173,7 @@ def focused_plot(unitary: str, platform: str, x_value: list[int], tester: str, c
     if not counts:
         raise ValueError(f"No paired {channel} results found for x={x_label}")
 
-    out_path = graphs_dir / f"paired_{channel}_x_{'_'.join(str(v) for v in x_value)}_counts.png"
+    out_path = unitary_dir / f"{base_name}__paired_{channel}__x_{x_slug}_counts.png"
     _plot_counts(
         counts,
         out_path,
