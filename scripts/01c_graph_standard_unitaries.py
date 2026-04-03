@@ -21,10 +21,19 @@ RESULTS_ROOT = Path(__file__).resolve().parent.parent / "results" / "clifford_te
 
 
 def _sort_bitstrings(values: list[str]) -> list[str]:
-    return sorted(values, key=lambda s: (len(s), int(s, 2) if s else -1))
+    def sort_key(value: str) -> tuple[int, int | str]:
+        if not value:
+            return (0, -1)
+        if set(value) <= {"0", "1"}:
+            return (len(value), int(value, 2))
+        if value.isdigit():
+            return (len(value), int(value))
+        return (len(value), value)
+
+    return sorted(values, key=sort_key)
 
 
-def _plot_counts(counts: Counter[str], out_path: Path, title: str) -> None:
+def _plot_counts(counts: Counter[str], out_path: Path, title: str, x_label: str = "Bit string") -> None:
     if not counts:
         return
 
@@ -35,7 +44,7 @@ def _plot_counts(counts: Counter[str], out_path: Path, title: str) -> None:
     fig, ax = plt.subplots(figsize=(fig_width, 4.6))
     ax.bar(labels, values, color="#2f5d8a")
     ax.set_title(title)
-    ax.set_xlabel("Bit string")
+    ax.set_xlabel(x_label)
     ax.set_ylabel("Occurrences")
 
     # Keep bit strings on the bottom and occurrence axis on the right.
@@ -48,6 +57,26 @@ def _plot_counts(counts: Counter[str], out_path: Path, title: str) -> None:
     fig.tight_layout()
     fig.savefig(out_path, dpi=180)
     plt.close(fig)
+
+
+def _hamming_distance(left: str, right: str) -> int:
+    if len(left) != len(right):
+        raise ValueError("Cannot compute Hamming distance for strings of different lengths")
+    return sum(left_char != right_char for left_char, right_char in zip(left, right, strict=False))
+
+
+def _group_counts_by_hamming(counts: Counter[str]) -> tuple[Counter[str], str]:
+    if not counts:
+        return Counter(), ""
+
+    correct_string, _ = max(counts.items(), key=lambda item: (item[1], item[0]))
+    grouped: Counter[str] = Counter()
+
+    for bitstring, tally in counts.items():
+        distance = _hamming_distance(bitstring, correct_string)
+        grouped[str(distance)] += tally
+
+    return grouped, correct_string
 
 
 def _parse_x_arg(x_arg: str) -> list[int]:
@@ -134,7 +163,15 @@ def _select_shots_dir(unitary: str, shots: str | None) -> Path:
     return shot_dirs[0]
 
 
-def focused_plot(unitary: str, platform: str, x_value: list[int], tester: str, channel: str, shots: str | None) -> Path:
+def focused_plot(
+    unitary: str,
+    platform: str,
+    x_value: list[int],
+    tester: str,
+    channel: str,
+    shots: str | None,
+    group_by_hamming: bool,
+) -> Path:
     shots_dir = _select_shots_dir(unitary, shots)
     platform_dir = shots_dir / platform
     if not platform_dir.is_dir():
@@ -156,11 +193,17 @@ def focused_plot(unitary: str, platform: str, x_value: list[int], tester: str, c
         if not counts:
             raise ValueError(f"No batched results found for x={x_label}")
 
-        out_path = unitary_dir / f"{base_name}__batched__x_{x_slug}_counts.png"
+        plot_counts = counts
+        if group_by_hamming:
+            plot_counts, _ = _group_counts_by_hamming(counts)
+
+        suffix = "grouped_hamming" if group_by_hamming else "counts"
+        out_path = unitary_dir / f"{base_name}__batched__x_{x_slug}__{suffix}.png"
         _plot_counts(
-            counts,
+            plot_counts,
             out_path,
-            f"{unitary} | {platform} | batched | x={x_label} ({shots_dir.name})",
+            f"{unitary} | {platform} | x={x_label} ({shots_dir.name})",
+            x_label="Hamming distance to most common bit string" if group_by_hamming else "Bit string",
         )
         return out_path
 
@@ -173,11 +216,17 @@ def focused_plot(unitary: str, platform: str, x_value: list[int], tester: str, c
     if not counts:
         raise ValueError(f"No paired {channel} results found for x={x_label}")
 
-    out_path = unitary_dir / f"{base_name}__paired_{channel}__x_{x_slug}_counts.png"
+    plot_counts = counts
+    if group_by_hamming:
+        plot_counts, _ = _group_counts_by_hamming(counts)
+
+    suffix = "grouped_hamming" if group_by_hamming else "counts"
+    out_path = unitary_dir / f"{base_name}__paired_{channel}__x_{x_slug}__{suffix}.png"
     _plot_counts(
-        counts,
+        plot_counts,
         out_path,
-        f"{unitary} | {platform} | paired {channel} | x={x_label} ({shots_dir.name})",
+        f"{unitary} | {platform} | x={x_label} ({shots_dir.name})",
+        x_label="Hamming distance" if group_by_hamming else "Bit string",
     )
     return out_path
 
@@ -190,6 +239,11 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--tester", choices=["batched", "paired"], default="batched", help="Tester raw results to use")
     parser.add_argument("--channel", choices=["y1", "y2"], default="y1", help="Paired channel to graph (ignored for batched)")
     parser.add_argument("--shots", help="Shots folder name (e.g. 1000_shots). Defaults to first available.")
+    parser.add_argument(
+        "--group-hamming",
+        action="store_true",
+        help="Group outcomes by Hamming distance from the most frequent bitstring instead of plotting individual bitstrings.",
+    )
     return parser
 
 
@@ -197,7 +251,7 @@ def main() -> None:
     args = _build_parser().parse_args()
 
     x_value = _parse_x_arg(args.x)
-    out_path = focused_plot(args.unitary, args.platform, x_value, args.tester, args.channel, args.shots)
+    out_path = focused_plot(args.unitary, args.platform, x_value, args.tester, args.channel, args.shots, args.group_hamming)
     print(f"Created focused graph: {out_path}")
 
 
