@@ -1,6 +1,6 @@
-"""Compare qi_tuna_9 paired vs batched results.
+"""Compare paired vs batched results for aer_simulator and qi_tuna_9.
 
-Scans all results and compares qi_tuna_9 paired and batched outcomes,
+Scans all results and compares paired and batched outcomes for each platform,
 grouped into Cliffords (expected p_acc ≈ 1) and non-Cliffords.
 """
 
@@ -17,8 +17,8 @@ def load_json(path: Path) -> dict | None:
     return json.loads(path.read_text())
 
 
-def collect_entries() -> list[dict]:
-    """Scan results directory and collect all gates with qi_tuna_9 results."""
+def collect_entries(platform: str) -> list[dict]:
+    """Scan results directory and collect all gates with results for the given platform."""
     entries: list[dict] = []
 
     for source_dir in RESULTS_DIR.iterdir():
@@ -35,12 +35,12 @@ def collect_entries() -> list[dict]:
                 if exp_data is None:
                     continue
 
-                qi_dir = shots_dir / "qi_tuna_9"
-                if not qi_dir.is_dir():
+                platform_dir = shots_dir / platform
+                if not platform_dir.is_dir():
                     continue
 
-                paired_summary = load_json(qi_dir / "paired" / "summary.json")
-                batched_summary = load_json(qi_dir / "batched" / "summary.json")
+                paired_summary = load_json(platform_dir / "paired" / "summary.json")
+                batched_summary = load_json(platform_dir / "batched" / "summary.json")
 
                 entries.append(
                     {
@@ -62,19 +62,19 @@ def print_table(entries: list[dict]) -> None:
     print("-" * len(header))
 
     for entry in entries:
-        paired_str = f"{entry['paired']:.4f}" if entry["paired"] is not None else "N/A"
-        batched_str = f"{entry['batched']:.4f}" if entry["batched"] is not None else "N/A"
+        paired_str = f"{entry['paired']:.2f}" if entry["paired"] is not None else "N/A"
+        batched_str = f"{entry['batched']:.2f}" if entry["batched"] is not None else "N/A"
 
         if entry["paired"] is not None and entry["batched"] is not None:
             diff = entry["batched"] - entry["paired"]
-            diff_str = f"{diff:+.4f}"
+            diff_str = f"{diff:+.2f}"
             pct = (diff / entry["paired"]) * 100 if entry["paired"] != 0 else float("inf")
-            pct_str = f"{pct:+.1f}%"
+            pct_str = f"{pct:+.2f}%"
         else:
             diff_str = "N/A"
             pct_str = "N/A"
 
-        print(f"{entry['gate']:<30} {entry['source']:<10} {entry['p_expected']:>10.4f} {paired_str:>10} {batched_str:>10} {diff_str:>10} {pct_str:>8}")
+        print(f"{entry['gate']:<30} {entry['source']:<10} {entry['p_expected']:>10.2f} {paired_str:>10} {batched_str:>10} {diff_str:>10} {pct_str:>8}")
 
 
 def print_summary(entries: list[dict]) -> None:
@@ -84,35 +84,40 @@ def print_summary(entries: list[dict]) -> None:
     avg_paired = sum(e["paired"] for e in both) / len(both)
     avg_batched = sum(e["batched"] for e in both) / len(both)
     print(f"\n  {len(both)} gates with both results:")
-    print(f"  Average paired acceptance rate:  {avg_paired:.4f}")
-    print(f"  Average batched acceptance rate: {avg_batched:.4f}")
-    print(f"  Average difference (B-P):        {avg_batched - avg_paired:+.4f}")
+    print(f"  Average paired acceptance rate:  {avg_paired:.2f}")
+    print(f"  Average batched acceptance rate: {avg_batched:.2f}")
+    print(f"  Average difference (B-P):        {avg_batched - avg_paired:+.2f}")
 
 
-def main() -> None:
-    entries = collect_entries()
+def print_platform_section(platform_label: str, entries: list[dict]) -> None:
+    print(f"############ {platform_label} ############\n")
+
     if not entries:
-        print("No gates with qi_tuna_9 results found.")
+        print(f"No gates with {platform_label} results found.\n")
         return
 
     cliffords = [e for e in entries if e["p_expected"] >= CLIFFORD_THRESHOLD]
     non_cliffords = [e for e in entries if e["p_expected"] < CLIFFORD_THRESHOLD]
 
     print("=== Cliffords ===\n")
-    # print("=== Cliffords (p_expected ≈ 1) ===\n")
     if cliffords:
         print_table(cliffords)
-        # print_summary(cliffords)
     else:
         print("  (none)")
 
     print("\n\n=== Non-Cliffords ===\n")
-    # print("\n\n=== Non-Cliffords (p_expected < 1) ===\n")
     if non_cliffords:
         print_table(non_cliffords)
-        # print_summary(non_cliffords)
     else:
         print("  (none)")
+
+    print()
+
+
+def main() -> None:
+    print_platform_section("Aer simulator", collect_entries("aer_simulator"))
+    print()
+    print_platform_section("QI Tuna-9", collect_entries("qi_tuna_9"))
 
 
 if __name__ == "__main__":
