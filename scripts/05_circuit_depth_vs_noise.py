@@ -172,14 +172,6 @@ def plot() -> None:
     fig, ax = plt.subplots(figsize=(8, 5))
     ax.scatter(depths, rates, alpha=0.6, edgecolors="black", linewidths=0.5)
 
-    # Trend line
-    if len(depths) >= 2:
-        z = np.polyfit(depths, rates, 1)
-        p = np.poly1d(z)
-        x_line = np.linspace(min(depths), max(depths), 100)
-        ax.plot(x_line, p(x_line), "--", color="red", alpha=0.7, label=f"Linear fit (slope={z[0]:.4f})")
-        ax.legend()
-
     ax.set_xlabel("Transpiled circuit depth")
     ax.set_ylabel("Acceptance rate")
     ax.set_title("Circuit depth vs acceptance rate (2-qubit Cliffords, Tuna-9)")
