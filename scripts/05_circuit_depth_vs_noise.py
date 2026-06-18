@@ -3,7 +3,9 @@
 """Circuit depth vs acceptance rate for random 2-qubit Cliffords on Tuna-9.
 
 Generates 50 random 2-qubit Cliffords, runs the batched tester on each via
-Tuna-9, and plots transpiled circuit depth against acceptance rate.
+Tuna-9, and plots transpiled circuit depth against acceptance rate. Depths
+are measured after transpiling to Tuna-9's native basis (rx, ry, rz, cz)
+with optimization_level=3.
 """
 
 from __future__ import annotations
@@ -14,14 +16,22 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
-from qiskit import QuantumCircuit
-from qiskit.circuit.library import UnitaryGate
 
-from cliff_lib.backends import resolve_backend
-from cliff_lib.clifford_tester.testers import clifford_tester_batched
-from cliff_lib.state.outputs import BatchedRawResults
-from cliff_lib.state.utils import atomic_write
-from cliff_lib.unitaries.generators.stim import stim_random_clifford_gate
+# Workaround: the installed compute_api_client BackendStatus enum is missing
+# 'benchmarking', which the QI server currently returns for Tuna-9 — alias it
+# to IDLE so QIProvider() construction inside resolve_backend doesn't fail.
+from compute_api_client.models import backend_status as _bs
+
+_bs.BackendStatus._value2member_map_.setdefault("benchmarking", _bs.BackendStatus.IDLE)
+
+from qiskit import QuantumCircuit, transpile  # noqa: E402
+from qiskit.circuit.library import UnitaryGate  # noqa: E402
+
+from cliff_lib.backends import resolve_backend  # noqa: E402
+from cliff_lib.clifford_tester.testers import clifford_tester_batched  # noqa: E402
+from cliff_lib.state.outputs import BatchedRawResults  # noqa: E402
+from cliff_lib.state.utils import atomic_write  # noqa: E402
+from cliff_lib.unitaries.generators.stim import stim_random_clifford_gate  # noqa: E402
 
 # -- Configuration -----------------------------------------------------------
 
@@ -32,6 +42,21 @@ SHOTS = 1000
 RESULTS_DIR = Path("results/depth_vs_acceptance")
 STATE_FILE = RESULTS_DIR / "state.json"
 PLOT_FILE = RESULTS_DIR / "depth_vs_acceptance.png"
+
+# Tuna-9 native basis + qubit priorities (kept in sync with cliff_lib.backends).
+_TUNA_BASIS_GATES = ["rx", "ry", "rz", "cz"]
+_TUNA_QUBIT_PRIORITIES = [4, 1, 2, 6, 7, 0, 3, 5, 8]
+
+
+def _transpile_for_depth(qc: QuantumCircuit, backend: object) -> QuantumCircuit:
+    """Transpile to Tuna-9's native basis at optimization_level=3 for depth metrics."""
+    return transpile(
+        qc,
+        backend=backend,
+        basis_gates=_TUNA_BASIS_GATES,
+        initial_layout=_TUNA_QUBIT_PRIORITIES[: qc.num_qubits],
+        optimization_level=3,
+    )
 
 
 # -- State helpers -----------------------------------------------------------
@@ -77,7 +102,7 @@ def collect() -> None:
 
             qc = QuantumCircuit(N_QUBITS)
             qc.append(gate, list(range(N_QUBITS)))
-            transpiled = transpile_fn(qc)
+            transpiled = _transpile_for_depth(qc, backend)
 
             _state[str(i)] = {
                 "matrix": matrix,
