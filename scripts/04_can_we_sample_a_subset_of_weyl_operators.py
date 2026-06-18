@@ -274,7 +274,7 @@ def plot_single_case(case: dict, out_path: Path | None = None) -> Path:
     Renders a single larger axes (not a subplot grid) with clear labels,
     a shaded ±1σ band, and reference lines for the full-sample mean and
     theoretical acceptance probability.
-    """
+    """  # noqa: RUF002
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
     if out_path is None:
         slug = f"{case['source']}_{case['gate']}_{case['backend']}_{case['shots']}"
@@ -297,8 +297,7 @@ def plot_single_case(case: dict, out_path: Path | None = None) -> Path:
     ax.set_xlabel("Fraction of Weyl operators sampled", fontsize=12)
     ax.set_ylabel("Estimated acceptance rate", fontsize=12)
     ax.set_title(
-        f"Convergence of acceptance-rate estimate — {case['label']}\n"
-        f"({case['n_weyl_ops']} total Weyl ops, {case['shots']} shots)",
+        f"Convergence of acceptance-rate estimate — {case['label']}\n({case['n_weyl_ops']} total Weyl ops, {case['shots']} shots)",
         fontsize=13,
     )
     ax.legend(fontsize=10, loc="best", framealpha=0.9)
