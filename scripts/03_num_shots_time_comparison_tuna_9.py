@@ -27,7 +27,7 @@ from cliff_lib.state.utils import atomic_write
 # ── Configuration ────────────────────────────────────────────────────────────
 
 N_QUBITS_LIST = [1, 2, 4]
-SHOTS_LIST = [1, 10, 100, 1000]
+SHOTS_LIST = [1, 10, 100, 1000, 8192]
 N_REPS = 10
 
 RESULTS_DIR = Path("results/shot_timing")
