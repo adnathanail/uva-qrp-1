@@ -268,6 +268,50 @@ def plot_relative_error(all_results: list[dict]) -> None:
     plt.close(fig)
 
 
+def plot_single_case(case: dict, out_path: Path | None = None) -> Path:
+    """Standalone, presentation-quality convergence plot for one case.
+
+    Renders a single larger axes (not a subplot grid) with clear labels,
+    a shaded ±1σ band, and reference lines for the full-sample mean and
+    theoretical acceptance probability.
+    """
+    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+    if out_path is None:
+        slug = f"{case['source']}_{case['gate']}_{case['backend']}_{case['shots']}"
+        out_path = RESULTS_DIR / f"convergence_{slug}.png"
+
+    trials = case["subsampling"]
+    n_ops = case["n_weyl_ops"]
+    fractions = np.array([t["subset_size"] / n_ops for t in trials])
+    means = np.array([t["trial_mean"] for t in trials])
+    stds = np.array([t["trial_std"] for t in trials])
+
+    fig, ax = plt.subplots(figsize=(9, 6))
+
+    ax.fill_between(fractions, means - stds, means + stds, alpha=0.25, color="C0", label="±1 std across trials")
+    ax.plot(fractions, means, "o-", color="C0", markersize=5, linewidth=1.5, label="Subsample mean")
+    ax.axhline(case["full_rate"], color="C1", linestyle="--", linewidth=1.5, label=f"Full-sample mean ({case['full_rate']:.4f})")
+    ax.axhline(case["p_expected"], color="C2", linestyle=":", linewidth=1.5, label=f"Theoretical $p_\\mathrm{{acc}}$ ({case['p_expected']:.4f})")
+
+    ax.set_xlim(0, 1.0)
+    ax.set_xlabel("Fraction of Weyl operators sampled", fontsize=12)
+    ax.set_ylabel("Estimated acceptance rate", fontsize=12)
+    ax.set_title(
+        f"Convergence of acceptance-rate estimate — {case['label']}\n"
+        f"({case['n_weyl_ops']} total Weyl ops, {case['shots']} shots)",
+        fontsize=13,
+    )
+    ax.legend(fontsize=10, loc="best", framealpha=0.9)
+    ax.grid(True, which="both", alpha=0.3)
+    ax.tick_params(axis="both", which="major", labelsize=10)
+
+    fig.tight_layout()
+    fig.savefig(out_path, dpi=150, bbox_inches="tight")
+    print(f"Plot saved to {out_path}")
+    plt.close(fig)
+    return out_path
+
+
 # ── Main ─────────────────────────────────────────────────────────────────────
 
 
