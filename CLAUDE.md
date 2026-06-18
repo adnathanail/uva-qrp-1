@@ -62,9 +62,12 @@ uva-qrp-1/
 - Use `reps=3` for nested gates (e.g., `weyl_choi_state` contains `maximally_entangled_state` contains Bell pairs)
 
 ### Simulator Memory Limits
-- The Clifford tester uses 4n qubits for an n-qubit gate under test
-- Statevector simulation memory: 2^(4n) × 16 bytes
-- Practical limits on 32GB machine: ~7 qubits (28 total, ~4GB)
+- The standard Clifford tester (`paired_runs` / `batched`) uses **2n qubits** for an n-qubit gate (the Choi state lives on 2n qubits; U is applied to each half — there are not two separate copies of the system).
+- The `kth_clifford_tester` (for k ≥ 3) uses **12n+1 qubits** (six Choi-state copies plus a swap-test ancilla).
+- Statevector memory is 16 × 2^(circuit_qubits) bytes.
+- Practical ceilings (run `scripts/09_max_simulator_qubits.py` to verify on your machine):
+  - Standard tester: n≈14 on 64 GB (28 qubits ≈ 4 GB statevector; n=15 needs 16 GB and is borderline)
+  - k-th tester (k≥3): n=2 only on most laptops (25 qubits ≈ 512 MB; n=3 needs 2 TB)
 
 ### Tester Approaches
 
