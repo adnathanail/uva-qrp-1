@@ -19,5 +19,5 @@ def draw_circuit(num_reps: int):
     fig.savefig(f"../results/clifford_tester_circuit_{num_reps}.png", dpi=150, bbox_inches="tight")
 
 
-for i in range(3):
+for i in range(4):
     draw_circuit(i)
