@@ -86,7 +86,7 @@ def weyl_choi_state(n: int, x: tuple[int, ...]) -> Gate:
     P_x = get_weyl_operator(a, b)
     qc.append(P_x, range(n))
 
-    return qc.to_gate(label=f"|P_{"".join(str(item) for item in x)}⟩⟩")
+    return qc.to_gate(label=f"|P_{''.join(str(item) for item in x)}⟩⟩")
 
 
 def discrete_derivative_circuit(U_circuit: QuantumCircuit, n: int, a_vec: tuple[int, ...]) -> QuantumCircuit:
